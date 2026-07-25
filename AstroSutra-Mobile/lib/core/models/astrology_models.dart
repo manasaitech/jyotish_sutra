@@ -78,13 +78,25 @@ class PlanetData {
   });
 
   factory PlanetData.fromJson(String key, Map<String, dynamic> json) {
+    final nakshatraVal = json['nakshatra'];
+    final String nakshatraName = (nakshatraVal is Map)
+        ? (nakshatraVal['name']?.toString() ?? '')
+        : (nakshatraVal?.toString() ?? '');
+
+    int padaVal = 1;
+    if (json['pada'] is num) {
+      padaVal = (json['pada'] as num).toInt();
+    } else if (nakshatraVal is Map && nakshatraVal['pada'] is num) {
+      padaVal = (nakshatraVal['pada'] as num).toInt();
+    }
+
     return PlanetData(
       name: key,
       sign: json['sign'] ?? '',
       degree: (json['degree'] as num?)?.toDouble() ?? 0.0,
       house: json['house'] ?? 1,
-      nakshatra: json['nakshatra'] ?? '',
-      pada: json['pada'] ?? 1,
+      nakshatra: nakshatraName,
+      pada: padaVal,
       isRetrograde: json['is_retrograde'] ?? false,
     );
   }
