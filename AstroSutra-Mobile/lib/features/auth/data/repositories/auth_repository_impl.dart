@@ -6,10 +6,24 @@ import '../../../../core/network/api_service.dart';
 
 class AuthRepositoryImpl implements AuthRepository {
   final ApiService _apiService;
-  final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
-  final GoogleSignIn _googleSignIn = GoogleSignIn();
 
   AuthRepositoryImpl(this._apiService);
+
+  FirebaseAuth? get _firebaseAuth {
+    try {
+      return FirebaseAuth.instance;
+    } catch (_) {
+      return null;
+    }
+  }
+
+  GoogleSignIn? get _googleSignIn {
+    try {
+      return GoogleSignIn();
+    } catch (_) {
+      return null;
+    }
+  }
 
   @override
   Future<Map<String, dynamic>> verifyToken(String firebaseIdToken) async {
@@ -35,7 +49,14 @@ class AuthRepositoryImpl implements AuthRepository {
   @override
   Future<void> signInWithGoogle() async {
     try {
-      final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
+      final googleSignInInstance = _googleSignIn;
+      final firebaseAuthInstance = _firebaseAuth;
+      
+      if (googleSignInInstance == null || firebaseAuthInstance == null) {
+        throw Exception('Firebase is not initialized');
+      }
+
+      final GoogleSignInAccount? googleUser = await googleSignInInstance.signIn();
       if (googleUser == null) {
         throw Exception('Google Sign-In was cancelled by user');
       }
@@ -46,7 +67,7 @@ class AuthRepositoryImpl implements AuthRepository {
         idToken: googleAuth.idToken,
       );
 
-      final UserCredential userCredential = await _firebaseAuth.signInWithCredential(credential);
+      final UserCredential userCredential = await firebaseAuthInstance.signInWithCredential(credential);
       final String? idToken = await userCredential.user?.getIdToken();
 
       if (idToken == null || idToken.isEmpty) {
@@ -67,8 +88,8 @@ class AuthRepositoryImpl implements AuthRepository {
   @override
   Future<void> logout() async {
     try {
-      await _firebaseAuth.signOut();
-      await _googleSignIn.signOut();
+      await _firebaseAuth?.signOut();
+      await _googleSignIn?.signOut();
     } catch (_) {}
     
     final prefs = await SharedPreferences.getInstance();

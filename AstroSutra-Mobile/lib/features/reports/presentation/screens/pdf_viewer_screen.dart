@@ -27,7 +27,7 @@ class PdfViewerScreen extends StatelessWidget {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Icon(Icons.description, size: 80, color: AstroColors.primary.withOpacity(0.4)),
+                      Icon(Icons.description, size: 80, color: AstroColors.primary.withValues(alpha: 0.4)),
                       const SizedBox(height: 16),
                       const Text(
                         'AstroSutra Janma Kundli Report',

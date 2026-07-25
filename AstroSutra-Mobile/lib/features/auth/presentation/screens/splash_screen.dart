@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../providers/auth_provider.dart';
 import '../../../../theme/colors.dart';
+import '../../../../shared/widgets/gochara_orbits.dart';
 
 class SplashScreen extends ConsumerStatefulWidget {
   const SplashScreen({super.key});
@@ -19,7 +20,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
   }
 
   void _checkRedirect() async {
-    await Future.delayed(const Duration(seconds: 2));
+    await Future.delayed(const Duration(seconds: 4)); // Increased slightly to enjoy the gorgeous Gochara orbit animation!
     if (!mounted) return;
     
     final authState = ref.read(authProvider);
@@ -38,12 +39,8 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(
-              Icons.stars,
-              size: 80,
-              color: AstroColors.primary,
-            ),
-            SizedBox(height: 16),
+            GocharaOrbits(size: 220),
+            SizedBox(height: 24),
             Text(
               'ASTROSUTRA AI',
               style: TextStyle(

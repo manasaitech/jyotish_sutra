@@ -29,7 +29,7 @@ class PremiumButton extends StatelessWidget {
         ),
         boxShadow: [
           BoxShadow(
-            color: AstroColors.primary.withOpacity(0.3),
+            color: AstroColors.primary.withValues(alpha: 0.3),
             blurRadius: 16,
             offset: const Offset(0, 6),
           ),
