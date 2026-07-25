@@ -61,13 +61,13 @@ class ChatNotifier extends StateNotifier<ChatState> {
 
     try {
       final prefs = await SharedPreferences.getInstance();
-      final userId = prefs.getString('user_id') ?? 'guest_user';
+      final activeProfileId = prefs.getString('active_profile_id') ?? prefs.getString('user_id') ?? 'guest_user';
       final sessionId = prefs.getString('session_id') ?? 'session_${DateTime.now().millisecondsSinceEpoch}';
 
       final response = await _repository.sendChatMessage(
         tab: tab,
         message: text,
-        userId: userId,
+        userId: activeProfileId,
         sessionId: sessionId,
       );
 

@@ -38,12 +38,12 @@ class ProfileNotifier extends StateNotifier<ProfileState> {
     state = state.copyWith(isLoading: true, errorMessage: null);
     try {
       final prefs = await SharedPreferences.getInstance();
-      final userId = prefs.getString('user_id');
-      if (userId == null || userId.isEmpty) {
-        throw Exception('User is not authenticated. User ID missing.');
+      final activeProfileId = prefs.getString('active_profile_id') ?? prefs.getString('user_id');
+      if (activeProfileId == null || activeProfileId.isEmpty) {
+        throw Exception('User is not authenticated. Active profile ID missing.');
       }
       
-      final profile = await _repository.loadProfile(userId);
+      final profile = await _repository.loadProfile(activeProfileId);
       state = state.copyWith(isLoading: false, activeProfile: profile);
     } catch (e) {
       state = state.copyWith(isLoading: false, errorMessage: e.toString());
@@ -54,12 +54,12 @@ class ProfileNotifier extends StateNotifier<ProfileState> {
     state = state.copyWith(isLoading: true, errorMessage: null);
     try {
       final prefs = await SharedPreferences.getInstance();
-      final userId = prefs.getString('user_id');
-      if (userId == null || userId.isEmpty) {
-        throw Exception('User is not authenticated. User ID missing.');
+      final activeProfileId = prefs.getString('active_profile_id') ?? prefs.getString('user_id');
+      if (activeProfileId == null || activeProfileId.isEmpty) {
+        throw Exception('User is not authenticated. Active profile ID missing.');
       }
       
-      await _repository.updateProfile(userId, details);
+      await _repository.updateProfile(activeProfileId, details);
       // Reload profile to refresh the natal chart with updated birth details
       await fetchProfile();
     } catch (e) {

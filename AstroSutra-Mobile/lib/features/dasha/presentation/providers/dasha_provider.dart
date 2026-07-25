@@ -38,12 +38,12 @@ class DashaNotifier extends StateNotifier<DashaState> {
     try {
       final lookupYear = year ?? DateTime.now().year;
       final prefs = await SharedPreferences.getInstance();
-      final userId = prefs.getString('user_id') ?? 'guest_user';
+      final activeProfileId = prefs.getString('active_profile_id') ?? prefs.getString('user_id') ?? 'guest_user';
       final sessionId = prefs.getString('session_id') ?? 'session_${DateTime.now().millisecondsSinceEpoch}';
 
       final data = await _repository.fetchDashaTimeline(
         lookupYear: lookupYear,
-        userId: userId,
+        userId: activeProfileId,
         sessionId: sessionId,
       );
 
