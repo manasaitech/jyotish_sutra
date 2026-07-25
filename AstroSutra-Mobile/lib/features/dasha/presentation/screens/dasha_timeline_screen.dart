@@ -85,6 +85,25 @@ class _DashaTimelineScreenState extends ConsumerState<DashaTimelineScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              if (dashaState.errorMessage != null) ...[
+                PremiumCard(
+                  color: AstroColors.error.withOpacity(0.1),
+                  borderWidth: 1,
+                  child: Row(
+                    children: [
+                      const Icon(Icons.error_outline, color: AstroColors.error),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Text(
+                          'Error loading dasha: ${dashaState.errorMessage}',
+                          style: const TextStyle(color: AstroColors.error, fontSize: 13),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 16),
+              ],
               // 1. Search Active Dasha by Year
               PremiumCard(
                 child: Column(

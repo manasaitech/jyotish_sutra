@@ -48,7 +48,10 @@ class DashaNotifier extends StateNotifier<DashaState> {
       );
 
       state = state.copyWith(isLoading: false, timelineData: data);
-    } catch (e) {
+    } catch (e, stack) {
+      print('=== GET DASHA TIMELINE ERROR ===');
+      print(e);
+      print(stack);
       state = state.copyWith(isLoading: false, errorMessage: e.toString());
     }
   }
