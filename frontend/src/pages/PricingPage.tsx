@@ -73,6 +73,46 @@ export default function PricingPage({ onNavigateBack }: PricingPageProps) {
 
       const orderData = await res.json()
       
+      if (orderData.is_mock) {
+        const proceed = window.confirm(
+          "⚠️ Razorpay Sandbox Active:\n\n" +
+          "Your backend does not have Razorpay keys configured. Would you like to proceed with mock checkout simulation to instantly activate the subscription?"
+        )
+        if (proceed) {
+          try {
+            const verifyRes = await authenticatedFetch(`${backendUrl}/api/billing/verify-payment`, {
+              method: 'POST',
+              body: JSON.stringify({
+                razorpay_payment_id: `pay_mock_${Date.now()}`,
+                razorpay_order_id: orderData.order_id,
+                razorpay_signature: "mock_sig_valid",
+              }),
+            })
+
+            if (!verifyRes.ok) {
+              const errVerify = await verifyRes.json().catch(() => ({}))
+              throw new Error(errVerify.detail || 'Mock checkout activation failed')
+            }
+
+            const verifyData = await verifyRes.json()
+            if (verifyData.success) {
+              setCurrentTier(verifyData.tier)
+              setActiveTier(verifyData.tier)
+              setSuccessTier(verifyData.tier)
+              alert(`🎉 Success! Simulated subscription activated for: ${verifyData.tier.toUpperCase()}`)
+            }
+          } catch (verifyErr: any) {
+            console.error("Verification error:", verifyErr)
+            alert(`Mock checkout failed: ${verifyErr.message}`)
+          } finally {
+            setLoadingTier(null)
+          }
+        } else {
+          setLoadingTier(null)
+        }
+        return;
+      }
+      
       const options = {
         key: orderData.key_id,
         amount: orderData.amount,
