@@ -34,11 +34,6 @@ class MainScaffold extends StatelessWidget {
   }
 
   @override
-  Widget childBuild(BuildContext context) {
-    return child;
-  }
-
-  @override
   Widget build(BuildContext context) {
     final selectedIndex = _calculateSelectedIndex(context);
     final isDark = Theme.of(context).brightness == Brightness.dark;

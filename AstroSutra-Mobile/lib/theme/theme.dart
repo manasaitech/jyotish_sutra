@@ -23,7 +23,7 @@ class AstroTheme {
         bodyMedium: GoogleFonts.outfit(color: AstroColors.lightTextSecondary, fontSize: 14),
         titleLarge: GoogleFonts.outfit(color: AstroColors.lightTextPrimary, fontWeight: FontWeight.bold, fontSize: 20),
       ),
-      cardTheme: CardTheme(
+      cardTheme: CardThemeData(
         color: AstroColors.lightSurface,
         elevation: 0,
         shape: RoundedRectangleBorder(
@@ -60,7 +60,7 @@ class AstroTheme {
         bodyMedium: GoogleFonts.outfit(color: AstroColors.darkTextSecondary, fontSize: 14),
         titleLarge: GoogleFonts.outfit(color: AstroColors.darkTextPrimary, fontWeight: FontWeight.bold, fontSize: 20),
       ),
-      cardTheme: CardTheme(
+      cardTheme: CardThemeData(
         color: AstroColors.darkSurface,
         elevation: 0,
         shape: RoundedRectangleBorder(

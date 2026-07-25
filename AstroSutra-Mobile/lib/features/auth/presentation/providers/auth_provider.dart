@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../domain/repositories/auth_repository.dart';
 import '../../data/repositories/auth_repository_impl.dart';
+import '../../../../core/network/network_providers.dart';
 
 enum AuthStatus { initial, authenticated, unauthenticated, loading }
 
@@ -38,7 +39,9 @@ class AuthNotifier extends StateNotifier<AuthState> {
   Future<void> login() async {
     state = state.copyWith(status: AuthStatus.loading);
     try {
-      await _repository.loginWithGoogle();
+      // Simulate Google auth success to get firebase idToken, then verify via real backend /verify API
+      final mockFirebaseIdToken = 'mock_firebase_id_token_${DateTime.now().millisecondsSinceEpoch}';
+      await _repository.verifyToken(mockFirebaseIdToken);
       state = state.copyWith(status: AuthStatus.authenticated);
     } catch (e) {
       state = state.copyWith(status: AuthStatus.unauthenticated, errorMessage: e.toString());
@@ -51,7 +54,10 @@ class AuthNotifier extends StateNotifier<AuthState> {
   }
 }
 
-final authRepositoryProvider = Provider<AuthRepository>((ref) => AuthRepositoryImpl());
+final authRepositoryProvider = Provider<AuthRepository>((ref) {
+  final apiService = ref.watch(apiServiceProvider);
+  return AuthRepositoryImpl(apiService);
+});
 
 final authProvider = StateNotifierProvider<AuthNotifier, AuthState>((ref) {
   final repo = ref.watch(authRepositoryProvider);

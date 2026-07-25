@@ -1,7 +1,5 @@
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-
 abstract class AuthRepository {
-  Future<void> loginWithGoogle();
+  Future<Map<String, dynamic>> verifyToken(String firebaseIdToken);
   Future<void> logout();
   Future<bool> checkAuthStatus();
 }

@@ -6,6 +6,7 @@ class PremiumCard extends StatelessWidget {
   final EdgeInsetsGeometry? padding;
   final Color? color;
   final double? borderRadius;
+  final double? borderWidth;
   final VoidCallback? onTap;
 
   const PremiumCard({
@@ -14,6 +15,7 @@ class PremiumCard extends StatelessWidget {
     this.padding,
     this.color,
     this.borderRadius,
+    this.borderWidth,
     this.onTap,
   });
 
@@ -30,7 +32,7 @@ class PremiumCard extends StatelessWidget {
           borderRadius: BorderRadius.circular(borderRadius ?? 24),
           border: Border.all(
             color: isDark ? Colors.white10 : AstroColors.outline,
-            width: 1,
+            width: borderWidth ?? 1,
           ),
           boxShadow: [
             BoxShadow(

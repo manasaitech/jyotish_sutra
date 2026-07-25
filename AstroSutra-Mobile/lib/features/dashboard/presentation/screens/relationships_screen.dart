@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import '../../../../theme/colors.dart';
 import '../../../../shared/widgets/premium_card.dart';
 
 class RelationshipsScreen extends StatelessWidget {
