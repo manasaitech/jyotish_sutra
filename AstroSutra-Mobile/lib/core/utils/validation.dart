@@ -69,6 +69,16 @@ class AstroValidator {
     return null;
   }
 
+  static String? validateTimezone(double? tz) {
+    if (tz == null) {
+      return 'Timezone offset is required';
+    }
+    if (tz < -12.0 || tz > 14.0) {
+      return 'Timezone offset must be between -12 and +14';
+    }
+    return null;
+  }
+
   static List<String> validateBirthDetails(BirthDetails details, {String mode = 'exact'}) {
     final errors = <String>[];
     

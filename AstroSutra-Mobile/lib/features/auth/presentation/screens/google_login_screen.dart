@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../providers/auth_provider.dart';
+import '../../../profile/presentation/providers/profile_provider.dart';
 import '../../../../theme/colors.dart';
 import '../../../../shared/widgets/premium_button.dart';
 
@@ -12,9 +13,20 @@ class GoogleLoginScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final authState = ref.watch(authProvider);
 
-    ref.listen<AuthState>(authProvider, (previous, next) {
+    ref.listen<AuthState>(authProvider, (previous, next) async {
       if (next.status == AuthStatus.authenticated) {
-        context.go('/dashboard');
+        try {
+          await ref.read(profileProvider.notifier).fetchProfile();
+          final profileState = ref.read(profileProvider);
+          if (profileState.activeProfile?.birthDetails?.name != null &&
+              profileState.activeProfile!.birthDetails!.name.isNotEmpty) {
+            if (context.mounted) context.go('/dashboard');
+          } else {
+            if (context.mounted) context.go('/onboarding');
+          }
+        } catch (_) {
+          if (context.mounted) context.go('/onboarding');
+        }
       } else if (next.errorMessage != null) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Login failed: ${next.errorMessage}')),
