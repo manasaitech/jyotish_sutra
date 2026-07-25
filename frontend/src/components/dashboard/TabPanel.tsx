@@ -273,7 +273,7 @@ export default function TabPanel({
     return (
       <>
         {/* SummaryCards for every tab */}
-        <SummaryCards tab={tab} chartData={chartData} computed={computed} />
+        <SummaryCards tab={tab} chartData={chartData} computed={computed} birthData={birthData} />
 
         {/* Overview Tab Features */}
         {tab === 'overview' && (
@@ -309,7 +309,7 @@ export default function TabPanel({
 
         {/* Remedies Tab Dashboard */}
         {tab === 'remedies' && (
-          <RemediesDashboard chartData={chartData} computed={computed} />
+          <RemediesDashboard chartData={chartData} computed={computed} birthData={birthData} />
         )}
 
         {/* Tab AI Initial Reading Card */}

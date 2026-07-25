@@ -1,8 +1,6 @@
-import { useRef, useEffect } from 'react'
 import type { UserProfile } from '../../types/profile'
 import { getCurrentTier } from '../../utils/subscriptionManager'
 import { TIER_CONFIG } from '../../config/subscriptionConfig'
-import { useAuth } from '../../context/AuthContext'
 
 interface NavbarProps {
   profiles?: UserProfile[]
@@ -17,7 +15,6 @@ export default function Navbar({
   onOpenProfile,
   onOpenPricing,
 }: NavbarProps) {
-  const { user } = useAuth()
   
   const currentTier = getCurrentTier()
   const tierConfig = TIER_CONFIG[currentTier]

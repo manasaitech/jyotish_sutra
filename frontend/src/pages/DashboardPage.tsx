@@ -17,10 +17,6 @@ interface DashboardPageProps {
   activeProfileId?: string
   onOpenProfile?: () => void
   onOpenPricing?: () => void
-  // The following props are still used in DashboardPage directly or passed elsewhere if needed
-  onSelectProfile?: (profileId: string) => void
-  onAddNewProfile?: () => void
-  onDeleteProfile?: (profileId: string) => void
   onResetProfile: () => void
 }
 
@@ -35,9 +31,6 @@ export default function DashboardPage({
   activeProfileId,
   onOpenProfile,
   onOpenPricing,
-  onSelectProfile,
-  onAddNewProfile,
-  onDeleteProfile,
   onResetProfile,
 }: DashboardPageProps) {
   const [activeTab, setActiveTab] = useState<TabType>('overview')

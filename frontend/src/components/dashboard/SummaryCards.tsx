@@ -1,5 +1,6 @@
 import type { TabType } from './TabNavigation'
 import { formatSignWithHindi, formatPlanetWithHindi } from '../../utils/hindiMapping'
+import { getCurrentDashaFromChart } from '../../utils/dashaCalculator'
 
 interface SummaryCardItem {
   label: string
@@ -13,10 +14,11 @@ interface SummaryCardsProps {
   tab: TabType
   chartData: any
   computed?: any
+  birthData?: any
 }
 
-export default function SummaryCards({ tab, chartData, computed }: SummaryCardsProps) {
-  const cards = getCardsForTab(tab, chartData, computed)
+export default function SummaryCards({ tab, chartData, computed, birthData }: SummaryCardsProps) {
+  const cards = getCardsForTab(tab, chartData, computed, birthData)
 
   return (
     <div className="grid grid-cols-2 md:grid-cols-4 gap-2 sm:gap-3 mb-4 sm:mb-6">
@@ -51,7 +53,7 @@ export default function SummaryCards({ tab, chartData, computed }: SummaryCardsP
   )
 }
 
-function getCardsForTab(tab: TabType, chartData: any, computed?: any): SummaryCardItem[] {
+function getCardsForTab(tab: TabType, chartData: any, computed?: any, birthData?: any): SummaryCardItem[] {
   const meta = {
     ascendant_sign: chartData?.metadata?.ascendant_sign || chartData?.ascendant_sign || 'Aries',
     moon_sign: chartData?.metadata?.moon_sign || chartData?.moon_sign || 'Cancer',
@@ -63,7 +65,7 @@ function getCardsForTab(tab: TabType, chartData: any, computed?: any): SummaryCa
   const doshas = chartData?.doshas || {}
   const yogas = chartData?.yogas || []
   const comp = computed || chartData?.computed || {}
-  const currentDasha = chartData?.current_dasha || 'Jupiter'
+  const currentDasha = getCurrentDashaFromChart(chartData, birthData)
 
   switch (tab) {
     case 'overview': {
@@ -118,7 +120,7 @@ function getCardsForTab(tab: TabType, chartData: any, computed?: any): SummaryCa
     }
 
     case 'remedies': {
-      const remedyInfo = getRemedySummary(chartData, comp)
+      const remedyInfo = getRemedySummary(chartData, comp, birthData)
       return [
         {
           label: 'Active Dasha Planet',
@@ -295,12 +297,8 @@ function getSpiritualPath(element?: string): string {
   }
 }
 
-function getRemedySummary(chartData: any, comp: any) {
-  const currentDashaRaw = (
-    chartData?.current_dasha ||
-    chartData?.metadata?.current_dasha ||
-    'Jupiter'
-  )
+function getRemedySummary(chartData: any, comp: any, birthData?: any) {
+  const currentDashaRaw = getCurrentDashaFromChart(chartData, birthData)
   const currentDasha = currentDashaRaw.charAt(0).toUpperCase() + currentDashaRaw.slice(1).toLowerCase()
 
   const planets = chartData?.planets || chartData?.raw_positions || {}

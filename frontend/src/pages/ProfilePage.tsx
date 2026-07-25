@@ -2,7 +2,6 @@
  * ProfilePage — Full-page settings & profile management view for AstroSutra AI.
  * Replaces the old Navbar dropdown with a premium, feature-rich profile section.
  */
-import { useState } from 'react'
 import type { UserProfile } from '../types/profile'
 import { useAuth } from '../context/AuthContext'
 import { getCurrentTier } from '../utils/subscriptionManager'
@@ -37,7 +36,6 @@ export default function ProfilePage({
   const tierConfig = TIER_CONFIG[currentTier]
   const maxProfiles = getMaxProfilesForTier(currentTier)
 
-  const activeProfile = profiles.find((p) => p.id === activeProfileId)
 
   // Get initials for avatar
   const getInitials = (name: string) => {

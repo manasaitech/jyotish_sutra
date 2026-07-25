@@ -341,6 +341,7 @@ export default function ChatPage() {
   if (step === 'ready' && chartData && activeId) {
     return (
       <DashboardPage
+        key={activeId}
         chartData={chartData}
         computed={chartData.computed}
         birthData={birthData}
@@ -351,9 +352,6 @@ export default function ChatPage() {
         activeProfileId={activeId}
         onOpenProfile={() => setShowProfile(true)}
         onOpenPricing={() => setShowPricing(true)}
-        onSelectProfile={handleSelectProfile}
-        onAddNewProfile={handleAddNewProfile}
-        onDeleteProfile={handleDeleteProfile}
         onResetProfile={() => {
           setEditProfileId(activeId)
           setStep('welcome')

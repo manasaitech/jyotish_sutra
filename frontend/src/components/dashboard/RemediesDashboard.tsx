@@ -1,8 +1,10 @@
 import { useState, useEffect } from 'react'
+import { getCurrentDashaFromChart } from '../../utils/dashaCalculator'
 
 interface RemediesDashboardProps {
   chartData: any
   computed?: any
+  birthData?: any
 }
 
 interface PlanetRemedyData {
@@ -209,13 +211,9 @@ const PLANET_REMEDIES_DATABASE: Record<string, PlanetRemedyData> = {
   }
 }
 
-export default function RemediesDashboard({ chartData }: RemediesDashboardProps) {
-  // Extract Active Major Mahadasha Planet
-  const activeDashaRaw = (
-    chartData?.current_dasha ||
-    chartData?.metadata?.current_dasha ||
-    'Jupiter'
-  ).toLowerCase()
+export default function RemediesDashboard({ chartData, birthData }: RemediesDashboardProps) {
+  // Extract Active Major Mahadasha Planet — computed from Moon longitude & DOB when missing
+  const activeDashaRaw = getCurrentDashaFromChart(chartData, birthData)
 
   const activeDashaKey = PLANET_REMEDIES_DATABASE[activeDashaRaw] ? activeDashaRaw : 'jupiter'
   const activeDashaData = PLANET_REMEDIES_DATABASE[activeDashaKey]
