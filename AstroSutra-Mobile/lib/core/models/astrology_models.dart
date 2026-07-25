@@ -33,6 +33,18 @@ class BirthDetails {
   }
 
   Map<String, dynamic> toJson() {
+    // Sanitize relationship to lowercase to match backend database CheckConstraint
+    String rel = (relationship ?? 'self').toLowerCase().trim();
+    if (!['self', 'spouse', 'child', 'parent', 'friend', 'other'].contains(rel)) {
+      rel = 'other';
+    }
+
+    // Sanitize gender to lowercase
+    String gen = (gender ?? 'male').toLowerCase().trim();
+    if (!['male', 'female', 'other'].contains(gen)) {
+      gen = 'male';
+    }
+
     return {
       'name': name,
       'date_of_birth': dateOfBirth,
@@ -40,8 +52,8 @@ class BirthDetails {
       'latitude': latitude,
       'longitude': longitude,
       'timezone_offset': timezoneOffset,
-      'gender': gender,
-      'relationship_type': relationship,
+      'gender': gen,
+      'relationship_type': rel,
     };
   }
 }
