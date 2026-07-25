@@ -6,6 +6,7 @@ import ComputingCard from '../components/chat/ComputingCard'
 import AssistantMessage from '../components/chat/AssistantMessage'
 import DashboardPage from './DashboardPage'
 import PricingPage from './PricingPage'
+import ProfilePage from './ProfilePage'
 
 import type { UserProfile } from '../types/profile'
 import {
@@ -32,6 +33,7 @@ export default function ChatPage() {
   const [sessionId] = useState(() => Math.random().toString(36).substring(7))
   const [step, setStep] = useState<ChatStep>('loading')
   const [showPricing, setShowPricing] = useState(false)
+  const [showProfile, setShowProfile] = useState(false)
 
   // Multi-profile state
   const [profiles, setProfiles] = useState<UserProfile[]>([])
@@ -303,6 +305,36 @@ export default function ChatPage() {
     return <PricingPage onNavigateBack={() => setShowPricing(false)} />
   }
 
+  // Render Profile Page if user clicked Profile
+  // -----------------------------------------------------------------------
+  if (showProfile) {
+    return (
+      <ProfilePage
+        profiles={profiles}
+        activeProfileId={activeId || undefined}
+        onSelectProfile={(id) => {
+          handleSelectProfile(id)
+          setShowProfile(false)
+        }}
+        onAddNewProfile={() => {
+          handleAddNewProfile()
+          setShowProfile(false)
+        }}
+        onDeleteProfile={handleDeleteProfile}
+        onOpenPricing={() => {
+          setShowProfile(false)
+          setShowPricing(true)
+        }}
+        onNavigateBack={() => setShowProfile(false)}
+        onEditProfile={() => {
+          setEditProfileId(activeId || user?.uid || null)
+          setStep('welcome')
+          setShowProfile(false)
+        }}
+      />
+    )
+  }
+
   // -----------------------------------------------------------------------
   // Render Dashboard Page if Chart Ready
   // -----------------------------------------------------------------------
@@ -317,6 +349,8 @@ export default function ChatPage() {
         apiBaseUrl={API_BASE_URL}
         profiles={profiles}
         activeProfileId={activeId}
+        onOpenProfile={() => setShowProfile(true)}
+        onOpenPricing={() => setShowPricing(true)}
         onSelectProfile={handleSelectProfile}
         onAddNewProfile={handleAddNewProfile}
         onDeleteProfile={handleDeleteProfile}
@@ -324,7 +358,6 @@ export default function ChatPage() {
           setEditProfileId(activeId)
           setStep('welcome')
         }}
-        onOpenPricing={() => setShowPricing(true)}
       />
     )
   }
@@ -334,9 +367,7 @@ export default function ChatPage() {
       <Navbar
         profiles={profiles}
         activeProfileId={activeId || undefined}
-        onSelectProfile={handleSelectProfile}
-        onAddNewProfile={handleAddNewProfile}
-        onDeleteProfile={handleDeleteProfile}
+        onOpenProfile={() => setShowProfile(true)}
         onOpenPricing={() => setShowPricing(true)}
       />
 

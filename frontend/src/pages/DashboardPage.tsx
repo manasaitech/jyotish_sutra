@@ -15,11 +15,13 @@ interface DashboardPageProps {
   apiBaseUrl: string
   profiles?: UserProfile[]
   activeProfileId?: string
+  onOpenProfile?: () => void
+  onOpenPricing?: () => void
+  // The following props are still used in DashboardPage directly or passed elsewhere if needed
   onSelectProfile?: (profileId: string) => void
   onAddNewProfile?: () => void
   onDeleteProfile?: (profileId: string) => void
   onResetProfile: () => void
-  onOpenPricing?: () => void
 }
 
 export default function DashboardPage({
@@ -31,11 +33,12 @@ export default function DashboardPage({
   apiBaseUrl,
   profiles = [],
   activeProfileId,
+  onOpenProfile,
+  onOpenPricing,
   onSelectProfile,
   onAddNewProfile,
   onDeleteProfile,
   onResetProfile,
-  onOpenPricing,
 }: DashboardPageProps) {
   const [activeTab, setActiveTab] = useState<TabType>('overview')
 
@@ -54,13 +57,11 @@ export default function DashboardPage({
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Top Navbar with Dynamic Profile Switcher & Subscription Pricing Link */}
+      {/* Top Navbar with Profile Section Trigger & Subscription Pricing Link */}
       <Navbar
         profiles={profiles}
         activeProfileId={activeProfileId}
-        onSelectProfile={onSelectProfile}
-        onAddNewProfile={onAddNewProfile}
-        onDeleteProfile={onDeleteProfile}
+        onOpenProfile={onOpenProfile}
         onOpenPricing={onOpenPricing}
       />
 

@@ -32,7 +32,7 @@ def seed_subscription_plans_if_needed(db: Session):
             slug="standard",
             name="Standard Plan",
             tier="standard",
-            price_monthly=1.00,
+            price_monthly=399.00,
             currency="INR",
             features={},
             limits={},
@@ -40,7 +40,7 @@ def seed_subscription_plans_if_needed(db: Session):
         )
         db.add(standard)
     else:
-        standard.price_monthly = 1.00
+        standard.price_monthly = 399.00
         db.commit()
 
     pro = db.query(SubscriptionPlan).filter(SubscriptionPlan.slug == "pro").first()

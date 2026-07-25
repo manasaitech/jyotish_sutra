@@ -230,3 +230,62 @@ h1, h2, h3, .font-display {
 }
 
 
+/* ========================================
+   Dark Mode Theme Overrides
+   ======================================== */
+[data-theme="dark"] {
+  --color-primary: #F0A050;
+  --color-primary-container: #D4A04A;
+  --color-on-primary: #1A1612;
+  --color-background: #141210;
+  --color-on-background: #EDE8E0;
+  --color-surface: #1E1B18;
+  --color-on-surface: #EDE8E0;
+  --color-surface-variant: #2A2622;
+  --color-on-surface-variant: #B0A898;
+  --color-outline-variant: #3A352E;
+  --color-primary-fixed: #2A2014;
+  --color-on-primary-fixed: #F0C080;
+  --color-secondary-container: #242118;
+  --color-on-secondary-container: #B0A898;
+  --color-tertiary-fixed: #2A2414;
+  --color-on-tertiary-fixed: #E0C880;
+  --color-inverse-surface: #EDE8E0;
+  --color-error: #F28B82;
+  --color-error-container: #3C1A1A;
+}
+
+[data-theme="dark"] body {
+  background-color: var(--color-background);
+  color: var(--color-on-background);
+}
+
+[data-theme="dark"] .glass {
+  background: rgba(30, 27, 24, 0.85);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+}
+
+[data-theme="dark"] .celestial-card {
+  background: var(--color-surface);
+  border-color: var(--color-outline-variant);
+  box-shadow: 0px 10px 30px rgba(0, 0, 0, 0.3);
+}
+
+[data-theme="dark"] .celestial-card::after {
+  background: radial-gradient(circle, rgba(240, 160, 80, 0.06) 0%, transparent 70%);
+}
+
+[data-theme="dark"] .custom-scrollbar::-webkit-scrollbar-thumb {
+  background: var(--color-outline-variant);
+}
+
+[data-theme="dark"] .shimmer {
+  background: linear-gradient(90deg, transparent, rgba(240, 160, 80, 0.06), transparent);
+  background-size: 200% 100%;
+}
+
+[data-theme="dark"] ::selection {
+  background-color: var(--color-primary-fixed);
+  color: var(--color-primary);
+}

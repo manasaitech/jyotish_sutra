@@ -51,7 +51,7 @@ export const TIER_CONFIG: Record<SubscriptionTier, TierConfig> = {
     id: 'standard',
     label: 'Standard',
     icon: 'star_half',
-    price: '₹1',
+    price: '₹399',
     priceSubtext: '/month',
     color: '#E67E22',
     bgGradient: 'linear-gradient(135deg, #FFF3E6, #FDF2D9)',

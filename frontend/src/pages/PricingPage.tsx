@@ -6,6 +6,7 @@ import { TIER_CONFIG, type SubscriptionTier } from '../config/subscriptionConfig
 import { getCurrentTier, setCurrentTier } from '../utils/subscriptionManager'
 import { authenticatedFetch } from '../utils/apiClient'
 import { useAuth } from '../context/AuthContext'
+import { LOGO_BASE64 } from '../assets/logoBase64'
 
 interface PricingPageProps {
   onNavigateBack: () => void
@@ -79,6 +80,7 @@ export default function PricingPage({ onNavigateBack }: PricingPageProps) {
         currency: orderData.currency,
         name: "AstroSutra AI",
         description: `Upgrade to ${tier === 'pro' ? 'Pro' : 'Standard'} Plan`,
+        image: LOGO_BASE64,
         order_id: orderData.order_id,
         modal: {
           ondismiss: function () {
@@ -148,11 +150,7 @@ export default function PricingPage({ onNavigateBack }: PricingPageProps) {
           <span className="text-sm font-medium">Back to Dashboard</span>
         </button>
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 bg-primary rounded-xl flex items-center justify-center text-on-primary shadow-xs">
-            <span className="material-symbols-outlined text-2xl" style={{ fontVariationSettings: "'FILL' 1" }}>
-              auto_awesome
-            </span>
-          </div>
+          <img src="/logo.png" alt="AstroSutra AI Logo" className="w-10 h-10 object-contain rounded-xl shadow-xs" />
           <h1 className="font-display text-[28px] leading-tight font-semibold text-primary">
             AstroSutra AI
           </h1>
