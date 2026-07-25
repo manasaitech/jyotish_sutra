@@ -1,8 +1,10 @@
 import 'dart:convert';
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:go_router/go_router.dart';
+import 'package:dio/dio.dart';
 import '../../../../theme/colors.dart';
 import '../../../../shared/widgets/premium_card.dart';
 import '../../../../shared/widgets/premium_button.dart';
@@ -367,23 +369,28 @@ class AddProfileFormDialog extends StatefulWidget {
 class _AddProfileFormDialogState extends State<AddProfileFormDialog> {
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
-  final _dateController = TextEditingController(text: '1996-08-12');
-  final _timeController = TextEditingController(text: '09:15:00');
-  final _latController = TextEditingController(text: '28.6139');
-  final _lonController = TextEditingController(text: '77.2090');
-  final _tzController = TextEditingController(text: '5.5');
+  final _dateController = TextEditingController();
+  final _timeController = TextEditingController();
+  final _locationController = TextEditingController();
 
   String _gender = 'male';
   String _relationship = 'spouse';
+
+  double _latitude = 0.0;
+  double _longitude = 0.0;
+  double _timezoneOffset = 5.5;
+
+  List<Map<String, dynamic>> _suggestions = [];
+  bool _loadingSuggestions = false;
+  Timer? _debounceTimer;
 
   @override
   void dispose() {
     _nameController.dispose();
     _dateController.dispose();
     _timeController.dispose();
-    _latController.dispose();
-    _lonController.dispose();
-    _tzController.dispose();
+    _locationController.dispose();
+    _debounceTimer?.cancel();
     super.dispose();
   }
 
@@ -413,6 +420,46 @@ class _AddProfileFormDialogState extends State<AddProfileFormDialog> {
         _timeController.text = '${_pad(picked.hour)}:${_pad(picked.minute)}:00';
       });
     }
+  }
+
+  void _onLocationChanged(String query) {
+    _debounceTimer?.cancel();
+    if (query.trim().length < 3) {
+      setState(() {
+        _suggestions = [];
+      });
+      return;
+    }
+
+    _debounceTimer = Timer(const Duration(milliseconds: 600), () async {
+      setState(() => _loadingSuggestions = true);
+      try {
+        final dio = Dio();
+        final response = await dio.get(
+          'https://nominatim.openstreetmap.org/search',
+          queryParameters: {
+            'format': 'json',
+            'q': query,
+            'limit': 5,
+            'addressdetails': 1,
+          },
+          options: Options(
+            headers: {
+              'User-Agent': 'AstroSutra-Mobile/1.0.0',
+            },
+          ),
+        );
+        if (response.statusCode == 200 && response.data is List) {
+          setState(() {
+            _suggestions = List<Map<String, dynamic>>.from(
+              response.data.map((e) => Map<String, dynamic>.from(e)),
+            );
+          });
+        }
+      } catch (_) {} finally {
+        setState(() => _loadingSuggestions = false);
+      }
+    });
   }
 
   @override
@@ -483,35 +530,62 @@ class _AddProfileFormDialogState extends State<AddProfileFormDialog> {
               ),
               const SizedBox(height: 12),
 
-              Row(
-                children: [
-                  Expanded(
-                    child: TextFormField(
-                      controller: _latController,
-                      keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                      decoration: const InputDecoration(labelText: 'Latitude'),
-                      validator: (val) => AstroValidator.validateLatitude(double.tryParse(val ?? '')),
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: TextFormField(
-                      controller: _lonController,
-                      keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                      decoration: const InputDecoration(labelText: 'Longitude'),
-                      validator: (val) => AstroValidator.validateLongitude(double.tryParse(val ?? '')),
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 12),
-
               TextFormField(
-                controller: _tzController,
-                keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                decoration: const InputDecoration(labelText: 'Timezone Offset'),
-                validator: (val) => AstroValidator.validateTimezone(double.tryParse(val ?? '')),
+                controller: _locationController,
+                decoration: InputDecoration(
+                  labelText: 'Birthplace Location',
+                  suffixIcon: _loadingSuggestions 
+                      ? const SizedBox(
+                          width: 18, 
+                          height: 18, 
+                          child: Padding(
+                            padding: EdgeInsets.all(12.0),
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          )
+                        ) 
+                      : null,
+                  helperText: 'Type city name and select from suggestions',
+                ),
+                onChanged: _onLocationChanged,
+                validator: (val) {
+                  if (val == null || val.trim().isEmpty) {
+                    return 'Location is required';
+                  }
+                  return null;
+                },
               ),
+
+              if (_suggestions.isNotEmpty) ...[
+                const SizedBox(height: 8),
+                Card(
+                  elevation: 2,
+                  child: ListView.separated(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    itemCount: _suggestions.length,
+                    separatorBuilder: (context, index) => const Divider(height: 1),
+                    itemBuilder: (context, index) {
+                      final s = _suggestions[index];
+                      return ListTile(
+                        title: Text(s['display_name'] ?? '', style: const TextStyle(fontSize: 12)),
+                        onTap: () {
+                          final lat = double.tryParse(s['lat'] ?? '');
+                          final lon = double.tryParse(s['lon'] ?? '');
+                          setState(() {
+                            _locationController.text = s['display_name'] ?? '';
+                            if (lat != null) _latitude = lat;
+                            if (lon != null) _longitude = lon;
+                            if (lon != null) {
+                              _timezoneOffset = ((lon / 15.0) * 2.0).roundToDouble() / 2.0;
+                            }
+                            _suggestions = [];
+                          });
+                        },
+                      );
+                    },
+                  ),
+                ),
+              ],
             ],
           ),
         ),
@@ -524,6 +598,12 @@ class _AddProfileFormDialogState extends State<AddProfileFormDialog> {
         ElevatedButton(
           onPressed: () {
             if (_formKey.currentState!.validate()) {
+              if (_latitude == 0.0 && _longitude == 0.0) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Please select location from suggestions')),
+                );
+                return;
+              }
               final newProfile = {
                 'id': 'profile_${DateTime.now().millisecondsSinceEpoch}',
                 'name': _nameController.text.trim(),
@@ -531,9 +611,9 @@ class _AddProfileFormDialogState extends State<AddProfileFormDialog> {
                 'gender': _gender,
                 'date_of_birth': _dateController.text.trim(),
                 'time_of_birth': _timeController.text.trim(),
-                'latitude': double.tryParse(_latController.text.trim()) ?? 0.0,
-                'longitude': double.tryParse(_lonController.text.trim()) ?? 0.0,
-                'timezone_offset': double.tryParse(_tzController.text.trim()) ?? 5.5,
+                'latitude': _latitude,
+                'longitude': _longitude,
+                'timezone_offset': _timezoneOffset,
               };
               widget.onSave(newProfile);
               Navigator.pop(context);

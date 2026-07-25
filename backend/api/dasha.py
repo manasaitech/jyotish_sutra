@@ -22,14 +22,15 @@ class DashaTimelineRequest(BaseModel):
 def get_dasha_timeline(req: DashaTimelineRequest, authorization: Optional[str] = Header(None)):
     try:
         # Resolve authenticated user_id from token if present
-        if authorization and authorization.startswith("Bearer "):
-            token = authorization.split(" ")[1]
-            try:
-                claims = verify_firebase_token(token)
-                if claims and "uid" in claims:
-                    req.user_id = claims["uid"]
-            except Exception as e:
-                print(f"[Dasha] Token verification failed: {e}")
+        if not req.user_id:
+            if authorization and authorization.startswith("Bearer "):
+                token = authorization.split(" ")[1]
+                try:
+                    claims = verify_firebase_token(token)
+                    if claims and "uid" in claims:
+                        req.user_id = claims["uid"]
+                except Exception as e:
+                    print(f"[Dasha] Token verification failed: {e}")
 
         chart_data, birth_details = resolve_chart_data(
             session_id=req.session_id,

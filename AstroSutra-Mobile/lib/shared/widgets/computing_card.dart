@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import '../../theme/colors.dart';
 import 'premium_card.dart';
 
+import 'gochara_orbits.dart';
+
 class LoadingStepData {
   final String label;
   final double progress; // 0.0 to 1.0
@@ -89,32 +91,27 @@ class _CelestialComputingCardState extends State<CelestialComputingCard> {
 
     return PremiumCard(
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.center,
         mainAxisSize: MainAxisSize.min,
         children: [
-          // Header loading spinner and title
-          Row(
-            children: [
-              const SizedBox(
-                width: 18,
-                height: 18,
-                child: CircularProgressIndicator(
-                  strokeWidth: 2,
-                  color: AstroColors.primary,
-                ),
-              ),
-              const SizedBox(width: 12),
-              Text(
-                '✨ Computing Celestial Alignment...',
-                style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.bold,
-                  color: isDark ? AstroColors.darkTextPrimary : AstroColors.lightTextPrimary,
-                ),
-              ),
-            ],
+          // Centered premium Gochara Orbits Loading Animation
+          const Center(
+            child: Padding(
+              padding: EdgeInsets.symmetric(vertical: 12.0),
+              child: GocharaOrbits(size: 200),
+            ),
           ),
-          const SizedBox(height: 20),
+          const SizedBox(height: 16),
+          Text(
+            '✨ Computing Celestial Alignment...',
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontSize: 15,
+              fontWeight: FontWeight.bold,
+              color: isDark ? AstroColors.darkTextPrimary : AstroColors.lightTextPrimary,
+            ),
+          ),
+          const SizedBox(height: 24),
 
           // Steps list
           Column(
