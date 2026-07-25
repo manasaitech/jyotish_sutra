@@ -21,8 +21,15 @@ class ErrorHandler {
         case DioExceptionType.badResponse:
           final response = error.response;
           final code = response?.statusCode;
-          final detail = response?.data?['detail'] ?? 'An unexpected server error occurred.';
-          return ApiError(message: detail.toString(), statusCode: code);
+          final data = response?.data;
+          
+          String message = 'An unexpected server error occurred.';
+          if (data is Map) {
+            message = data['detail']?.toString() ?? message;
+          } else if (data is String && data.isNotEmpty) {
+            message = data;
+          }
+          return ApiError(message: message, statusCode: code);
         case DioExceptionType.cancel:
           return ApiError(message: 'Request was cancelled.');
         case DioExceptionType.connectionError:

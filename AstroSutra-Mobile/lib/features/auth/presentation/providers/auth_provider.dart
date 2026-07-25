@@ -39,9 +39,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
   Future<void> login() async {
     state = state.copyWith(status: AuthStatus.loading);
     try {
-      // Simulate Google auth success to get firebase idToken, then verify via real backend /verify API
-      final mockFirebaseIdToken = 'mock_firebase_id_token_${DateTime.now().millisecondsSinceEpoch}';
-      await _repository.verifyToken(mockFirebaseIdToken);
+      await _repository.signInWithGoogle();
       state = state.copyWith(status: AuthStatus.authenticated);
     } catch (e) {
       state = state.copyWith(status: AuthStatus.unauthenticated, errorMessage: e.toString());
