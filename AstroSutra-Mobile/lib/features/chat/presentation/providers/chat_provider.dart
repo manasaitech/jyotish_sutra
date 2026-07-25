@@ -37,6 +37,7 @@ class ChatState {
 
 class ChatNotifier extends StateNotifier<ChatState> {
   final ChatRepository _repository;
+  final String _sessionId = 'session_${DateTime.now().millisecondsSinceEpoch}';
 
   ChatNotifier(this._repository)
       : super(ChatState(
@@ -62,7 +63,7 @@ class ChatNotifier extends StateNotifier<ChatState> {
     try {
       final prefs = await SharedPreferences.getInstance();
       final activeProfileId = prefs.getString('active_profile_id') ?? prefs.getString('user_id') ?? 'guest_user';
-      final sessionId = prefs.getString('session_id') ?? 'session_${DateTime.now().millisecondsSinceEpoch}';
+      final sessionId = _sessionId;
 
       final response = await _repository.sendChatMessage(
         tab: tab,
