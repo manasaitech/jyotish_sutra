@@ -20,7 +20,7 @@ subprojects {
 }
 
 subprojects {
-    afterEvaluate {
+    val configureProject = {
         val extension = extensions.findByName("android") as? com.android.build.gradle.BaseExtension
         extension?.apply {
             compileSdkVersion(36)
@@ -29,6 +29,12 @@ subprojects {
                 minSdkVersion(21)
             }
         }
+    }
+
+    if (state.executed) {
+        configureProject()
+    } else {
+        afterEvaluate { configureProject() }
     }
 }
 
