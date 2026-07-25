@@ -45,7 +45,10 @@ class ProfileNotifier extends StateNotifier<ProfileState> {
       
       final profile = await _repository.loadProfile(activeProfileId);
       state = state.copyWith(isLoading: false, activeProfile: profile);
-    } catch (e) {
+    } catch (e, stack) {
+      print('=== FETCH PROFILE ERROR ===');
+      print(e);
+      print(stack);
       state = state.copyWith(isLoading: false, errorMessage: e.toString());
     }
   }
@@ -62,7 +65,10 @@ class ProfileNotifier extends StateNotifier<ProfileState> {
       await _repository.updateProfile(activeProfileId, details);
       // Reload profile to refresh the natal chart with updated birth details
       await fetchProfile();
-    } catch (e) {
+    } catch (e, stack) {
+      print('=== UPDATE DETAILS ERROR ===');
+      print(e);
+      print(stack);
       state = state.copyWith(isLoading: false, errorMessage: e.toString());
     }
   }
