@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../theme/colors.dart';
 import '../../../../shared/widgets/premium_card.dart';
-import '../../../../shared/widgets/loading_indicator.dart';
+import '../../../../shared/widgets/computing_card.dart';
 import '../../../profile/presentation/providers/profile_provider.dart';
 
 class DashboardScreen extends ConsumerStatefulWidget {
@@ -62,7 +62,12 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
 
     if (profileState.isLoading) {
       return const Scaffold(
-        body: CelestialLoader(message: 'Syncing celestial charts...'),
+        body: Center(
+          child: Padding(
+            padding: EdgeInsets.all(24.0),
+            child: CelestialComputingCard(),
+          ),
+        ),
       );
     }
 
