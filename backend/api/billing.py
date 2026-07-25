@@ -60,12 +60,27 @@ def seed_subscription_plans_if_needed(db: Session):
     db.commit()
 
 def get_razorpay_client():
-    """Initialize and return the Razorpay client using env keys. Returns None, None if keys are not configured."""
-    key_id = os.environ.get("key_id") or os.environ.get("KEY_ID")
-    key_secret = os.environ.get("key_secret") or os.environ.get("KEY_SECRET")
+    """Initialize and return the Razorpay client using env keys."""
+    key_id = None
+    key_secret = None
     
+    for k, v in os.environ.items():
+        k_clean = k.strip().lower()
+        if k_clean in ("key_id", "razorpay_key_id"):
+            key_id = v.strip()
+        elif k_clean in ("key_secret", "razorpay_key_secret"):
+            key_secret = v.strip()
+
+    if not key_id:
+        key_id = (os.environ.get("key_id") or os.environ.get("KEY_ID") or "").strip()
+    if not key_secret:
+        key_secret = (os.environ.get("key_secret") or os.environ.get("KEY_SECRET") or "").strip()
+
     if not key_id or not key_secret:
-        return None, None
+        raise HTTPException(
+            status_code=500,
+            detail="Razorpay credentials (key_id, key_secret) are not configured in the backend environment."
+        )
     return razorpay.Client(auth=(key_id, key_secret)), key_id
 
 @router.post("/billing/create-order")
@@ -92,29 +107,23 @@ def create_order(
     if not plan:
         raise HTTPException(status_code=400, detail=f"Invalid or inactive subscription tier: {req.tier}")
 
-    # 3. Create order in Razorpay (or sandbox fallback)
+    # 3. Create order in Razorpay
     client, key_id = get_razorpay_client()
     price_in_paise = int(float(plan.price_monthly) * 100)
     
-    is_mock = False
-    if not client:
-        is_mock = True
-        key_id = "rzp_test_mockkeyid123"
-        order_id = f"order_mock_{str(user.id)[:8]}_{int(time.time())}"
-    else:
-        try:
-            order_receipt = f"receipt_{str(user.id)[:8]}_{int(time.time())}"
-            order_data = {
-                "amount": price_in_paise,
-                "currency": plan.currency,
-                "receipt": order_receipt,
-                "payment_capture": 1
-            }
-            order = client.order.create(data=order_data)
-            order_id = order["id"]
-        except Exception as e:
-            print(f"[Razorpay Order Error] {e}")
-            raise HTTPException(status_code=500, detail=f"Failed to create gateway order: {str(e)}")
+    try:
+        order_receipt = f"receipt_{str(user.id)[:8]}_{int(time.time())}"
+        order_data = {
+            "amount": price_in_paise,
+            "currency": plan.currency,
+            "receipt": order_receipt,
+            "payment_capture": 1
+        }
+        order = client.order.create(data=order_data)
+        order_id = order["id"]
+    except Exception as e:
+        print(f"[Razorpay Order Error] {e}")
+        raise HTTPException(status_code=500, detail=f"Failed to create gateway order: {str(e)}")
 
     # 4. Insert pending Payment record into Postgres
     payment = Payment(
@@ -134,7 +143,6 @@ def create_order(
         "amount": price_in_paise,
         "currency": plan.currency,
         "key_id": key_id,
-        "is_mock": is_mock,
         "user": {
             "email": user.email,
             "name": user.display_name or "Seeker",
@@ -154,26 +162,22 @@ def verify_payment(
     if not user:
         raise HTTPException(status_code=404, detail="User not synchronized in database.")
 
-    # 1. Verify Razorpay Payment Signature (with mock bypass)
-    is_mock = req.razorpay_order_id.startswith("order_mock_") or req.razorpay_signature == "mock_sig_valid"
-    if not is_mock:
-        client, _ = get_razorpay_client()
-        if not client:
-            raise HTTPException(status_code=400, detail="Razorpay credentials not configured.")
-        try:
-            client.utility.verify_payment_signature({
-                "razorpay_order_id": req.razorpay_order_id,
-                "razorpay_payment_id": req.razorpay_payment_id,
-                "razorpay_signature": req.razorpay_signature
-            })
-        except Exception as sig_err:
-            print(f"[Razorpay Verification Failed] {sig_err}")
-            # Mark payment as failed if we can locate it
-            payment = db.query(Payment).filter(Payment.gateway_order_id == req.razorpay_order_id).first()
-            if payment:
-                payment.status = "failed"
-                db.commit()
-            raise HTTPException(status_code=400, detail="Invalid payment signature. Verification failed.")
+    # 1. Verify Razorpay Payment Signature
+    client, _ = get_razorpay_client()
+    try:
+        client.utility.verify_payment_signature({
+            "razorpay_order_id": req.razorpay_order_id,
+            "razorpay_payment_id": req.razorpay_payment_id,
+            "razorpay_signature": req.razorpay_signature
+        })
+    except Exception as sig_err:
+        print(f"[Razorpay Verification Failed] {sig_err}")
+        # Mark payment as failed if we can locate it
+        payment = db.query(Payment).filter(Payment.gateway_order_id == req.razorpay_order_id).first()
+        if payment:
+            payment.status = "failed"
+            db.commit()
+        raise HTTPException(status_code=400, detail="Invalid payment signature. Verification failed.")
 
     # 2. Update Payment record to completed
     payment = db.query(Payment).filter(Payment.gateway_order_id == req.razorpay_order_id).first()

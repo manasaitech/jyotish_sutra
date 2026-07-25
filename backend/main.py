@@ -9,7 +9,7 @@ sys.path.insert(0, backend_dir)
 sys.path.insert(0, project_root)
 
 # Load environment variables from .env file before other imports
-load_dotenv()
+load_dotenv(os.path.join(project_root, ".env"))
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
