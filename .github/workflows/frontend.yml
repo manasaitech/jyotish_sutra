@@ -21,11 +21,21 @@ env:
   NODE_VERSION: "22"
   # Minimum acceptable test coverage percentage.
   COVERAGE_THRESHOLD: 80
+  # The frontend app (package.json, lockfile, source) lives in this
+  # subdirectory rather than the repo root — centralized here so it only
+  # needs to change in one place if the folder is ever renamed/moved.
+  FRONTEND_DIR: frontend
 
 jobs:
   build-test-lint:
     name: Lint, Type-Check, Test & Build
     runs-on: ubuntu-latest
+
+    # Applies to every "run:" step below by default, so plain commands like
+    # "npm ci" execute inside ./frontend without needing "cd" in every step.
+    defaults:
+      run:
+        working-directory: ${{ env.FRONTEND_DIR }}
 
     steps:
       # -----------------------------------------------------------------------
@@ -46,6 +56,10 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: "npm"
+          # setup-node's cache needs an explicit path to the lockfile when
+          # it isn't at the repo root — this is what was missing before and
+          # caused the "Dependencies lock file is not found" error.
+          cache-dependency-path: ${{ env.FRONTEND_DIR }}/package-lock.json
 
       # -----------------------------------------------------------------------
       # 3. INSTALL DEPENDENCIES (npm ci)
