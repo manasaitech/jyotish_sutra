@@ -1,0 +1,227 @@
+name: Security Scan
+
+# -----------------------------------------------------------------------------
+# TRIGGERS
+# Security scanning runs on every push and pull request so vulnerabilities
+# and leaked secrets are caught before they reach main, plus a weekly
+# scheduled run to catch newly-disclosed CVEs in dependencies that haven't
+# changed (dependency scanners are only as fresh as their vulnerability DB).
+# -----------------------------------------------------------------------------
+on:
+  push:
+  pull_request:
+  schedule:
+    - cron: "0 3 * * 1" # Every Monday at 03:00 UTC
+  workflow_dispatch: {} # Allows manual triggering from the Actions tab
+
+concurrency:
+  group: security-scan-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  PYTHON_VERSION: "3.12"
+  NODE_VERSION: "22"
+
+jobs:
+  # ===========================================================================
+  # BACKEND SECURITY — FastAPI (Python)
+  # Bandit checks source code for insecure coding patterns.
+  # pip-audit checks installed dependencies against known CVE databases.
+  # ===========================================================================
+  backend-security:
+    name: Backend Security (Bandit + pip-audit)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python ${{ env.PYTHON_VERSION }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: "pip"
+
+      - name: Install backend dependencies
+        run: |
+          echo "::group::Installing backend dependencies"
+          python -m pip install --upgrade pip
+          [ -f backend/requirements.txt ] && pip install -r backend/requirements.txt || pip install -r requirements.txt
+          pip install bandit pip-audit
+          echo "::endgroup::"
+
+      # ---------------------------------------------------------------------
+      # BANDIT — Static Application Security Testing (SAST) for Python.
+      # -lll restricts findings to HIGH severity only, so the step's exit
+      # code (non-zero on any finding) directly enforces the "fail on high
+      # severity" requirement. A JSON report is also generated for the
+      # artifact upload so full details (including lower-severity findings
+      # for visibility) are preserved.
+      # ---------------------------------------------------------------------
+      - name: Run Bandit (full report, all severities, non-blocking)
+        run: |
+          echo "::group::Bandit Full Report (informational)"
+          bandit -r . -x ./tests,./.venv,./node_modules -f json -o bandit-report.json || true
+          bandit -r . -x ./tests,./.venv,./node_modules
+          echo "::endgroup::"
+        continue-on-error: true
+
+      - name: Enforce Bandit HIGH severity gate
+        run: |
+          echo "::group::Bandit HIGH Severity Gate"
+          bandit -r . -x ./tests,./.venv,./node_modules -lll
+          echo "::endgroup::"
+
+      # ---------------------------------------------------------------------
+      # PIP-AUDIT — Dependency vulnerability scanning against the PyPI
+      # Advisory Database / OSV. pip-audit fails (non-zero exit) whenever
+      # any known vulnerability is found in an installed package, which
+      # enforces the "fail on vulnerability" requirement. Note: pip-audit
+      # does not universally expose a CVSS-based severity filter across all
+      # advisory sources, so this gate treats any confirmed vulnerability as
+      # blocking — the safer default for production dependencies.
+      # ---------------------------------------------------------------------
+      - name: Run pip-audit (dependency vulnerability scan)
+        run: |
+          echo "::group::pip-audit Report"
+          REQ_FILE="requirements.txt"
+          [ -f backend/requirements.txt ] && REQ_FILE="backend/requirements.txt"
+          pip-audit -r "$REQ_FILE" -f json -o pip-audit-report.json || true
+          pip-audit -r "$REQ_FILE"
+          echo "::endgroup::"
+
+      - name: Upload backend security reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: backend-security-reports
+          path: |
+            bandit-report.json
+            pip-audit-report.json
+          retention-days: 30
+
+  # ===========================================================================
+  # FRONTEND SECURITY — React (npm)
+  # npm audit checks package dependencies against the npm advisory database.
+  # ===========================================================================
+  frontend-security:
+    name: Frontend Security (npm audit)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js ${{ env.NODE_VERSION }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: "npm"
+          cache-dependency-path: |
+            frontend/package-lock.json
+            package-lock.json
+
+      - name: Install frontend dependencies
+        run: |
+          echo "::group::Installing frontend dependencies"
+          if [ -f frontend/package-lock.json ]; then
+            cd frontend && npm ci
+          else
+            npm ci
+          fi
+          echo "::endgroup::"
+
+      # ---------------------------------------------------------------------
+      # NPM AUDIT — --audit-level=high ensures the step only fails (non-zero
+      # exit) on HIGH or CRITICAL severity findings, per the requirement.
+      # A full JSON report (all severities) is captured separately for
+      # visibility and artifact upload before the blocking gate runs.
+      # ---------------------------------------------------------------------
+      - name: Run npm audit (full report, informational)
+        run: |
+          echo "::group::npm audit Full Report (informational)"
+          cd "$( [ -f frontend/package-lock.json ] && echo frontend || echo . )"
+          npm audit --json > "$GITHUB_WORKSPACE/npm-audit-report.json" || true
+          npm audit || true
+          echo "::endgroup::"
+
+      - name: Enforce npm audit HIGH severity gate
+        run: |
+          echo "::group::npm audit HIGH/CRITICAL Severity Gate"
+          cd "$( [ -f frontend/package-lock.json ] && echo frontend || echo . )"
+          npm audit --audit-level=high
+          echo "::endgroup::"
+
+      - name: Upload frontend security report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: frontend-security-report
+          path: npm-audit-report.json
+          retention-days: 30
+
+  # ===========================================================================
+  # SECRET SCANNING — Repository-wide (covers backend, frontend, and Flutter)
+  # Gitleaks scans the full git history and working tree for hardcoded
+  # secrets, API keys, tokens, and credentials, regardless of language.
+  # ===========================================================================
+  secret-scan:
+    name: Secret Scanning (Gitleaks)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository (full history for accurate scanning)
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # Full clone required so Gitleaks can scan commit history, not just the latest snapshot
+
+      # ---------------------------------------------------------------------
+      # GITLEAKS — Detects committed secrets (API keys, tokens, private
+      # keys, credentials) across the entire repository, including Flutter
+      # (Dart), FastAPI (Python), and React (TypeScript/JS) source trees.
+      # The action fails the step (and therefore the workflow) automatically
+      # whenever a leak is detected, satisfying the "fail if secrets/API
+      # keys detected" requirement. A SARIF report is generated for the
+      # artifact upload and for optional GitHub code scanning integration.
+      # ---------------------------------------------------------------------
+      - name: Run Gitleaks secret scan
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITLEAKS_ENABLE_UPLOAD_ARTIFACT: "true"
+          GITLEAKS_ENABLE_SUMMARY: "true"
+
+      - name: Upload Gitleaks report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: gitleaks-report
+          path: results.sarif
+          retention-days: 30
+          if-no-files-found: ignore # SARIF is only produced by some Gitleaks action versions/configs
+
+  # ===========================================================================
+  # SUMMARY — Aggregates pass/fail status of all three scans into one
+  # human-readable view on the workflow run page.
+  # ===========================================================================
+  security-summary:
+    name: Security Summary
+    runs-on: ubuntu-latest
+    needs: [backend-security, frontend-security, secret-scan]
+    if: always()
+    steps:
+      - name: Print summary
+        run: |
+          echo "## Security Scan Summary" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Scan | Result |" >> "$GITHUB_STEP_SUMMARY"
+          echo "|------|--------|" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Backend (Bandit + pip-audit) | ${{ needs.backend-security.result }} |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Frontend (npm audit) | ${{ needs.frontend-security.result }} |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Secret Scan (Gitleaks) | ${{ needs.secret-scan.result }} |" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Triggered by: ${{ github.event_name }} on ${{ github.ref }}" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Commit: ${{ github.sha }}" >> "$GITHUB_STEP_SUMMARY"
+          # Fail the summary job if any upstream scan failed, so branch
+          # protection rules can key off this single required check if desired.
+          if [ "${{ needs.backend-security.result }}" != "success" ] || \
+             [ "${{ needs.frontend-security.result }}" != "success" ] || \
+             [ "${{ needs.secret-scan.result }}" != "success" ]; then
+            echo "One or more security scans failed."
+            exit 1
+          fi

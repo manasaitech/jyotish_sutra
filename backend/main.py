@@ -22,10 +22,15 @@ from api.dasha import router as dasha_router
 from api.auth import router as auth_router
 from api.billing import router as billing_router
 
+IS_PRODUCTION = os.getenv("ENV") == "production"
+
 app = FastAPI(
     title="AstroSutra AI API",
     description="Ancient Wisdom meets Modern Intelligence — Horoscope Computation and RAG-Gita Guided Chat Engine.",
-    version="1.0.0"
+    version="1.0.0",
+    docs_url=None if IS_PRODUCTION else "/docs",
+    redoc_url=None if IS_PRODUCTION else "/redoc",
+    openapi_url=None if IS_PRODUCTION else "/openapi.json",
 )
 
 frontend_url_env = os.environ.get("FRONTEND_URL")

@@ -1,41 +1,190 @@
 name: Backend CI
 
+# -----------------------------------------------------------------------------
+# TRIGGERS
+# Run this pipeline on:
+#   - Direct pushes to main (production branch)
+#   - Direct pushes to develop (integration branch)
+#   - Any pull request targeting any branch (validates changes before merge)
+# -----------------------------------------------------------------------------
 on:
   push:
-    branches: [ main, master ]
-    paths:
-      - 'backend/**'
-      - 'services/**'
-      - 'requirements.txt'
-      - '.github/workflows/backend.yml'
+    branches:
+      - main
+      - develop
   pull_request:
-    branches: [ main, master ]
-    paths:
-      - 'backend/**'
-      - 'services/**'
-      - 'requirements.txt'
-      - '.github/workflows/backend.yml'
+
+# Cancel any in-progress run for the same branch/PR when a new commit is pushed,
+# to avoid wasting CI minutes on outdated commits.
+concurrency:
+  group: backend-ci-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  # Centralize the Python version so it only needs to be updated in one place.
+  PYTHON_VERSION: "3.12"
+  # Minimum acceptable test coverage percentage.
+  COVERAGE_THRESHOLD: 80
 
 jobs:
-  test:
+  build-test-scan:
+    name: Lint, Type-Check, Security Scan & Test
     runs-on: ubuntu-latest
 
     steps:
+      # -----------------------------------------------------------------------
+      # 1. CHECKOUT REPOSITORY
+      # Pulls the repository code onto the runner so subsequent steps can use it.
+      # -----------------------------------------------------------------------
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Set up Python
+      # -----------------------------------------------------------------------
+      # SETUP PYTHON
+      # Installs the required Python version on the runner.
+      # -----------------------------------------------------------------------
+      - name: Set up Python ${{ env.PYTHON_VERSION }}
         uses: actions/setup-python@v5
         with:
-          python-version: '3.11'
-          cache: 'pip'
+          python-version: ${{ env.PYTHON_VERSION }}
 
+      # -----------------------------------------------------------------------
+      # 2. CACHE PIP PACKAGES
+      # Caches the pip download/build cache keyed on the hash of requirements.txt
+      # so dependencies are not re-downloaded/rebuilt on every run, speeding up
+      # the pipeline significantly. Cache is invalidated automatically whenever
+      # requirements.txt changes.
+      # -----------------------------------------------------------------------
+      - name: Cache pip dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
+
+      # -----------------------------------------------------------------------
+      # 3. INSTALL DEPENDENCIES
+      # Upgrades pip and installs runtime dependencies plus the tooling needed
+      # for linting, type checking, security scanning and testing.
+      # If you maintain a separate requirements-dev.txt, add it below instead
+      # of the explicit tool list.
+      # -----------------------------------------------------------------------
       - name: Install dependencies
         run: |
+          echo "::group::Installing dependencies"
           python -m pip install --upgrade pip
           pip install -r requirements.txt
+          pip install ruff black mypy bandit pip-audit pytest pytest-cov
+          echo "::endgroup::"
 
-      - name: Validate code imports
+      # -----------------------------------------------------------------------
+      # 4. RUFF LINTING
+      # Fast Python linter that catches style issues, unused imports,
+      # undefined names, and common bugs.
+      # -----------------------------------------------------------------------
+      - name: Run Ruff (linting)
         run: |
-          # Test if main backend can be imported without missing module errors
-          python -c "import backend.main; print('FastAPI application imported successfully')"
+          echo "::group::Ruff Lint Results"
+          ruff check .
+          echo "::endgroup::"
+
+      # -----------------------------------------------------------------------
+      # 5. BLACK FORMATTING CHECK
+      # Verifies code adheres to a consistent formatting standard without
+      # modifying files (--check fails the build instead of auto-formatting).
+      # -----------------------------------------------------------------------
+      - name: Run Black (formatting check)
+        run: |
+          echo "::group::Black Format Check"
+          black --check --diff .
+          echo "::endgroup::"
+
+      # -----------------------------------------------------------------------
+      # 6. MYPY STATIC TYPE CHECKING
+      # Validates type hints across the codebase to catch type errors before
+      # runtime.
+      # -----------------------------------------------------------------------
+      - name: Run MyPy (static type checking)
+        run: |
+          echo "::group::MyPy Type Check Results"
+          mypy .
+          echo "::endgroup::"
+
+      # -----------------------------------------------------------------------
+      # 7. BANDIT SECURITY ANALYSIS
+      # Scans source code for common security issues (hardcoded secrets,
+      # insecure function usage, SQL injection patterns, etc.).
+      # -r  : recursive scan
+      # -ll : only report medium/high severity issues to reduce noise
+      # -----------------------------------------------------------------------
+      - name: Run Bandit (security analysis)
+        run: |
+          echo "::group::Bandit Security Scan"
+          bandit -r . -ll -x ./tests,./.venv
+          echo "::endgroup::"
+
+      # -----------------------------------------------------------------------
+      # 8. PIP-AUDIT DEPENDENCY VULNERABILITY SCAN
+      # Checks installed dependencies against known vulnerability databases
+      # (OSV/PyPI advisories) to catch vulnerable third-party packages.
+      # -----------------------------------------------------------------------
+      - name: Run pip-audit (dependency vulnerability scan)
+        run: |
+          echo "::group::pip-audit Vulnerability Report"
+          pip-audit -r requirements.txt
+          echo "::endgroup::"
+
+      # -----------------------------------------------------------------------
+      # 9 & 10. PYTEST + COVERAGE REPORT
+      # Runs the test suite and generates coverage reports in both terminal
+      # (for logs) and XML format (for artifact upload / external tools like
+      # Codecov). --cov-fail-under enforces the coverage gate directly.
+      # -----------------------------------------------------------------------
+      # 11. FAIL IF COVERAGE < 80%
+      # pytest-cov's --cov-fail-under flag causes pytest to exit non-zero
+      # if total coverage drops below the configured threshold, which fails
+      # this step and the overall workflow.
+      # -----------------------------------------------------------------------
+      - name: Run pytest with coverage
+        run: |
+          echo "::group::Pytest Execution & Coverage Report"
+          pytest \
+            --cov=. \
+            --cov-report=term-missing \
+            --cov-report=xml \
+            --cov-report=html \
+            --cov-fail-under=${{ env.COVERAGE_THRESHOLD }} \
+            --junitxml=pytest-results.xml
+          echo "::endgroup::"
+
+      # -----------------------------------------------------------------------
+      # 12. UPLOAD COVERAGE ARTIFACT
+      # Persists the coverage reports (XML + HTML) and test results as a
+      # downloadable build artifact, regardless of whether prior steps failed,
+      # so failures can still be diagnosed from the coverage/test output.
+      # -----------------------------------------------------------------------
+      - name: Upload coverage artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: |
+            coverage.xml
+            htmlcov/
+            pytest-results.xml
+          retention-days: 14
+
+      # -----------------------------------------------------------------------
+      # FINAL STATUS SUMMARY
+      # Writes a concise, human-readable summary to the GitHub Actions UI
+      # (visible on the workflow run page) for quick at-a-glance results.
+      # -----------------------------------------------------------------------
+      - name: Pipeline summary
+        if: always()
+        run: |
+          echo "## Backend CI Summary" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Python version: ${{ env.PYTHON_VERSION }}" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Coverage threshold: ${{ env.COVERAGE_THRESHOLD }}%" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Triggered by: ${{ github.event_name }} on ${{ github.ref }}" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Commit: ${{ github.sha }}" >> "$GITHUB_STEP_SUMMARY"

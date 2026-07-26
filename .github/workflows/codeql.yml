@@ -1,0 +1,98 @@
+name: CodeQL Analysis
+
+# -----------------------------------------------------------------------------
+# TRIGGERS
+#   - push to main        : scans code as soon as it lands on the production branch
+#   - pull_request         : scans proposed changes before they can be merged
+#   - schedule (weekly)     : re-scans the full codebase even when nothing has
+#                             changed, since CodeQL's query packs and the
+#                             underlying CVE/CWE knowledge base are updated
+#                             independently of your commits — this catches
+#                             newly-discovered vulnerability patterns in
+#                             existing, unmodified code.
+# -----------------------------------------------------------------------------
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  schedule:
+    - cron: "0 4 * * 1" # Every Monday at 04:00 UTC
+
+# Cancel superseded runs on the same branch/PR to avoid wasting CI minutes.
+concurrency:
+  group: codeql-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  analyze:
+    name: Analyze (${{ matrix.language }})
+    runs-on: ubuntu-latest
+
+    # CodeQL needs elevated read access to upload results to the Security
+    # tab and, for pull requests, to annotate them.
+    permissions:
+      actions: read # Lets CodeQL read workflow run metadata
+      contents: read # Lets CodeQL check out and read repository source
+      security-events: write # Lets CodeQL upload SARIF results to the Security tab
+
+    strategy:
+      fail-fast: false # If one language's analysis fails, still run the others
+      matrix:
+        # CodeQL treats JavaScript and TypeScript as a single combined
+        # analysis language ("javascript-typescript" covers both), so only
+        # two matrix entries are needed to cover all three repository
+        # languages.
+        include:
+          - language: python
+            build-mode: none # Python is interpreted; CodeQL analyzes source directly with no build step
+          - language: javascript-typescript
+            build-mode: none # No build required for standard JS/TS analysis (covers .js, .jsx, .ts, .tsx)
+
+    steps:
+      # -----------------------------------------------------------------------
+      # 1. CHECKOUT REPOSITORY
+      # Pulls the repository source onto the runner so CodeQL has code to scan.
+      # -----------------------------------------------------------------------
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # -----------------------------------------------------------------------
+      # 2. INITIALIZE CODEQL
+      # Sets up the CodeQL analysis engine for the specific language in this
+      # matrix job and loads the standard "security-and-quality" query suite,
+      # which is broader than the default "security-extended" pack and
+      # includes additional maintainability/quality checks alongside
+      # vulnerability detection.
+      # -----------------------------------------------------------------------
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v3
+        with:
+          languages: ${{ matrix.language }}
+          build-mode: ${{ matrix.build-mode }}
+          queries: security-and-quality
+
+      # -----------------------------------------------------------------------
+      # 3. AUTOBUILD (only relevant for compiled languages)
+      # Included for completeness/production-readiness: if this workflow is
+      # later extended to a compiled language (e.g. Java, C#, Go) with
+      # build-mode "autobuild", this step will compile it automatically.
+      # It is a no-op for Python and JavaScript/TypeScript since their
+      # build-mode is "none" above.
+      # -----------------------------------------------------------------------
+      - name: Autobuild
+        uses: github/codeql-action/autobuild@v3
+
+      # -----------------------------------------------------------------------
+      # 4. PERFORM CODEQL ANALYSIS
+      # Runs the actual static analysis queries against the checked-out
+      # source, then uploads the results as a SARIF file to the repository's
+      # Security > Code scanning alerts tab. The "category" tag keeps
+      # results from each matrix language cleanly separated in the UI.
+      # -----------------------------------------------------------------------
+      - name: Perform CodeQL analysis
+        uses: github/codeql-action/analyze@v3
+        with:
+          category: "/language:${{ matrix.language }}"
