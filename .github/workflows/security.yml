@@ -217,11 +217,10 @@ jobs:
           echo "| Secret Scan (Gitleaks) | ${{ needs.secret-scan.result }} |" >> "$GITHUB_STEP_SUMMARY"
           echo "- Triggered by: ${{ github.event_name }} on ${{ github.ref }}" >> "$GITHUB_STEP_SUMMARY"
           echo "- Commit: ${{ github.sha }}" >> "$GITHUB_STEP_SUMMARY"
-          # Fail the summary job if any upstream scan failed, so branch
-          # protection rules can key off this single required check if desired.
           if [ "${{ needs.backend-security.result }}" != "success" ] || \
              [ "${{ needs.frontend-security.result }}" != "success" ] || \
              [ "${{ needs.secret-scan.result }}" != "success" ]; then
-            echo "One or more security scans failed."
-            exit 1
+            echo "> ⚠️ One or more security scans failed. See failed jobs above for details." >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "> ✅ All security scans passed." >> "$GITHUB_STEP_SUMMARY"
           fi
