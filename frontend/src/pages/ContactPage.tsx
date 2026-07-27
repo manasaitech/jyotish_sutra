@@ -9,8 +9,6 @@ interface ContactPageProps {
 
 export default function ContactPage({
   onNavigateBack,
-  onSignIn,
-  onPricing,
   apiBaseUrl = 'http://localhost:8000',
 }: ContactPageProps) {
   const [name, setName] = useState('')

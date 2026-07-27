@@ -286,10 +286,7 @@ function AppContent() {
     <PublicLayout view={view} setView={setView} onSignIn={() => setHasClickedSign(true)}>
       {view === 'landing' && (
         <LandingPage
-          onSignIn={() => setHasClickedSign(true)}
           onGetStarted={() => setHasClickedSign(true)}
-          onPricing={() => setView('pricing')}
-          onContact={() => setView('contact')}
         />
       )}
       {view === 'pricing' && (

@@ -30,8 +30,6 @@ function loadRazorpayScript(): Promise<boolean> {
 
 export default function PricingPage({
   onNavigateBack,
-  onContact,
-  onSignIn,
 }: PricingPageProps) {
   const [activeTier, setActiveTier] = useState<SubscriptionTier>(getCurrentTier())
   const [loadingTier, setLoadingTier] = useState<SubscriptionTier | null>(null)

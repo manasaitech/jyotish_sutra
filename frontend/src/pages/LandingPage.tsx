@@ -3,13 +3,10 @@ import HeroKundliChart from '../components/landing/HeroKundliChart'
 import GocharaOrbits from '../components/landing/GocharaOrbits'
 
 interface LandingPageProps {
-  onSignIn: () => void
   onGetStarted: () => void
-  onPricing: () => void
-  onContact: () => void
 }
 
-export default function LandingPage({ onSignIn, onGetStarted, onPricing, onContact }: LandingPageProps) {
+export default function LandingPage({ onGetStarted }: LandingPageProps) {
   const [activeIndex, setActiveIndex] = useState(0)
 
   const testimonials = [
