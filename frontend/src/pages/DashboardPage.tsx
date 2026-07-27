@@ -74,8 +74,8 @@ export default function DashboardPage({
                 {chartData?.mode === 'prashna'
                   ? '🔮 Prashna Horary'
                   : chartData?.mode === 'partial'
-                  ? '🪐 Estimated Horoscope'
-                  : birthData?.relationship || 'Janma Kundli'}
+                    ? '🪐 Estimated Horoscope'
+                    : birthData?.relationship || 'Janma Kundli'}
               </span>
             </div>
             <p className="text-[11px] sm:text-xs text-on-surface-variant mt-1 font-medium leading-relaxed break-words">
@@ -91,7 +91,7 @@ export default function DashboardPage({
 
           <button
             onClick={onResetProfile}
-            className="text-xs text-on-surface-variant hover:text-primary transition-colors underline underline-offset-4 decoration-outline-variant hover:decoration-primary cursor-pointer shrink-0"
+            className="px-4 py-2 text-sm font-semibold text-white bg-orange-500 hover:bg-orange-600 rounded-lg shadow-md transition-all duration-200 cursor-pointer shrink-0"
           >
             Edit Details
           </button>
