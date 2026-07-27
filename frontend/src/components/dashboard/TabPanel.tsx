@@ -18,6 +18,7 @@ import LockedTabOverlay from './LockedTabOverlay'
 import KundliMatchingView from '../matching/KundliMatchingView'
 import DashaTimelineView from '../dasha/DashaTimelineView'
 import type { UserProfile } from '../../types/profile'
+import { SCIENTIFIC_REFERENCE_LINKS } from '../../config/scientificreference'
 import {
   isTabAllowedForTier,
   getRequiredTierForTab,
@@ -250,6 +251,7 @@ export default function TabPanel({
   }
 
   const displayTitle = getDisplayTitle()
+  const scientificLink = tab !== 'marriage' ? SCIENTIFIC_REFERENCE_LINKS[tab] : null
 
   const renderMainContent = () => {
     if (tab === 'matching') return null
@@ -314,18 +316,31 @@ export default function TabPanel({
 
         {/* Tab AI Initial Reading Card */}
         <div className="celestial-card p-6 sm:p-8 rounded-3xl">
-          <div className="flex items-center gap-3 mb-4">
-            <div className="w-10 h-10 bg-primary-fixed rounded-2xl flex items-center justify-center text-primary font-bold shadow-xs">
-              <span className="material-symbols-outlined text-2xl" style={{ fontVariationSettings: "'FILL' 1" }}>
-                auto_awesome
-              </span>
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 bg-primary-fixed rounded-2xl flex items-center justify-center text-primary font-bold shadow-xs shrink-0">
+                <span className="material-symbols-outlined text-2xl" style={{ fontVariationSettings: "'FILL' 1" }}>
+                  auto_awesome
+                </span>
+              </div>
+              <div>
+                <h3 className="font-display text-xl sm:text-2xl font-bold text-primary">
+                  {displayTitle} Horoscope Analysis
+                </h3>
+                <p className="text-xs text-on-surface-variant">Personalized Vedic Insights & Guidance</p>
+              </div>
             </div>
-            <div>
-              <h3 className="font-display text-2xl font-bold text-primary">
-                {displayTitle} Horoscope Analysis
-              </h3>
-              <p className="text-xs text-on-surface-variant">Personalized Vedic Insights & Guidance</p>
-            </div>
+            {scientificLink && (
+              <a
+                href={scientificLink}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-primary/10 hover:bg-primary/20 text-primary hover:text-primary-container rounded-xl text-xs font-semibold shadow-xs transition-all hover:scale-[1.02] active:scale-[0.98] cursor-pointer self-start sm:self-auto border border-primary/25"
+              >
+                <span className="material-symbols-outlined text-base">science</span>
+                <span>Scientific explanation for these predictions</span>
+              </a>
+            )}
           </div>
 
           {loadingInitial ? (

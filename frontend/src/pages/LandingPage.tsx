@@ -6,9 +6,10 @@ interface LandingPageProps {
   onSignIn: () => void
   onGetStarted: () => void
   onPricing: () => void
+  onContact: () => void
 }
 
-export default function LandingPage({ onSignIn, onGetStarted, onPricing }: LandingPageProps) {
+export default function LandingPage({ onSignIn, onGetStarted, onPricing, onContact }: LandingPageProps) {
   const [activeIndex, setActiveIndex] = useState(0)
 
   const testimonials = [
@@ -46,13 +47,7 @@ export default function LandingPage({ onSignIn, onGetStarted, onPricing }: Landi
   }, [testimonials.length])
 
   return (
-    <div className="min-h-screen font-sans text-on-background selection:bg-primary-fixed selection:text-primary overflow-x-hidden"
-      style={{
-        backgroundImage: 'radial-gradient(circle at 2px 2px, rgba(137, 115, 101, 0.05) 1px, transparent 0)',
-        backgroundSize: '24px 24px',
-        backgroundColor: '#FAF8F3',
-      }}
-    >
+    <>
       {/* Decorative Motifs */}
       <div className="fixed top-20 left-10 w-64 h-64 opacity-[0.08] pointer-events-none hidden md:block">
         <svg className="text-primary" fill="none" stroke="currentColor" viewBox="0 0 100 100">
@@ -67,43 +62,7 @@ export default function LandingPage({ onSignIn, onGetStarted, onPricing }: Landi
         </svg>
       </div>
 
-      {/* ═══════════════════════════════════════════════ */}
-      {/* TOP NAVIGATION BAR                              */}
-      {/* ═══════════════════════════════════════════════ */}
-      <nav className="fixed top-0 w-full z-50 backdrop-blur-md border-b border-outline-variant/60"
-        style={{ backgroundColor: 'rgba(255, 248, 243, 0.9)' }}
-      >
-        <div className="flex justify-between items-center px-4 sm:px-6 md:px-10 py-3.5 sm:py-5 max-w-7xl mx-auto">
-          <div className="font-display text-2xl sm:text-3xl md:text-4xl text-primary font-bold italic tracking-tight">
-            AstroSutra AI
-          </div>
-
-          {/* Desktop Links */}
-          <div className="hidden md:flex items-center gap-8">
-            <a href="#features" className="text-on-surface-variant font-medium hover:text-primary transition-colors text-xs tracking-[0.15em] uppercase">Features</a>
-            <a href="#testimonials" className="text-on-surface-variant font-medium hover:text-primary transition-colors text-xs tracking-[0.15em] uppercase">Testimonials</a>
-            <button onClick={onPricing} className="text-on-surface-variant font-medium hover:text-primary transition-colors text-xs tracking-[0.15em] uppercase cursor-pointer bg-transparent border-none">Pricing</button>
-          </div>
-
-          <div className="flex items-center gap-2 sm:gap-3">
-            <button
-              onClick={onSignIn}
-              className="text-primary border border-primary/40 hover:bg-primary-fixed/30 px-3 sm:px-5 py-2 sm:py-2.5 text-xs sm:text-sm font-semibold tracking-wider uppercase transition-all cursor-pointer"
-            >
-              Sign In
-            </button>
-            <button
-              onClick={onGetStarted}
-              className="bg-primary text-white px-4 sm:px-6 py-2 sm:py-2.5 text-xs sm:text-sm font-semibold tracking-wider uppercase hover:bg-primary-container transition-all cursor-pointer shadow-md"
-              style={{ boxShadow: '2px 2px 0px rgba(137, 115, 101, 0.1)' }}
-            >
-              Get Started
-            </button>
-          </div>
-        </div>
-      </nav>
-
-      <main className="pt-24 sm:pt-28 relative">
+      <main className="pt-6 sm:pt-10 relative">
         {/* ═══════════════════════════════════════════════ */}
         {/* HERO SECTION                                    */}
         {/* ═══════════════════════════════════════════════ */}
@@ -141,7 +100,7 @@ export default function LandingPage({ onSignIn, onGetStarted, onPricing }: Landi
 
               {/* Subtitle */}
               <p className="text-base sm:text-lg md:text-xl text-on-surface-variant max-w-lg leading-relaxed font-light">
-                Experience the precision of Vedic Astrology and the timeless truth of the Bhagavad Gita, curated through an artisanal neural lens.
+                Experience the precision of Vedic Astrology , curated through an artisanal neural lens.
               </p>
 
               {/* CTA Buttons */}
@@ -211,9 +170,8 @@ export default function LandingPage({ onSignIn, onGetStarted, onPricing }: Landi
             ].map((feat, i) => (
               <div
                 key={i}
-                className={`p-6 sm:p-8 border border-outline-variant bg-white/60 relative group hover:bg-white transition-all duration-500 ${
-                  feat.offset ? 'md:translate-y-12' : ''
-                }`}
+                className={`p-6 sm:p-8 border border-outline-variant bg-white/60 relative group hover:bg-white transition-all duration-500 ${feat.offset ? 'md:translate-y-12' : ''
+                  }`}
                 style={{ boxShadow: '2px 2px 0px rgba(137, 115, 101, 0.1)' }}
               >
                 <div className="absolute -top-3 -left-3 w-6 h-6 border-t border-l border-primary/30" />
@@ -239,7 +197,7 @@ export default function LandingPage({ onSignIn, onGetStarted, onPricing }: Landi
           <div className="max-w-3xl mx-auto px-4 sm:px-6">
             {/* Carousel Viewport (no outer white card container, clean transparent view) */}
             <div className="overflow-hidden p-4">
-              <div 
+              <div
                 className="flex transition-transform duration-[2000ms] ease-in-out"
                 style={{ transform: `translateX(-${activeIndex * 100}%)` }}
               >
@@ -254,11 +212,11 @@ export default function LandingPage({ onSignIn, onGetStarted, onPricing }: Landi
                       <div className="absolute -top-4 left-1/2 -translate-x-1/2 w-8 h-8 bg-primary text-white flex items-center justify-center rounded-full shadow-sm">
                         <span className="material-symbols-outlined text-sm">format_quote</span>
                       </div>
-                      
+
                       <p className="font-display italic text-base sm:text-lg md:text-xl text-on-background leading-relaxed min-h-[120px] flex items-center justify-center pt-2">
                         "{t.quote}"
                       </p>
-                      
+
                       <div className="flex items-center justify-center gap-3 sm:gap-4 border-t border-outline-variant/60 pt-4 mt-2">
                         <div className="w-10 h-10 sm:w-12 sm:h-12 border border-outline-variant p-0.5 bg-white overflow-hidden rounded-full">
                           <div className="w-full h-full bg-primary-fixed/40 flex items-center justify-center text-primary text-sm sm:text-base font-bold font-display rounded-full">{t.initial}</div>
@@ -280,9 +238,8 @@ export default function LandingPage({ onSignIn, onGetStarted, onPricing }: Landi
                 <button
                   key={idx}
                   onClick={() => setActiveIndex(idx)}
-                  className={`w-2 h-2 rounded-full transition-all cursor-pointer ${
-                    activeIndex === idx ? 'bg-primary w-4' : 'bg-outline-variant hover:bg-primary/50'
-                  }`}
+                  className={`w-2 h-2 rounded-full transition-all cursor-pointer ${activeIndex === idx ? 'bg-primary w-4' : 'bg-outline-variant hover:bg-primary/50'
+                    }`}
                   aria-label={`Go to testimonial ${idx + 1}`}
                 />
               ))}
@@ -335,41 +292,12 @@ export default function LandingPage({ onSignIn, onGetStarted, onPricing }: Landi
         </section>
       </main>
 
-      {/* ═══════════════════════════════════════════════ */}
-      {/* FOOTER                                          */}
-      {/* ═══════════════════════════════════════════════ */}
-      <footer className="w-full py-10 sm:py-16 bg-surface-variant/40 border-t border-outline-variant">
-        <div className="flex flex-col md:flex-row justify-between items-center px-4 sm:px-6 md:px-10 gap-6 sm:gap-8 max-w-7xl mx-auto">
-          <div className="flex flex-col items-center md:items-start gap-2">
-            <div className="font-display text-2xl sm:text-3xl text-primary font-bold italic tracking-tight">AstroSutra AI</div>
-            <p className="text-[11px] sm:text-xs tracking-[0.12em] uppercase text-on-surface-variant">
-              © 2025 AstroSutra AI. Handcrafted Vedic Intelligence.
-            </p>
-          </div>
-          <div className="flex flex-wrap justify-center gap-5 sm:gap-10">
-            {['Privacy', 'Terms', 'Lineage', 'Contact'].map((link) => (
-              <a key={link} href="#" className="text-on-surface-variant hover:text-primary transition-colors text-[11px] sm:text-xs tracking-[0.12em] uppercase">
-                {link}
-              </a>
-            ))}
-          </div>
-          <div className="flex gap-4 sm:gap-6">
-            <button className="w-9 h-9 sm:w-10 sm:h-10 border border-outline-variant flex items-center justify-center hover:bg-primary hover:text-white transition-all cursor-pointer">
-              <span className="material-symbols-outlined text-sm">public</span>
-            </button>
-            <button className="w-9 h-9 sm:w-10 sm:h-10 border border-outline-variant flex items-center justify-center hover:bg-primary hover:text-white transition-all cursor-pointer">
-              <span className="material-symbols-outlined text-sm">mail</span>
-            </button>
-          </div>
-        </div>
-      </footer>
-
       {/* Shimmer Animation Keyframes */}
       <style>{`
         @keyframes shimmer {
           to { background-position: 200% center; }
         }
       `}</style>
-    </div>
+    </>
   )
 }

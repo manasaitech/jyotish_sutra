@@ -1,7 +1,7 @@
 /**
  * PricingPage — Beautiful 3-tier subscription pricing page for AstroSutra AI.
  */
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { TIER_CONFIG, type SubscriptionTier } from '../config/subscriptionConfig'
 import { getCurrentTier, setCurrentTier } from '../utils/subscriptionManager'
 import { authenticatedFetch } from '../utils/apiClient'
@@ -10,6 +10,8 @@ import { LOGO_BASE64 } from '../assets/logoBase64'
 
 interface PricingPageProps {
   onNavigateBack: () => void
+  onContact?: () => void
+  onSignIn?: () => void
 }
 
 function loadRazorpayScript(): Promise<boolean> {
@@ -26,11 +28,19 @@ function loadRazorpayScript(): Promise<boolean> {
   })
 }
 
-export default function PricingPage({ onNavigateBack }: PricingPageProps) {
+export default function PricingPage({
+  onNavigateBack,
+  onContact,
+  onSignIn,
+}: PricingPageProps) {
   const [activeTier, setActiveTier] = useState<SubscriptionTier>(getCurrentTier())
   const [loadingTier, setLoadingTier] = useState<SubscriptionTier | null>(null)
   const [successTier, setSuccessTier] = useState<SubscriptionTier | null>(null)
   const { user } = useAuth()
+
+  useEffect(() => {
+    window.scrollTo(0, 0)
+  }, [])
 
   const handleSelectTier = async (tier: SubscriptionTier) => {
     if (tier === 'free') {
@@ -139,23 +149,9 @@ export default function PricingPage({ onNavigateBack }: PricingPageProps) {
   const tiers = Object.values(TIER_CONFIG)
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* Header */}
-      <nav className="glass border-b border-outline-variant/50 h-[72px] sticky top-0 z-50 flex items-center justify-between px-4 md:px-10">
-        <button
-          onClick={onNavigateBack}
-          className="flex items-center gap-2 text-on-surface-variant hover:text-primary transition-colors cursor-pointer"
-        >
-          <span className="material-symbols-outlined text-xl">arrow_back</span>
-          <span className="text-sm font-medium">Back to Dashboard</span>
-        </button>
-        <div className="flex items-center gap-3">
-          <img src="/logo.png" alt="AstroSutra AI Logo" className="w-10 h-10 object-contain rounded-xl shadow-xs" />
-          <h1 className="font-display text-[28px] leading-tight font-semibold text-primary">
-            AstroSutra AI
-          </h1>
-        </div>
-      </nav>
+    <>
+      {/* Spacer to clear header */}
+      <div className="h-6" />
 
       {/* Hero Section */}
       <div className="max-w-5xl mx-auto px-4 pt-12 pb-6 text-center">
@@ -367,6 +363,6 @@ export default function PricingPage({ onNavigateBack }: PricingPageProps) {
           </div>
         </div>
       )}
-    </div>
+    </>
   )
 }
