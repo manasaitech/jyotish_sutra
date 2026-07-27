@@ -52,8 +52,8 @@ By creating an account, accessing, or using the Service, you agree to be bound b
       },
       {
         sub: '6.4',
-        title: 'Cancellations and Refunds',
-        content: `You may cancel your subscription at any time through your account settings or the app store through which you subscribed. Cancellation will take effect at the end of the current billing period; we do not provide prorated refunds for partial billing periods except where required by applicable law. Purchases made through Apple App Store or Google Play are subject to those platforms' respective refund policies.`,
+        title: 'No Refund Policy',
+        content: `ALL PAYMENTS MADE TO ASTRO SUTRA ARE FINAL AND NON-REFUNDABLE. Once a subscription or any other purchase is made, no refunds, credits, or exchanges will be issued under any circumstances, including but not limited to: dissatisfaction with the Service, partial use of a billing period, accidental purchases, or account termination.\n\nYou may cancel your subscription at any time through your account settings. Cancellation will take effect at the end of the current billing period, and you will continue to have access to paid features until then. However, no refund will be provided for the remaining period or any prior payments.\n\nBy subscribing or making any purchase, you acknowledge and agree to this strict no-refund policy. This policy applies to all payment methods, including payments made through the Astro Sutra website, Razorpay, or any other payment processor.`,
       },
       {
         sub: '6.5',

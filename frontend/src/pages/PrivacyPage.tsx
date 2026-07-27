@@ -39,8 +39,8 @@ This policy applies to all users of Astro Sutra, including users accessing the S
       },
       {
         sub: '2.5',
-        title: 'Payment and Subscription Information',
-        content: `If you purchase a subscription or premium tier, payment processing is handled by our third-party payment processor. We do not store your full credit card, debit card, or bank account numbers on our servers. We retain records of your subscription tier, billing history, and transaction status for accounting and support purposes.`,
+        title: 'Payment, Subscription Information, and No Refunds',
+        content: `If you purchase a subscription or premium tier, payment processing is handled by our third-party payment processor. We do not store your full credit card, debit card, or bank account numbers on our servers. We retain records of your subscription tier, billing history, and transaction status for accounting and support purposes.\n\nPlease note that as detailed in our Terms & Conditions, all payments made to Astro Sutra are final and strictly non-refundable under any circumstances. Cancellation of a subscription stops future billing, but no prorated or partial refunds will be provided for past or current billing cycles.`,
       },
       {
         sub: '2.6',

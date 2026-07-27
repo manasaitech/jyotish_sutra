@@ -62,7 +62,11 @@ export default function ChatPage() {
       if (activeLocal && activeLocal.chartData) {
         setActiveId(activeLocal.id)
         setActiveProfileId(activeLocal.id)
-        setBirthData(activeLocal.birthData || null)
+        const normalizedLocalBirth = activeLocal.birthData ? {
+          ...activeLocal.birthData,
+          fullName: activeLocal.birthData.fullName || (activeLocal.birthData as any).name || activeLocal.name || user?.displayName || 'Seeker'
+        } : null
+        setBirthData(normalizedLocalBirth)
         setChartData(activeLocal.chartData)
         setStep('ready')
       }
@@ -73,11 +77,17 @@ export default function ChatPage() {
         .then((data) => {
           if (data && data.exists && (data.chart_summary || data.natal_chart)) {
             const chart = data.chart_summary || data.natal_chart
+            const nameFromBackend = data.birth_details?.fullName || data.birth_details?.name || user.displayName || 'Seeker'
+            const normalizedBirthData = data.birth_details ? {
+              ...data.birth_details,
+              fullName: nameFromBackend
+            } : null
+
             const restoredProfile: UserProfile = {
               id: user.uid,
-              name: user.displayName || data.birth_details?.name || 'Seeker',
+              name: nameFromBackend,
               relationship: 'Self',
-              birthData: data.birth_details || null,
+              birthData: normalizedBirthData,
               chartData: chart,
               computed: data.computed,
               createdAt: new Date().toISOString(),
@@ -96,7 +106,7 @@ export default function ChatPage() {
             setActiveId(user.uid)
             setActiveProfileId(user.uid)
             setChartData(chart)
-            setBirthData(data.birth_details || null)
+            setBirthData(normalizedBirthData)
             setStep('ready')
           } else {
             // New user, or database details are missing -> check if we have a local profile to sync
@@ -163,7 +173,11 @@ export default function ChatPage() {
 
     setActiveId(selected.id)
     setActiveProfileId(selected.id)
-    setBirthData(selected.birthData || null)
+    const normalizedSelectedBirth = selected.birthData ? {
+      ...selected.birthData,
+      fullName: selected.birthData.fullName || (selected.birthData as any).name || selected.name || user?.displayName || 'Seeker'
+    } : null
+    setBirthData(normalizedSelectedBirth)
 
     if (selected.chartData && selected.chartData.ascendant_sign) {
       setChartData(selected.chartData)

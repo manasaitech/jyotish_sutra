@@ -48,6 +48,9 @@ export default function DashboardPage({
     nakshatra: chartData?.metadata?.nakshatra || chartData?.nakshatra || 'Pushya',
   }
 
+  const activeProfile = profiles.find((p) => p.id === activeProfileId) || profiles[0]
+  const displayName = birthData?.fullName || (birthData as any)?.name || activeProfile?.name || chartData?.name || 'Seeker'
+
   return (
     <div className="min-h-screen bg-background">
       {/* Top Navbar with Profile Section Trigger & Subscription Pricing Link */}
@@ -68,7 +71,7 @@ export default function DashboardPage({
           <div className="min-w-0 w-full sm:w-auto">
             <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
               <h1 className="font-display text-lg sm:text-2xl md:text-3xl font-bold text-primary leading-snug">
-                🙏 Welcome, {birthData?.fullName || 'Seeker'}!
+                🙏 Welcome, {displayName}!
               </h1>
               <span className="text-[10px] sm:text-xs font-semibold text-primary bg-primary-fixed px-2 py-0.5 rounded-full border border-primary/20 whitespace-nowrap">
                 {chartData?.mode === 'prashna'
