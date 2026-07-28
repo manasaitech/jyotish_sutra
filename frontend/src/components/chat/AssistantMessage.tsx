@@ -15,7 +15,7 @@ export default function AssistantMessage({ icon, iconFill = true, children }: As
           {icon}
         </span>
       </div>
-      <div className="max-w-[85%] bg-white border border-outline-variant/60 rounded-2xl rounded-tl-none p-4 text-[16px] leading-6 shadow-sm">
+      <div className="max-w-[85%] bg-surface text-on-surface border border-outline-variant/60 rounded-2xl rounded-tl-none p-4 text-[16px] leading-6 shadow-sm">
         {children}
       </div>
     </div>

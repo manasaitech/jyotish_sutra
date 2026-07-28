@@ -2,6 +2,7 @@ import { useState } from 'react'
 import type { UserProfile } from '../../types/profile'
 import { getCurrentTier } from '../../utils/subscriptionManager'
 import { TIER_CONFIG } from '../../config/subscriptionConfig'
+import { Link } from 'react-router-dom'
 import ExpertConsultationModal from '../expert/ExpertConsultationModal'
 
 interface NavbarProps {
@@ -26,28 +27,28 @@ export default function Navbar({
   return (
     <>
       <nav className="glass border-b border-outline-variant/50 min-h-[64px] py-2 sticky top-0 z-50 flex items-center justify-between px-2.5 sm:px-6 md:px-10 gap-1.5">
-        {/* Logo */}
-        <div className="flex items-center gap-2 min-w-0">
-          <img src="/logo.png" alt="AstroSutra AI Logo" className="w-8 h-8 sm:w-10 sm:h-10 object-contain rounded-xl shrink-0" />
-          <div className="min-w-0">
-            <div className="flex items-center gap-1.5 min-w-0">
+        {/* Clickable Logo Link */}
+        <div className="flex items-center gap-2 sm:gap-3 min-w-0">
+          <Link to="/" className="flex items-center gap-2 min-w-0 hover:opacity-90 transition-opacity no-underline cursor-pointer">
+            <img src="/logo.png" alt="AstroSutra AI Logo" className="w-8 h-8 sm:w-10 sm:h-10 object-contain rounded-xl shrink-0" />
+            <div className="min-w-0 text-left">
               <h1 className="font-display text-[16px] sm:text-[22px] md:text-[26px] leading-tight font-bold text-primary truncate">
                 AstroSutra AI
               </h1>
-              {/* Subscription Tier Badge */}
-              <button
-                onClick={onOpenPricing}
-                title="Click to view subscription plans"
-                className="text-[9px] sm:text-[10px] font-extrabold uppercase px-1.5 py-0.5 rounded-full text-white shadow-xs transition-all hover:scale-105 cursor-pointer shrink-0"
-                style={{ backgroundColor: tierConfig.color }}
-              >
-                {tierConfig.label}
-              </button>
+              <p className="text-[10px] sm:text-[12px] leading-none font-semibold text-on-surface-variant hidden sm:block">
+                Modular AI Astrology Platform
+              </p>
             </div>
-            <p className="text-[10px] sm:text-[12px] leading-none font-semibold text-on-surface-variant hidden sm:block">
-              Modular AI Astrology Platform
-            </p>
-          </div>
+          </Link>
+          {/* Subscription Tier Badge (outside nested link context) */}
+          <button
+            onClick={onOpenPricing}
+            title="Click to view subscription plans"
+            className="text-[9px] sm:text-[10px] font-extrabold uppercase px-1.5 py-0.5 rounded-full text-white shadow-xs transition-all hover:scale-105 cursor-pointer shrink-0"
+            style={{ backgroundColor: tierConfig.color }}
+          >
+            {tierConfig.label}
+          </button>
         </div>
 
         {/* Navigation & Profile Section Trigger */}

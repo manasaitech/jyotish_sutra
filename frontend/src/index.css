@@ -229,11 +229,20 @@ h1, h2, h3, .font-display {
   animation: planetFadeIn 0.4s ease-out both;
 }
 
+:root {
+  --gradient-free: linear-gradient(135deg, #FAF8F3, #F2E8D5);
+  --gradient-standard: linear-gradient(135deg, #FFF3E6, #FDF2D9);
+  --gradient-pro: linear-gradient(135deg, #FDF2D9, #F5E6C8);
+}
+
 
 /* ========================================
    Dark Mode Theme Overrides
    ======================================== */
 [data-theme="dark"] {
+  --gradient-free: linear-gradient(135deg, #1A1816, #24221E);
+  --gradient-standard: linear-gradient(135deg, #241D15, #292418);
+  --gradient-pro: linear-gradient(135deg, #2A2414, #362E1A);
   --color-primary: #F0A050;
   --color-primary-container: #D4A04A;
   --color-on-primary: #1A1612;
