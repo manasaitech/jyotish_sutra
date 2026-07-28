@@ -138,7 +138,7 @@ export default function HeroKundliChart() {
 
       {/* Outer frame with subtle shadow */}
       <div
-        className="w-full h-full p-3 sm:p-4 bg-white/50 backdrop-blur-sm"
+        className="w-full h-full p-3 sm:p-4 bg-surface/50 backdrop-blur-sm"
         style={{ border: '1.5px solid #E9DFC8', boxShadow: '0 10px 40px -10px rgba(230, 126, 34, 0.12)' }}
       >
         <svg
@@ -269,7 +269,7 @@ export default function HeroKundliChart() {
 
       {/* Floating annotation labels */}
       <div
-        className="absolute -right-2 sm:-right-6 top-1/4 bg-white/90 backdrop-blur-sm px-2.5 py-1 border border-outline-variant text-[10px] sm:text-[11px] tracking-[0.1em] uppercase italic text-on-surface-variant shadow-sm"
+        className="absolute -right-2 sm:-right-6 top-1/4 bg-surface/90 backdrop-blur-sm px-2.5 py-1 border border-outline-variant text-[10px] sm:text-[11px] tracking-[0.1em] uppercase italic text-on-surface font-extrabold shadow-sm"
         style={{
           opacity: 0,
           animation: 'fadeSlideLeft 0.5s ease-out 2.8s forwards',
@@ -278,7 +278,7 @@ export default function HeroKundliChart() {
         Lagna: Mesha
       </div>
       <div
-        className="absolute -left-2 sm:-left-6 bottom-1/4 bg-white/90 backdrop-blur-sm px-2.5 py-1 border border-outline-variant text-[10px] sm:text-[11px] tracking-[0.1em] uppercase italic text-on-surface-variant shadow-sm"
+        className="absolute -left-2 sm:-left-6 bottom-1/4 bg-surface/90 backdrop-blur-sm px-2.5 py-1 border border-outline-variant text-[10px] sm:text-[11px] tracking-[0.1em] uppercase italic text-on-surface font-extrabold shadow-sm"
         style={{
           opacity: 0,
           animation: 'fadeSlideRight 0.5s ease-out 3.2s forwards',
