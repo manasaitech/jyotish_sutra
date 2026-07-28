@@ -67,11 +67,11 @@ export default function LandingPage({ onGetStarted }: LandingPageProps) {
           <div className="grid md:grid-cols-2 gap-12 md:gap-16 items-center relative z-10 w-full">
             <div className="flex flex-col gap-5 sm:gap-6">
               {/* Badge */}
-              <div className="inline-flex items-center gap-2 px-3 py-1.5 border border-outline-variant bg-white/50 w-fit"
+              <div className="inline-flex items-center gap-2 px-3 py-1.5 border border-outline-variant bg-surface/50 w-fit"
                 style={{ boxShadow: '2px 2px 0px rgba(137, 115, 101, 0.1)' }}
               >
                 <span className="material-symbols-outlined text-primary text-base">palette</span>
-                <span className="text-[10px] sm:text-xs uppercase tracking-[0.15em] font-semibold text-on-surface-variant">
+                <span className="text-[10px] sm:text-xs uppercase tracking-[0.15em] font-extrabold text-on-surface">
                   Handcrafted Vedic Intelligence
                 </span>
               </div>
