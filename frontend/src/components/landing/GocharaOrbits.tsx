@@ -17,7 +17,7 @@ const TRANSIT_LIST: TransitItem[] = [
     sign: 'Sun in Aries (Mesha)',
     status: 'Exalted • High Vitality',
     badgeStyle: 'bg-amber-500/10 text-amber-800 border-amber-500/30',
-    degree: '14° 22\'',
+    degree: "14° 22'",
     effect: 'Leadership & Solar Energy Peak',
   },
   {
@@ -26,7 +26,7 @@ const TRANSIT_LIST: TransitItem[] = [
     sign: 'Moon in Taurus (Vrishabha)',
     status: 'Exalted • Emotional Bliss',
     badgeStyle: 'bg-emerald-500/10 text-emerald-800 border-emerald-500/30',
-    degree: '08° 45\'',
+    degree: "08° 45'",
     effect: 'Deep Mental Peace & Intuition',
   },
   {
@@ -35,7 +35,7 @@ const TRANSIT_LIST: TransitItem[] = [
     sign: 'Jupiter in Taurus (Vrishabha)',
     status: 'Benefic • Financial Expansion',
     badgeStyle: 'bg-yellow-500/10 text-yellow-900 border-yellow-500/30',
-    degree: '21° 10\'',
+    degree: "21° 10'",
     effect: 'Abundance, Wisdom & Luck',
   },
   {
@@ -44,7 +44,7 @@ const TRANSIT_LIST: TransitItem[] = [
     sign: 'Saturn in Aquarius (Kumbha)',
     status: 'Own Sign • Karmic Discipline',
     badgeStyle: 'bg-blue-500/10 text-blue-900 border-blue-500/30',
-    degree: '18° 50\'',
+    degree: "18° 50'",
     effect: 'Long-term Growth & Mastery',
   },
   {
@@ -53,7 +53,7 @@ const TRANSIT_LIST: TransitItem[] = [
     sign: 'Mars in Capricorn (Makara)',
     status: 'Exalted • Courage & Action',
     badgeStyle: 'bg-rose-500/10 text-rose-900 border-rose-500/30',
-    degree: '28° 04\'',
+    degree: "28° 04'",
     effect: 'Unstoppable Drive & Victory',
   },
   {
@@ -62,8 +62,8 @@ const TRANSIT_LIST: TransitItem[] = [
     sign: 'Venus in Pisces (Meena)',
     status: 'Exalted • Creative Harmony',
     badgeStyle: 'bg-purple-500/10 text-purple-900 border-purple-500/30',
-    degree: '12° 30\'',
-    effect: 'Artistic Genius & Harmony',
+    degree: "12° 30'",
+    effect: 'Artistic Genius & Harmony (Elongation ≤ 47°)',
   },
   {
     planet: 'Mercury',
@@ -71,28 +71,44 @@ const TRANSIT_LIST: TransitItem[] = [
     sign: 'Mercury in Gemini (Mithuna)',
     status: 'Own Sign • Intellect & Speech',
     badgeStyle: 'bg-teal-500/10 text-teal-900 border-teal-500/30',
-    degree: '05° 15\'',
-    effect: 'Sharp Analysis & Communication',
+    degree: "05° 15'",
+    effect: 'Sharp Analysis & Intellect (Elongation ≤ 28°)',
   },
   {
     planet: 'Rahu',
     hindiName: 'राहु',
     sign: 'Rahu in Pisces (Meena)',
-    status: 'Karmic Axis Shift',
+    status: '180° Opposite Ketu Axis',
     badgeStyle: 'bg-indigo-500/10 text-indigo-900 border-indigo-500/30',
-    degree: '15° 00\'',
-    effect: 'Innovation & Ambition',
+    degree: "15° 00'",
+    effect: 'North Node • Innovation & Ambition',
   },
   {
     planet: 'Ketu',
     hindiName: 'केतु',
     sign: 'Ketu in Virgo (Kanya)',
-    status: 'Spiritual Liberation',
+    status: '180° Opposite Rahu Axis',
     badgeStyle: 'bg-orange-500/10 text-orange-900 border-orange-500/30',
-    degree: '15° 00\'',
-    effect: 'Detachment & Higher Consciousness',
+    degree: "15° 00'",
+    effect: 'South Node • Spiritual Liberation',
   },
 ]
+
+/**
+ * Calculates (top, left) percentage coordinates along a circular orbit ring.
+ * - angleDeg: 0° is 12 o'clock (top), 90° is 3 o'clock (right), 180° is 6 o'clock (bottom), 270° is 9 o'clock (left).
+ * - radiusPercent: 50% places element on the perimeter of the orbit container.
+ */
+const getPolarStyle = (angleDeg: number, radiusPercent: number = 50) => {
+  const rad = (angleDeg - 90) * (Math.PI / 180)
+  const x = 50 + radiusPercent * Math.cos(rad)
+  const y = 50 + radiusPercent * Math.sin(rad)
+  return {
+    left: `${x}%`,
+    top: `${y}%`,
+    transform: 'translate(-50%, -50%)',
+  }
+}
 
 export default function GocharaOrbits() {
   const [activeIndex, setActiveIndex] = useState(0)
@@ -109,13 +125,13 @@ export default function GocharaOrbits() {
 
   return (
     <div className="w-full grid grid-cols-1 md:grid-cols-12 gap-8 md:gap-12 items-center">
-      {/* ── Left Side: Auto-shifting Navagraha Transit Cards (No Emojis) ── */}
+      {/* ── Left Side: Auto-shifting Navagraha Transit Cards ── */}
       <div className="md:col-span-6 flex flex-col justify-center">
         <h2 className="font-display text-2xl sm:text-3xl md:text-[42px] text-on-background mb-3 uppercase tracking-[0.1em] italic font-semibold leading-tight">
           The Heavens in Motion
         </h2>
         <p className="text-base sm:text-lg text-on-surface-variant mb-6 font-light leading-relaxed italic">
-          Our engine constantly tracks the movement of the Navagrahas to provide real-time Gochara insights that evolve as the cosmos shifts.
+          Our engine constantly tracks the astronomical movement of the Navagrahas with precise planetary elongations and 180° Rahu-Ketu node opposition.
         </p>
 
         {/* Dynamic Auto-shifting Transit Cards Box */}
@@ -179,17 +195,18 @@ export default function GocharaOrbits() {
         </div>
       </div>
 
-      {/* ── Right Side: Multi-Ring Concentric Orbiting Circles with Hindi Graha Badges ── */}
-      <div className="md:col-span-6 relative flex justify-center items-center py-4 select-none">
+      {/* ── Right Side: Multi-Ring Concentric Orbiting Circles with Precise Astronomical Angular Distances ── */}
+      <div className="md:col-span-6 relative flex flex-col justify-center items-center py-4 select-none">
         <div className="relative w-64 h-64 sm:w-80 sm:h-80 md:w-96 md:h-96 flex items-center justify-center">
           
-          {/* Outer Ring 3 — Saturn (शनि), Rahu (राहु) & Ketu (केतु) (Slow 90s Counter-Clockwise Rotation) */}
+          {/* ── Outer Ring 3 — Saturn (शनि), Rahu (राहु) & Ketu (केतु) ── */}
+          {/* Rahu at 45° and Ketu at 225° (EXACT 180° OPPOSITE NODE AXIS) */}
           <div
             className="absolute inset-0 rounded-full border border-primary/30 border-dashed"
             style={{ animation: 'spinCounter 90s linear infinite' }}
           >
-            {/* Shani (शनि) */}
-            <div className="absolute -top-3.5 left-1/2 -translate-x-1/2">
+            {/* Shani (शनि) — Positioned at 315° (top-left) */}
+            <div className="absolute" style={getPolarStyle(315)}>
               <div
                 className={`px-2.5 py-1 rounded-full border text-xs font-display font-extrabold shadow-sm transition-all ${
                   currentActiveHindi === 'शनि'
@@ -202,8 +219,8 @@ export default function GocharaOrbits() {
               </div>
             </div>
 
-            {/* Rahu (राहु) */}
-            <div className="absolute -bottom-3.5 left-1/4 -translate-x-1/2">
+            {/* Rahu (राहु) — Positioned at 45° (top-right) */}
+            <div className="absolute" style={getPolarStyle(45)}>
               <div
                 className={`px-2.5 py-1 rounded-full border text-xs font-display font-extrabold shadow-sm transition-all ${
                   currentActiveHindi === 'राहु'
@@ -216,8 +233,8 @@ export default function GocharaOrbits() {
               </div>
             </div>
 
-            {/* Ketu (केतु) */}
-            <div className="absolute -bottom-3.5 right-1/4 translate-x-1/2">
+            {/* Ketu (केतु) — Positioned at 225° (bottom-left) → EXACT 180° OPPOSITE RAHU! */}
+            <div className="absolute" style={getPolarStyle(225)}>
               <div
                 className={`px-2.5 py-1 rounded-full border text-xs font-display font-extrabold shadow-sm transition-all ${
                   currentActiveHindi === 'केतु'
@@ -231,13 +248,13 @@ export default function GocharaOrbits() {
             </div>
           </div>
 
-          {/* Middle Ring 2 — Guru (गुरु), Mangal (मंगल) & Budh (बुध) (60s Clockwise Rotation) */}
+          {/* ── Middle Ring 2 — Guru (गुरु), Mangal (मंगल) & Chandra (चन्द्र) ── */}
           <div
             className="absolute inset-7 sm:inset-9 rounded-full border-2 border-primary/35"
             style={{ animation: 'spinClockwise 60s linear infinite' }}
           >
-            {/* Guru (गुरु) */}
-            <div className="absolute top-1/2 -left-4 -translate-y-1/2">
+            {/* Guru (गुरु) — Positioned at 90° (right 3 o'clock) */}
+            <div className="absolute" style={getPolarStyle(90)}>
               <div
                 className={`px-2.5 py-1 rounded-full border text-xs font-display font-extrabold shadow-sm transition-all ${
                   currentActiveHindi === 'गुरु'
@@ -250,8 +267,8 @@ export default function GocharaOrbits() {
               </div>
             </div>
 
-            {/* Mangal (मंगल) */}
-            <div className="absolute top-1/2 -right-4 -translate-y-1/2">
+            {/* Mangal (मंगल) — Positioned at 270° (left 9 o'clock — 180° opposite Jupiter) */}
+            <div className="absolute" style={getPolarStyle(270)}>
               <div
                 className={`px-2.5 py-1 rounded-full border text-xs font-display font-extrabold shadow-sm transition-all ${
                   currentActiveHindi === 'मंगल'
@@ -264,28 +281,29 @@ export default function GocharaOrbits() {
               </div>
             </div>
 
-            {/* Budh (बुध) */}
-            <div className="absolute -top-3.5 left-1/2 -translate-x-1/2">
+            {/* Chandra (चन्द्र) — Positioned at 180° (bottom 6 o'clock) */}
+            <div className="absolute" style={getPolarStyle(180)}>
               <div
                 className={`px-2.5 py-1 rounded-full border text-xs font-display font-extrabold shadow-sm transition-all ${
-                  currentActiveHindi === 'बुध'
+                  currentActiveHindi === 'चन्द्र'
                     ? 'bg-primary text-white border-primary scale-110 ring-2 ring-primary/30'
-                    : 'bg-white text-teal-800 border-teal-700/40'
+                    : 'bg-white text-primary border-primary/40'
                 }`}
                 style={{ animation: 'spinCounter 60s linear infinite' }}
               >
-                बुध
+                चन्द्र
               </div>
             </div>
           </div>
 
-          {/* Inner Ring 1 — Surya (सूर्य), Chandra (चन्द्र) & Shukra (शुक्र) (30s Counter-Clockwise Rotation) */}
+          {/* ── Inner Ring 1 — Surya (सूर्य), Budh (बुध) & Shukra (शुक्र) ── */}
+          {/* Mercury max elongation ≤ 28°, Venus max elongation ≤ 47° */}
           <div
             className="absolute inset-15 sm:inset-18 rounded-full border border-primary/45 border-dotted"
             style={{ animation: 'spinCounter 30s linear infinite' }}
           >
-            {/* Surya (सूर्य) */}
-            <div className="absolute -top-3.5 left-1/2 -translate-x-1/2">
+            {/* Surya (सूर्य) — Positioned at 0° (top 12 o'clock) */}
+            <div className="absolute" style={getPolarStyle(0)}>
               <div
                 className={`px-2.5 py-0.5 rounded-full border text-xs font-display font-extrabold shadow-sm transition-all ${
                   currentActiveHindi === 'सूर्य'
@@ -298,22 +316,22 @@ export default function GocharaOrbits() {
               </div>
             </div>
 
-            {/* Chandra (चन्द्र) */}
-            <div className="absolute -bottom-3.5 left-1/2 -translate-x-1/2">
+            {/* Budh (बुध) — Positioned at +22° (within Mercury's 28° max elongation from Sun) */}
+            <div className="absolute" style={getPolarStyle(22)}>
               <div
                 className={`px-2.5 py-0.5 rounded-full border text-xs font-display font-extrabold shadow-sm transition-all ${
-                  currentActiveHindi === 'चन्द्र'
+                  currentActiveHindi === 'बुध'
                     ? 'bg-primary text-white border-primary scale-110 ring-2 ring-primary/30'
-                    : 'bg-white text-primary border-primary/40'
+                    : 'bg-white text-teal-800 border-teal-700/40'
                 }`}
                 style={{ animation: 'spinClockwise 30s linear infinite' }}
               >
-                चन्द्र
+                बुध
               </div>
             </div>
 
-            {/* Shukra (शुक्र) */}
-            <div className="absolute top-1/2 -right-3.5 -translate-y-1/2">
+            {/* Shukra (शुक्र) — Positioned at -38° / 322° (within Venus's 47° max elongation from Sun) */}
+            <div className="absolute" style={getPolarStyle(322)}>
               <div
                 className={`px-2.5 py-0.5 rounded-full border text-xs font-display font-extrabold shadow-sm transition-all ${
                   currentActiveHindi === 'शुक्र'
@@ -343,7 +361,7 @@ export default function GocharaOrbits() {
         </div>
       </div>
 
-      {/* Keyframes for Orbit Rotation & Counter-Rotation so Hindi Graha text stays upright */}
+      {/* Keyframes for Orbit Rotation & Counter-Rotation so Hindi Graha text stays 100% upright */}
       <style>{`
         @keyframes spinClockwise {
           from { transform: rotate(0deg); }

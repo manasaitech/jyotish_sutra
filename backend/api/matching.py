@@ -71,11 +71,15 @@ def match_kundli(req: KundliMatchRequest):
         user_prompt = f"Please provide a comprehensive Vedic Kundli Matching report for {name_a} and {name_b}:\n\n{context_text}"
 
         client = LLMFactory.get_client()
+        from utils.trust_note import append_trust_note
+
         try:
             ai_report = client.generate(MATCHING_SYSTEM_PROMPT, user_prompt, max_tokens=850)
+            ai_report = append_trust_note(ai_report)
         except Exception as llm_err:
             print(f"[Matching API] LLM Generation warning: {llm_err}")
             ai_report = f"### 💖 Kundli Compatibility Summary\n\nOverall Ashtakoota Score: **{match_result.get('ashtakoota', {}).get('total_score')}/36 Gunas** ({match_result.get('ashtakoota', {}).get('verdict')}).\n\n{match_result.get('ashtakoota', {}).get('recommendation')}"
+            ai_report = append_trust_note(ai_report)
 
         return {
             "success": True,
