@@ -174,7 +174,7 @@ export default function LandingPage({ onGetStarted }: LandingPageProps) {
             ].map((feat, i) => (
               <div
                 key={i}
-                className={`p-6 sm:p-8 border border-outline-variant bg-white/60 relative group hover:bg-white transition-all duration-500 ${feat.offset ? 'lg:translate-y-12' : ''
+                className={`p-6 sm:p-8 border border-outline-variant bg-surface/60 relative group hover:bg-surface transition-all duration-500 ${feat.offset ? 'lg:translate-y-12' : ''
                   }`}
                 style={{ boxShadow: '2px 2px 0px rgba(137, 115, 101, 0.1)' }}
               >
@@ -209,7 +209,7 @@ export default function LandingPage({ onGetStarted }: LandingPageProps) {
                   <div key={idx} className="w-full shrink-0 px-2 sm:px-4">
                     {/* Separate individual testimonial card */}
                     <div
-                      className="relative bg-white p-6 sm:p-10 text-center flex flex-col gap-5 sm:gap-6 mx-auto max-w-2xl rounded-2xl"
+                      className="relative bg-surface p-6 sm:p-10 text-center flex flex-col gap-5 sm:gap-6 mx-auto max-w-2xl rounded-2xl"
                       style={{ border: '1.5px solid #E9DFC8', boxShadow: '0 10px 30px -10px rgba(230, 126, 34, 0.12)' }}
                     >
                       {/* Quote Badge for each card */}
@@ -222,7 +222,7 @@ export default function LandingPage({ onGetStarted }: LandingPageProps) {
                       </p>
 
                       <div className="flex items-center justify-center gap-3 sm:gap-4 border-t border-outline-variant/60 pt-4 mt-2">
-                        <div className="w-10 h-10 sm:w-12 sm:h-12 border border-outline-variant p-0.5 bg-white overflow-hidden rounded-full">
+                        <div className="w-10 h-10 sm:w-12 sm:h-12 border border-outline-variant p-0.5 bg-surface overflow-hidden rounded-full">
                           <div className="w-full h-full bg-primary-fixed/40 flex items-center justify-center text-primary text-sm sm:text-base font-bold font-display rounded-full">{t.initial}</div>
                         </div>
                         <div className="text-left">
@@ -267,7 +267,7 @@ export default function LandingPage({ onGetStarted }: LandingPageProps) {
           <div
             className="max-w-4xl mx-auto border border-outline-variant p-8 sm:p-12 md:p-16 text-center relative overflow-hidden"
             style={{
-              background: 'linear-gradient(135deg, #fbf9f4 0%, #f5f3ee 100%)',
+              background: 'var(--gradient-free)',
               boxShadow: '0 10px 40px -10px rgba(230, 126, 34, 0.15)',
             }}
           >

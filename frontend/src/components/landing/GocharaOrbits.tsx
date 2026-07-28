@@ -145,7 +145,7 @@ export default function GocharaOrbits() {
             return (
               <div
                 key={item.planet}
-                className={`p-4 sm:p-5 bg-white border border-outline-variant transition-all duration-700 rounded-xl sm:rounded-2xl ${
+                className={`p-4 sm:p-5 bg-surface border border-outline-variant transition-all duration-700 rounded-xl sm:rounded-2xl ${
                   isActive
                     ? 'opacity-100 scale-100 shadow-md border-primary/50 z-10 translate-y-0'
                     : 'opacity-40 scale-95 shadow-none border-outline-variant/40 -z-0 translate-y-1'
@@ -211,7 +211,7 @@ export default function GocharaOrbits() {
                 className={`px-2.5 py-1 rounded-full border text-xs font-display font-extrabold shadow-sm transition-all ${
                   currentActiveHindi === 'शनि'
                     ? 'bg-primary text-white border-primary scale-110 ring-2 ring-primary/30'
-                    : 'bg-white text-primary border-primary/40'
+                    : 'bg-surface text-primary border-primary/40'
                 }`}
                 style={{ animation: 'spinClockwise 90s linear infinite' }}
               >
@@ -225,7 +225,7 @@ export default function GocharaOrbits() {
                 className={`px-2.5 py-1 rounded-full border text-xs font-display font-extrabold shadow-sm transition-all ${
                   currentActiveHindi === 'राहु'
                     ? 'bg-primary text-white border-primary scale-110 ring-2 ring-primary/30'
-                    : 'bg-white text-amber-900 border-amber-800/40'
+                    : 'bg-surface text-amber-900 dark:text-amber-400 border-amber-800/40 dark:border-amber-900/30'
                 }`}
                 style={{ animation: 'spinClockwise 90s linear infinite' }}
               >
@@ -239,7 +239,7 @@ export default function GocharaOrbits() {
                 className={`px-2.5 py-1 rounded-full border text-xs font-display font-extrabold shadow-sm transition-all ${
                   currentActiveHindi === 'केतु'
                     ? 'bg-primary text-white border-primary scale-110 ring-2 ring-primary/30'
-                    : 'bg-white text-orange-900 border-orange-800/40'
+                    : 'bg-surface text-orange-900 dark:text-orange-400 border-orange-800/40 dark:border-orange-900/30'
                 }`}
                 style={{ animation: 'spinClockwise 90s linear infinite' }}
               >
@@ -259,7 +259,7 @@ export default function GocharaOrbits() {
                 className={`px-2.5 py-1 rounded-full border text-xs font-display font-extrabold shadow-sm transition-all ${
                   currentActiveHindi === 'गुरु'
                     ? 'bg-primary text-white border-primary scale-110 ring-2 ring-primary/30'
-                    : 'bg-white text-primary border-primary/40'
+                    : 'bg-surface text-primary border-primary/40'
                 }`}
                 style={{ animation: 'spinCounter 60s linear infinite' }}
               >
@@ -273,7 +273,7 @@ export default function GocharaOrbits() {
                 className={`px-2.5 py-1 rounded-full border text-xs font-display font-extrabold shadow-sm transition-all ${
                   currentActiveHindi === 'मंगल'
                     ? 'bg-primary text-white border-primary scale-110 ring-2 ring-primary/30'
-                    : 'bg-white text-rose-800 border-rose-700/40'
+                    : 'bg-surface text-rose-800 dark:text-rose-400 border-rose-700/40 dark:border-rose-900/30'
                 }`}
                 style={{ animation: 'spinCounter 60s linear infinite' }}
               >
@@ -287,7 +287,7 @@ export default function GocharaOrbits() {
                 className={`px-2.5 py-1 rounded-full border text-xs font-display font-extrabold shadow-sm transition-all ${
                   currentActiveHindi === 'चन्द्र'
                     ? 'bg-primary text-white border-primary scale-110 ring-2 ring-primary/30'
-                    : 'bg-white text-primary border-primary/40'
+                    : 'bg-surface text-primary border-primary/40'
                 }`}
                 style={{ animation: 'spinCounter 60s linear infinite' }}
               >
@@ -322,7 +322,7 @@ export default function GocharaOrbits() {
                 className={`px-2.5 py-0.5 rounded-full border text-xs font-display font-extrabold shadow-sm transition-all ${
                   currentActiveHindi === 'बुध'
                     ? 'bg-primary text-white border-primary scale-110 ring-2 ring-primary/30'
-                    : 'bg-white text-teal-800 border-teal-700/40'
+                    : 'bg-surface text-teal-800 dark:text-teal-400 border-teal-700/40 dark:border-teal-900/30'
                 }`}
                 style={{ animation: 'spinClockwise 30s linear infinite' }}
               >
@@ -336,7 +336,7 @@ export default function GocharaOrbits() {
                 className={`px-2.5 py-0.5 rounded-full border text-xs font-display font-extrabold shadow-sm transition-all ${
                   currentActiveHindi === 'शुक्र'
                     ? 'bg-purple-700 text-white border-purple-700 scale-110 ring-2 ring-purple-500/40'
-                    : 'bg-purple-50 text-purple-900 border-purple-300'
+                    : 'bg-surface text-purple-900 dark:text-purple-400 border-purple-300 dark:border-purple-900/30'
                 }`}
                 style={{ animation: 'spinClockwise 30s linear infinite' }}
               >
@@ -346,14 +346,14 @@ export default function GocharaOrbits() {
           </div>
 
           {/* Center Hub — Gochara Core */}
-          <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-full bg-gradient-to-br from-primary-fixed to-white border-2 border-primary/60 flex flex-col items-center justify-center p-2 shadow-md z-10 text-center animate-pulse">
+          <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-full bg-gradient-to-br from-primary-fixed to-surface border-2 border-primary/60 flex flex-col items-center justify-center p-2 shadow-md z-10 text-center animate-pulse">
             <span className="font-display text-sm sm:text-base font-bold text-primary">
               गोचर
             </span>
             <span className="text-[10px] font-sans font-semibold text-on-surface-variant opacity-80">
               Gochara
             </span>
-            <span className="text-[9px] font-mono font-bold text-amber-800 bg-amber-100 px-2 py-0.5 rounded-full mt-0.5">
+            <span className="text-[9px] font-mono font-bold text-amber-800 dark:text-amber-400 bg-amber-100 dark:bg-amber-950/40 border border-transparent dark:border-amber-900/30 px-2 py-0.5 rounded-full mt-0.5">
               नवग्रह
             </span>
           </div>
