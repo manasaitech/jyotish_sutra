@@ -60,7 +60,7 @@ export default function Navbar({
             <span className="material-symbols-outlined text-sm sm:text-base" style={{ fontVariationSettings: "'FILL' 1" }}>
               support_agent
             </span>
-            <span className="hidden sm:inline">Talk to Expert (₹251)</span>
+            <span className="hidden sm:inline">Talk to Expert</span>
             <span className="sm:hidden">Expert</span>
           </button>
 

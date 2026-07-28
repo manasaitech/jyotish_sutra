@@ -97,7 +97,7 @@ export default function LandingPage({ onGetStarted }: LandingPageProps) {
 
               {/* Subtitle */}
               <p className="text-base sm:text-lg md:text-xl text-on-surface-variant max-w-lg leading-relaxed font-light">
-                Experience the precision of Vedic Astrology , curated through an artisanal neural lens.
+                Experience the precision of Vedic Astrology and Ayurvedic medicine, curated through an artisanal neural lens for holistic healing and remedies.
               </p>
 
               {/* CTA Buttons */}
@@ -143,31 +143,38 @@ export default function LandingPage({ onGetStarted }: LandingPageProps) {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8 md:gap-12">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8 md:gap-10">
             {[
               {
-                icon: 'menu_book',
-                title: 'Spiritual Lineage',
-                desc: 'Our intelligence is trained on authorized translations of the Vedas, Puranas, and the Samhitas, ensuring every insight carries the weight of tradition.',
-                tag: 'Discovery • 01',
+                icon: 'auto_stories',
+                title: 'Vedic Jyotish Precision',
+                desc: 'Surgical computation of birth charts, Dashas, and planetary alignments based on precise astronomical calculations.',
+                tag: 'Astrology • 01',
               },
               {
-                icon: 'architecture',
-                title: 'Mathematical Precision',
-                desc: 'Calculations based on precise ephemeris data. Every degree, minute, and second of planetary movement is analyzed with surgical accuracy.',
-                tag: 'Precision • 02',
+                icon: 'spa',
+                title: 'Ayurvedic Prakriti',
+                desc: 'Synthesizes planetary strengths with Tridosha (Vata-Pitta-Kapha) rules to determine your physical and metabolic constitution.',
+                tag: 'Ayurveda • 02',
                 offset: true,
+              },
+              {
+                icon: 'medical_services',
+                title: 'Herbal Remedies & Care',
+                desc: 'Personalized guidelines for classical herbs (Ashwagandha, Triphala), Sattvic dietary charts, and routines to balance cosmic energy.',
+                tag: 'Medication • 03',
               },
               {
                 icon: 'history_edu',
                 title: 'Modern Eloquence',
-                desc: 'Insights delivered in a language that speaks to the modern soul. Complex astrological concepts translated into actionable, poetic advice.',
-                tag: 'Guidance • 03',
+                desc: 'Poetic, modern language translating complex planetary and remedial sciences into actionable advice for the contemporary soul.',
+                tag: 'Guidance • 04',
+                offset: true,
               },
             ].map((feat, i) => (
               <div
                 key={i}
-                className={`p-6 sm:p-8 border border-outline-variant bg-white/60 relative group hover:bg-white transition-all duration-500 ${feat.offset ? 'md:translate-y-12' : ''
+                className={`p-6 sm:p-8 border border-outline-variant bg-white/60 relative group hover:bg-white transition-all duration-500 ${feat.offset ? 'lg:translate-y-12' : ''
                   }`}
                 style={{ boxShadow: '2px 2px 0px rgba(137, 115, 101, 0.1)' }}
               >

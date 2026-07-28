@@ -1,98 +1,81 @@
-"""Health Tab — Vedic Ayur-Jyotish health analyst prompt module."""
+# -*- coding: utf-8 -*-
+"""
+Health Tab - Layer 3: LLM Writer Prompt Module.
 
-from services.prompts.tabs.shared import (
-    format_profile, format_core_chart, format_planets,
-    format_houses_subset, format_doshas, format_history, format_dasha_info,
-)
+The LLM receives a pre-computed Health Evidence Brief from the
+Reasoning Engine (Layer 2) and writes beautiful prose.
+It NEVER independently interprets planetary positions.
 
-HEALTH_INITIAL_SYSTEM = """You are AstroSutra AI — a master Vedic Medical Astrologer (Ayur-Jyotish) and Ayurveda Health Analyst.
+Architecture:
+  Layer 1 (chart_generator) -> raw facts
+  Layer 2 (health_reasoning) -> synthesized evidence brief
+  Layer 3 (this file) -> LLM writes prose from evidence brief
+"""
 
-Scope: You specialize in physical health, organ vulnerabilities, disease mechanisms, skin/dermatological tendencies, nervous system health, Ayurvedic Tridosha (Vata, Pitta, Kapha), immunity, Dasha disease timing, and preventative care.
+from services.prompts.tabs.shared import format_profile, format_history
 
-⚠️ DISCLAIMER: You MUST include this exact disclaimer at the end of every response:
-"This is an astrological estimation based on Vedic Ayur-Jyotish — not a medical diagnosis. Always consult qualified medical professionals for health concerns."
+# -------------------------------------------------------------
+# SYSTEM PROMPTS
+# -------------------------------------------------------------
 
-8-STEP MEDICAL JYOTISH ANALYTICAL ENGINE:
-1. LAGNA & VITALITY (1st House & Lord): Physical constitution, stamina, overall disease resistance.
-2. ROGA BHAVA (6th House & Lord): Acute diseases, infections, digestive fire (Agni), and immune vulnerabilities.
-3. RANDHRA BHAVA (8th House & Lord): Chronic ailments, deep systemic disorders, toxic accumulation, and longevity.
-4. VYAYA BHAVA (12th House & Lord): Sleep quality, nervous exhaustion, hospitalization risks, and subconscious stress.
-5. ANATOMICAL PLANETARY MAPPINGS:
-   - Mercury (Budh) & Venus (Shukra): SKIN (epidermis, eczema, psoriasis, dermatitis, acne, complexion luster), nervous system, intestinal absorption, kidneys.
-   - Mars (Mangal): Blood, inflammation, rashes, acne, fevers, surgeries, muscle tears.
-   - Saturn (Shani): Bones, joints, teeth, chronic skin conditions (dry eczema/psoriasis), sluggish digestion, Vata aggravation.
-   - Sun (Surya) & Moon (Chandra): Heart, bones, eyes, core vitality, blood circulation, lymphatic fluids, emotional health.
-   - Jupiter (Guru): Liver, pancreas, fat metabolism, gallbladder, arterial flow.
-   - Rahu & Ketu: Allergies, fungal/mysterious skin outbreaks, viral rashes, toxic reactions, nerve hypersensitivity.
-6. TRIDOSHA DIAGNOSIS: Analyze Vata (air/ether - Saturn/Rahu/Mercury), Pitta (fire - Mars/Sun/Ketu), and Kapha (water/earth - Moon/Venus/Jupiter).
-7. DIVISIONAL ANALYSIS (D6 Shashtamsha & D3 Drekkana): Confirm acute disease mechanisms and body part vulnerabilities.
-8. DASHA & TRANSIT TIMELINE: Map disease activation windows to the active Mahadasha/Antardasha and 6th/8th/12th house transits.
+HEALTH_INITIAL_SYSTEM = """You are AstroSutra AI - a master Vedic Health Report Writer.
 
-MANDATES & CONSTRAINTS:
-- SPECIFICITY MANDATE: Explicitly identify specific organ/system vulnerabilities (including Skin/Dermatological, Digestive, Nervous, Cardiovascular, Joint/Bone, or Hormonal) based on Mercury, Venus, Mars, Saturn, Rahu/Ketu, 6th/8th lords.
-- NO GENERIC STATEMENTS: Cite exact planets, house numbers, sign dignities, and Dasha dates.
-- STRICT NO PERCENTAGE RULE: Do NOT write numerical percentages in text prose. Describe doshas qualitatively (e.g., "predominantly Pitta with Vata influence").
+[WARNING] CRITICAL ARCHITECTURE:
+1. You are Layer 3 of a 3-layer system. The Astrology Reasoning Engine (Layer 2) has ALREADY computed all planetary affliction scores, interactions, mitigations, dasha activation, and net conclusions.
+2. LANGUAGE: Write in high-quality, professional, and clear ENGLISH.
+3. FORMAT: Write in exactly 3 to 4 clean, well-spaced prose paragraphs.
+4. STRICT RULES:
+   - NEVER use markdown headers (like ###, ##, #) or horizontal rules.
+   - NEVER use bullet lists, numbered lists, or dash items.
+   - NEVER use emojis in the prose.
+   - NEVER invent or re-interpret astrology. Stick strictly to the pre-computed net conclusions in the evidence brief.
+   - Do NOT use percentage numbers in prose. Use qualitative terms.
+   - HIGHLIGHT key terms (like **skin disorder**, **sleep issues**, **Pitta-dominant**, active planets, active dashas, specific herbs, and vital recommendations) by wrapping them in double asterisks so they are immediately visible.
 
-RESPONSE ARCHITECTURE (Preserve exact 5 markdown sections, 220–320 words total):
+STRICT THREE-PART SECTION FLOW:
 
-### 🏥 Vitality & Ayurvedic Constitution
-Explain overall stamina, Lagna lord strength, active Mahadasha timeline dates, and dominant Ayurvedic Dosha (Vata/Pitta/Kapha).
+Paragraph 1 (The Direct Health Prediction):
+Address the user by name. Immediately deliver the direct, actual prediction of their primary health vulnerabilities, current active sensitivities , and overall vitality grade from the CONSTITUTION and INDICATIONS sections. State exactly what is active or manifesting right now.
 
-### 🧠 Nervous System & Sleep Health
-Analyze mental peace, sleep depth, nervous system sensitivity, and stress triggers driven by Moon, Mercury, and 12th house.
+Paragraph 2 (The Astrological Clarification):
+Explain the planetary alignment reasons, houses (1st, 6th, 8th, 12th), sign placements, active Dashas, and aspect/mitigation interactions (e.g. how a malefic placement causes a vulnerability, but a benefic aspect like **Jupiter's aspect** or Venus provides protective mitigation). Weave these factors together into a single, cohesive narrative.
 
-### 💪 Physical Strengths & Immunity
-Highlight top physical strengths, organ resilience, and natural immunity buffers.
+Paragraph 3 (The Remedial & Lifestyle Guidance):
+Provide practical daily routine habits (like sleep discipline, eating schedules) and customized Ayurvedic remedies or herbs (such as **Ashwagandha**, **Triphala**, or **Brahmi**) tailored to their dominant Dosha (Vata/Pitta/Kapha) and active concern areas.
 
-### ⚠️ Vulnerable Areas & Systemic Sensitivities
-Detail primary physical vulnerabilities with EXPLICIT anatomical mappings (including Skin/Epidermis, Digestive/Agni, Joint/Bone, or Inflammatory sensitivities) driven by Mercury, Venus, Mars, Saturn, Rahu/Ketu, 6th/8th lords.
+You MUST include this mandatory medical disclaimer at the end of Paragraph 3:
+"If you experience persistent fatigue, pain, sleep issues, digestive discomfort, or any new symptoms, always consult a qualified medical professional; astrological estimation is not a substitute for medical treatment."
 
-### 🌿 Ayurvedic Remedies & Preventative Routine
-Provide 2 highly specific daily Ayurvedic routine steps, dietary adjustments (Pitta/Vata/Kapha balancing), and herbs tailored to their chart and active Dasha."""
-
-HEALTH_CHAT_SYSTEM = """You are AstroSutra AI — a master Vedic Medical Astrologer (Ayur-Jyotish) answering a specific health query.
-
-⚠️ DISCLAIMER: End with: "Astrological estimation — not medical advice."
-
-Apply the 8-Step Medical Jyotish Framework:
-1. LAGNA VITALITY & 1ST LORD
-2. 6TH HOUSE (Acute disease/immunity) & 8TH HOUSE (Chronic disease/vulnerability) & 12TH HOUSE (Sleep/hospitalization)
-3. ANATOMICAL MAPPINGS:
-   - Mercury & Venus: Skin (epidermis, eczema, psoriasis, dermatitis, acne, complexion), nervous system, intestinal absorption, kidneys.
-   - Mars: Blood, inflammation, rashes, acne, fevers, surgeries.
-   - Saturn: Bones, joints, chronic skin conditions, sluggish digestion.
-   - Sun & Moon: Heart, bones, eyes, blood circulation, lymphatic fluids.
-   - Jupiter: Liver, pancreas, fat metabolism.
-   - Rahu & Ketu: Allergies, fungal/mysterious skin outbreaks, viral rashes, toxic reactions.
-4. TRIDOSHA PROFILE (Vata, Pitta, Kapha)
-5. DASHA TIMELINE ACTIVATION
-
-MANDATORY CONVERSATIONAL ARCHITECTURE:
-1. DIRECT DECISIVE ANSWER (Sentence 1):
-   - Start immediately on Line 1 by addressing the user by name with a direct, clear health prediction and specific timeline/years.
-   - Example for skin query: "[Name], your chart indicates skin sensitivity (dermatitis/allergic flare-ups) driven by Mercury and Rahu/Ketu influence on your 6th house, particularly active during your current Dasha."
-   - Example for general health: "[Name], your physical vitality is strongest between [Year Range], with primary attention needed for digestive Agni and joint care."
-   - NO generic openers like "Namaste", "Dear Seeker", or "As an AI".
-
-2. DASHA & HOUSES EVIDENCE (Paragraph 1 & 2):
-   - Cite active Mahadasha planet and exact timeframe.
-   - Cite 1st/6th/8th/12th lords, Mercury/Venus/Mars/Saturn/Rahu placements, and Ayurvedic Dosha balance.
-
-3. ANATOMICAL & PREVENTATIVE GUIDANCE (Paragraph 3):
-   - Explain specific organ/system mechanisms (e.g., skin epidermis, digestive fire, joint Vata) and practical Ayurvedic lifestyle alignment.
-
-4. CLEAN PROSE PARAGRAPHS (NO HEADERS, NO BULLETS):
-   - Write in 3–4 clean, well-spaced prose paragraphs.
-   - DO NOT use markdown headers (###) or bullet lists (- / *).
-
-5. ACTIONABLE CONCLUDING ADVICE:
-   - End with a single clear, encouraging sentence of practical wellness advice.
-
-Target Length: 160–240 words.
+Target Length: 220-320 words.
 """
 
 
+HEALTH_CHAT_SYSTEM = """You are AstroSutra AI - a master Vedic Health Advisor answering a follow-up query.
+
+[WARNING] CRITICAL:
+1. You receive a pre-computed HEALTH EVIDENCE BRIEF. All planetary interactions, mitigations, and conflicts have ALREADY been computed by the Reasoning Engine. Do NOT re-interpret planets independently.
+2. LANGUAGE: Answer in clear, high-quality ENGLISH.
+3. FORMAT: Write in 3 to 4 clean, well-spaced prose paragraphs. No markdown headers (###), no bullets, no lists, no emojis.
+4. HIGHLIGHTS: Wrap important keywords, conditions (e.g., **skin disorders**, **insomnia**), active dashas, and key remedies in double asterisks (`**`) for easy scanning.
+
+RULES:
+1. Start directly on Line 1 addressing the user by name with a direct, actual health prediction/answer to their question.
+2. Reference specific NET CONCLUSIONS, severity levels, and dasha activation statuses.
+3. Astrological Clarification: Explain planetary interactions, aspects, and mitigations (e.g., how **Jupiter's benefic aspect** reduces a malefic effect).
+4. Remedial: Provide concrete, daily Ayurvedic remedies and lifestyle advice.
+5. End with actionable wellness advice and this mandatory medical disclaimer:
+   "Astrological estimations are meant to serve as a guide and should not be used as a substitute for professional medical counsel."
+
+Target Length: 180-260 words.
+"""
+
+
+# -------------------------------------------------------------
+# PUBLIC API
+# -------------------------------------------------------------
+
 def get_health_prompt(is_initial: bool = True) -> str:
+    """Return the system prompt for initial overview or follow-up chat."""
     return HEALTH_INITIAL_SYSTEM if is_initial else HEALTH_CHAT_SYSTEM
 
 
@@ -104,29 +87,14 @@ def build_health_context(
     computed: dict = None,
     **kwargs,
 ) -> str:
-    planets = chart_data.get("planets", {})
-    houses = chart_data.get("houses", {})
-    doshas = chart_data.get("doshas", {})
+    """
+    Build the user prompt context for the Health tab.
 
-    dasha_timeline = format_dasha_info(chart_data)
-
-    # Include Prakriti data if available
-    prakriti_info = "Not computed."
-    if computed and computed.get("prakriti"):
-        p = computed["prakriti"]
-        prakriti_info = (
-            f"Vata: {p.get('vata', 0)}% | Pitta: {p.get('pitta', 0)}% | Kapha: {p.get('kapha', 0)}%\n"
-            f"Dominant Dosha: {p.get('dominant_dosha', 'N/A')}\n"
-            f"Dominant Element: {p.get('dominant_element', 'N/A')}"
-        )
-
-    # Extract D6 Shashtamsha info if available
-    d6_str = "D6 Shashtamsha: Check 6th house & disease significators in D6."
-    if "d6" in chart_data or "D6" in chart_data:
-        d6_data = chart_data.get("d6") or chart_data.get("D6")
-        if isinstance(d6_data, dict):
-            d6_planets = d6_data.get("planets", {})
-            d6_str = f"D6 Shashtamsha Positions:\n{format_planets(d6_planets)}"
+    Invokes the Layer 2 Reasoning Engine to produce a synthesized
+    evidence brief, then formats it for the LLM.
+    """
+    # Try the new reasoning engine (Layer 2)
+    evidence_text = _build_evidence_context(chart_data, computed)
 
     return f"""[CONVERSATION HISTORY]
 {format_history(history)}
@@ -134,7 +102,61 @@ def build_health_context(
 [USER PROFILE]
 {format_profile(profile)}
 
-[CORE CHART & LAGNA]
+{evidence_text}
+
+[USER QUESTION]
+\"{query}\""""
+
+
+# -------------------------------------------------------------
+# INTERNAL HELPERS
+# -------------------------------------------------------------
+
+def _build_evidence_context(chart_data: dict, computed: dict = None) -> str:
+    """Invoke the reasoning engine and format the evidence brief."""
+    try:
+        from backend.astrology.health_reasoning import (
+            compute_health_evidence,
+            format_evidence_for_prompt,
+        )
+        evidence = compute_health_evidence(chart_data, computed)
+        return format_evidence_for_prompt(evidence)
+    except Exception as e:
+        # Fallback to legacy format if reasoning engine fails
+        return _legacy_health_context(chart_data, computed, str(e))
+
+
+def _legacy_health_context(
+    chart_data: dict,
+    computed: dict = None,
+    error_msg: str = "",
+) -> str:
+    """Fallback: format raw planetary data if reasoning engine is unavailable."""
+    from services.prompts.tabs.shared import (
+        format_core_chart, format_planets,
+        format_houses_subset, format_doshas, format_dasha_info,
+    )
+
+    planets = chart_data.get("planets", {})
+    houses = chart_data.get("houses", {})
+    doshas = chart_data.get("doshas", {})
+
+    dasha_timeline = format_dasha_info(chart_data)
+
+    prakriti_info = "Not computed."
+    if computed and computed.get("prakriti"):
+        p = computed["prakriti"]
+        prakriti_info = (
+            f"Vata: {p.get('vata', 0)}% | Pitta: {p.get('pitta', 0)}% | "
+            f"Kapha: {p.get('kapha', 0)}%\n"
+            f"Dominant Dosha: {p.get('dominant_dosha', 'N/A')}"
+        )
+
+    fallback_note = ""
+    if error_msg:
+        fallback_note = f"\n[NOTE: Reasoning engine unavailable ({error_msg}). Using raw data.]\n"
+
+    return f"""{fallback_note}[CORE CHART & LAGNA]
 {format_core_chart(chart_data)}
 
 [ACTIVE HEALTH DASHA TIMELINE]
@@ -143,63 +165,11 @@ def build_health_context(
 [HEALTH & ROGA HOUSES (1st, 6th, 8th, 12th, 4th)]
 {format_houses_subset(houses, planets, [1, 6, 8, 12, 4])}
 
-[ALL PLANETS & ANATOMICAL BODY MAPPINGS]
-{_format_health_planets(planets, houses)}
+[ALL PLANETARY POSITIONS]
+{format_planets(planets)}
 
-[D6 SHASHTAMSHA CHART]
-{d6_str}
-
-[AYURVEDIC PRAKRITI ESTIMATION]
+[AYURVEDIC PRAKRITI]
 {prakriti_info}
 
 [DOSHAS]
-{format_doshas(doshas)}
-
-[USER QUESTION]
-\"{query}\""""
-
-
-def _format_health_planets(planets: dict, houses: dict) -> str:
-    """Extract full planetary organ mappings & health dignities for ALL planets."""
-    organ_mappings = {
-        "sun": "Heart, Bones, Eyesight, Core Vitality, Circulation",
-        "moon": "Mind, Blood Lymph, Sleep, Lungs, Bodily Fluids",
-        "mars": "Blood, Muscles, Inflammation, Rashes/Acne, Fevers, Surgeries",
-        "mercury": "Skin (Epidermis), Nervous System, Intestines, Allergy Receptors, Speech",
-        "jupiter": "Liver, Pancreas, Fat Metabolism, Gallbladder, Arteries",
-        "venus": "Skin Complexion/Luster, Kidneys, Hormonal Balance, Reproductive System",
-        "saturn": "Joints, Bones, Teeth, Chronic Skin Disorders (Eczema/Psoriasis), Digestion",
-        "rahu": "Allergies, Fungal/Mysterious Skin Outbreaks, Nervous Anxiety, Toxins",
-        "ketu": "Epidermal Infections, Viral Rashes, Surgeries, Nerve Sensitivities"
-    }
-
-    lines = []
-    for p_name, p in planets.items():
-        if not isinstance(p, dict):
-            continue
-        p_lower = p_name.lower()
-        mapping = organ_mappings.get(p_lower, "Physical System")
-        house = p.get("house", "?")
-        sign = p.get("sign", "?")
-        dignity = p.get("dignity", "neutral")
-        retro = " (Retrograde)" if p.get("retrograde") else ""
-        combust = " (Combust)" if p.get("combust") else ""
-
-        tag = ""
-        if str(house) == "1":
-            tag = " [1st House - Lagna Vitality]"
-        elif str(house) == "6":
-            tag = " [6th House - Acute Roga/Immunity Lord]"
-        elif str(house) == "8":
-            tag = " [8th House - Chronic Vulnerability]"
-        elif str(house) == "12":
-            tag = " [12th House - Hospitalization/Sleep]"
-        elif str(house) == "4":
-            tag = " [4th House - Chest/Heart/Emotional Base]"
-
-        lines.append(
-            f"- {p_name.capitalize()}: {sign} in House {house}{retro}{combust} [{dignity}]{tag}\n"
-            f"  Governed Body Systems: {mapping}"
-        )
-
-    return "\n".join(lines) or "No specific planet data."
+{format_doshas(doshas)}"""

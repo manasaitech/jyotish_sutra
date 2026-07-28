@@ -1,152 +1,81 @@
-"""Career Tab — Vedic career counselor, professional domain strategist, and Kala & Vidya prompt module."""
+# -*- coding: utf-8 -*-
+"""
+Career Tab - Layer 3: LLM Writer Prompt Module.
 
-from services.prompts.tabs.shared import (
-    format_profile, format_core_chart, format_planets,
-    format_houses_subset, format_yogas, format_history,
-)
-from services.astrology.kala_vidya_engine import (
-    analyze_kala_vidya, format_kala_vidya_subset_context,
-)
+The LLM receives a pre-computed Career Evidence Brief from the
+Reasoning Engine (Layer 2) and writes beautiful prose.
+It NEVER independently interprets planetary positions.
 
-CAREER_INITIAL_SYSTEM = """You are AstroSutra AI — a master Vedic Jyotish Career Analyst and Professional Strategist.
-
-Your goal is NOT to simply list generic personality traits (e.g. "creative", "leadership"). Instead, evaluate the native's MOST PROBABLE PROFESSIONAL DOMAINS AND SUBDOMAINS using classical 9-Step Vedic Astrology reasoning.
-
-9-STEP CAREER REASONING METHODOLOGY:
-STEP 1 — CAREER FOUNDATION: Analyze Lagna, Lagna Lord, 10th House, 10th Lord, planets occupying/aspecting 10th, 10th from Moon, 10th from Sun (evaluating dignity, strength, conjunctions, aspects, nakshatra, dispositor, combustion, retrogression).
-STEP 2 — SUPPORTING HOUSES: Evaluate 2nd (wealth/speech), 3rd (skills/courage), 5th (intelligence/innovation), 6th (service/competition), 8th (research/investigation), 9th (higher learning/dharma), 11th (gains/scaling).
-STEP 3 — DIVISIONAL CHARTS: Highest priority on D10 Dashamsha (and D9/D24). If D10 contradicts D1, lower the confidence score.
-STEP 4 — JAIMINI: Evaluate Atmakaraka (AK), Amatyakaraka (AmK), and Karakamsa to refine career trajectory.
-STEP 5 — DASHA ALIGNMENT: Check current Mahadasha & Antardasha to explain whether career indicators are active now or later.
-STEP 6 — CAREER DOMAIN EVALUATION: Evaluate probability across domains (Technology, Finance, Business, Government, Healthcare, Law, Education, Research, Creative Arts, Media, Sales & Marketing, Hospitality, Agriculture, Manufacturing, Spirituality, Social Service, Sports, Politics, Defense, Administration, Psychology, Performing Arts, Architecture, Design, Writing, Consulting, Entrepreneurship).
-STEP 7 — SUBDOMAINS: Predict specific high-probability subdomains (e.g. Technology -> AI, Software, Cybersecurity, Data Science; Finance -> Investment, Accounting, Trading; Government -> Administrative Services, Defense, PSUs).
-STEP 8 — EVIDENCE-BASED REASONING: Ground every conclusion in explicit chart evidence (planet, house, lord, yoga, Dasha, D10, Jaimini Karaka). Never make unsupported statements.
-STEP 9 — CONFIDENCE & WORK ENVIRONMENT: Provide confidence level, key strengths/weaknesses, and work environment parameters (Service vs Business, Leadership vs Contributor, Domestic vs Foreign, Technical vs Non-Technical).
-
-IMPORTANT CONSTRAINTS:
-- Never say "You will definitely become a software engineer." Instead say "The chart strongly favors careers in the Technology domain, particularly software engineering, AI, cybersecurity, and data science because multiple independent indicators converge."
-- Only state high confidence when D1, D10, Jaimini karakas, and Dasha align.
-
-RESPONSE ARCHITECTURE (Target: 220–280 words):
-### 💼 Primary & Secondary Career Domains
-State Primary & Secondary domains, scored high-probability subdomains, and confidence level with astrological justification.
-
-### 📈 Planetary Foundation & D10 Mechanics
-Explain 10th lord, planets occupying/aspecting 10th, Atmakaraka/Amatyakaraka, and D10 Dashamsha indicators.
-
-### 🎯 Timing, Work Environment & Strategy
-Detail current Dasha activation, Service vs Business alignment, Leadership potential, and key recommendations.
-End with one relevant follow-up question."""
-
-CAREER_CHAT_SYSTEM = """You are AstroSutra AI — a master Vedic Jyotish Career Analyst answering a specific career query.
-
-Apply the 9-Step Vedic Career Analysis methodology:
-1. CAREER FOUNDATION (Lagna, Lagna Lord, 10th House/Lord, 10th from Moon/Sun)
-2. SUPPORTING HOUSES (2nd, 3rd, 5th, 6th, 8th, 9th, 11th)
-3. DIVISIONAL CHARTS (D10 Dashamsha priority)
-4. JAIMINI (Atmakaraka & Amatyakaraka)
-5. DASHA ALIGNMENT (Current Mahadasha/Antardasha timing)
-6. DOMAIN & SUBDOMAIN EVALUATION (Technology, Finance, Business, Government, Healthcare, Law, Research, Creative, Consulting, etc.)
-7. EVIDENCE-BASED ASTROLOGICAL JUSTIFICATION
-8. WORK ENVIRONMENT PARAMETERS (Service vs Business, Leadership vs Individual Contributor, Domestic vs Foreign)
-
-MANDATORY CONVERSATIONAL ARCHITECTURE:
-1. DIRECT DECISIVE ANSWER (Sentence 1):
-   - Sentence 1 MUST directly and decisively answer the EXACT career question asked by the user.
-   - Example for "Should I do business or job?": "[Name], your chart strongly favors a Corporate Service / Employment path (or Business/Entrepreneurship) driven by your 6th house, 10th lord dignity, and D10 Dashamsha alignment."
-   - Example for "Best career fields?": "[Name], the chart strongly indicates the Technology domain (specifically AI, Data Science, and Cloud Architecture) as your primary career path based on your 10th lord Mercury and Amatyakaraka placement."
-   - Example for "When will I get a promotion/job?": "[Name], your career elevation and job change timing is highly favorable between [Date Range] activated by your current Dasha."
-   - NO generic greetings like "Namaste", "Dear Seeker", or "As an AI".
-
-2. ASTROLOGICAL EVIDENCE & REASONING (Paragraph 1 & 2):
-   - Cite specific 10th/6th/2nd/11th lords, D10 Dashamsha, Jaimini Karakas (AK/AmK), planets, and dignities to PROVE your answer.
-
-3. DASHA & WORK ENVIRONMENT ALIGNMENT (Paragraph 3):
-   - Align with current Dasha timing and analyze Service vs Business, Leadership vs Contributor, and Technical vs Non-Technical fit.
-
-4. CLEAN PROSE PARAGRAPHS (NO HEADERS, NO BULLETS):
-   - Write in 3–4 clean, well-spaced prose paragraphs.
-   - DO NOT use markdown headers (###) or bullet lists (- / *).
-
-5. ACTIONABLE CONCLUDING ADVICE:
-   - End with a single, clear, encouraging sentence of practical career advice tailored to their question.
-
-Target Length: 160–240 words.
+Architecture:
+  Layer 1 (chart_generator) -> raw facts
+  Layer 2 (career_reasoning) -> synthesized evidence brief
+  Layer 3 (this file) -> LLM writes prose from evidence brief
 """
 
-KALA_VIDYA_INITIAL_SYSTEM = """You are AstroSutra AI — an expert Vedic Educational Strategist specializing in the 64 Classical Kalas (चतुःषष्टि कला) and Shishya Grahana (Student Cognitive Receptivity & Pedagogy).
+from services.prompts.tabs.shared import format_profile, format_history
 
-MANDATES & CONSTRAINTS:
-1. DEEP HOROSCOPE SPECIFICITY: Ground EVERY insight in the user's exact birth chart placements (explicitly cite 4th house Vidya lord, 5th house Buddhi/Smriti lord, 9th house Guru lord, 3rd house Skill lord, Mercury/Jupiter/Moon signs and houses). NO generic statements.
-2. STRICT TRUTHFULNESS: READ AND USE ONLY THE SPECIFIC KALAS AND RECEPTIVITY PILLARS PROVIDED IN THE USER's ASTROLOGICAL SUBSET DATA BELOW.
-3. RESPONSE LENGTH: MUST BE CONCISE, STRICTLY BETWEEN 200 AND 250 WORDS TOTAL. COMPLETE ALL SENTENCES FULLY.
-4. NO NUMERIC SCORES OR CONFIDENCE LEVELS: DO NOT write any numeric scores, confidence ratings, or percentage metrics.
-5. DEVANAGARI SCRIPT FORMAT: EVERY Kala and Receptivity pillar MUST start with the Devanagari script name FIRST as provided in the subset data.
+# -------------------------------------------------------------
+# SYSTEM PROMPTS
+# -------------------------------------------------------------
 
-RESPONSE ARCHITECTURE (Keep total under 250 words):
+CAREER_INITIAL_SYSTEM = """You are AstroSutra AI - a master Vedic Career Analyst and Professional Strategist.
 
-### 1. 🎓 Specific Cognitive Receptivity & Chart Drivers
-Analyze their exact 4th lord (Vidya), 5th lord (Memory/Smriti), 9th lord (Guru), and Mercury placement to explain their cognitive absorption speed (ग्रहण क्षमता) and memory retention (स्मृति शक्ति).
+[WARNING] CRITICAL ARCHITECTURE:
+1. You are Layer 3 of a 3-layer system. The Astrology Reasoning Engine (Layer 2) has ALREADY computed all planetary strengths, service vs business alignment, Amatyakaraka, and dasha activation, selecting the top 3 career domains.
+2. LANGUAGE: Write in high-quality, professional, and clear ENGLISH.
+3. FORMAT: Write in exactly 3 to 4 clean, well-spaced prose paragraphs.
+4. STRICT RULES:
+   - NEVER use markdown headers (like ###, ##, #) or horizontal rules.
+   - NEVER use bullet lists, numbered lists, or dash items.
+   - NEVER use emojis in the prose.
+   - NEVER invent or re-interpret astrology. Stick strictly to the pre-computed net conclusions in the evidence brief.
+   - Do NOT use percentage numbers in prose. Use qualitative terms.
+   - HIGHLIGHT key terms (like **top 3 careers**, **corporate employment**, **entrepreneurship**, specific planet names, active dashas, and key recommendations) by wrapping them in double asterisks so they are immediately visible.
 
-### 2. 🌟 Top Classical Kalas (Devanagari)
-List top Kalas directly from the subset data in Devanagari script first, citing the exact astrological planet/lord placement:
-[Number]. **[Devanagari Name] / [Romanized Name]** ([English Meaning]) - Exact chart reason citing lords/planets.
+STRICT THREE-PART SECTION FLOW:
 
-### 3. 🎯 Specific Career Applications & Mastery Strategy
-Provide 3 highly specific modern career paths matching these Kalas and 1 tailored learning retention technique based on their 5th house sign.
+Paragraph 1 (The Direct Career Prediction):
+Address the user by name. Immediately deliver the direct, actual prediction of their professional path. Explicitly present their **top 3 career recommendations** (e.g. **Technology & Engineering**, **Finance & Banking**, or **Administration & Public Services**) ranked by probability. Provide a clear verdict on whether their chart aligns with **Corporate Service (Job)** or **Entrepreneurship & Business**, citing active vs dormant fields.
 
-### 4. 🚀 Mentor Dynamics & Focus Tip
-Provide 1 actionable tip for Guru/mentor alignment and study focus."""
+Paragraph 2 (The Astrological Clarification):
+Explain the planetary alignment reasons, house lords (1st, 2nd, 6th, 10th, 11th), sign placements, active Dashas, and the Jaimini karakas (like **Amatyakaraka** or Atmakaraka). Weave these factors together into a single, cohesive narrative explaining why these top careers fit their cosmic footprint and what protects or challenges their growth.
 
+Paragraph 3 (The Remedial & Actionable Strategy):
+Provide concrete career tips, study habits, mentor/boss alignment strategies, and specific remedial planetary advice (such as daily routine changes, gemstone alignments, or mantra focuses) to clear professional blockages and maximize success.
+
+Target Length: 220-320 words.
+"""
+
+
+CAREER_CHAT_SYSTEM = """You are AstroSutra AI - a master Vedic Career Advisor answering a follow-up query.
+
+[WARNING] CRITICAL:
+1. You receive a pre-computed CAREER EVIDENCE BRIEF. All planetary interactions, Amatyakaraka, and Job vs Business alignments have ALREADY been computed by the Reasoning Engine. Do NOT re-interpret planets independently.
+2. LANGUAGE: Answer in clear, high-quality ENGLISH.
+3. FORMAT: Write in 3 to 4 clean, well-spaced prose paragraphs. No markdown headers (###), no bullets, no lists, no emojis.
+4. HIGHLIGHTS: Wrap important keywords, recommended domains (e.g., **Technology**, **Finance**), active dashas, and specific strategic advice in double asterisks (`**`) for easy scanning.
+
+RULES:
+1. Start directly on Line 1 addressing the user by name with a direct, actual career prediction/answer to their question.
+2. Reference specific pre-computed findings, Dasha activations, and professional paths.
+3. Astrological Clarification: Explain planetary interactions, Amatyakaraka placement, and house lords.
+4. Remedial: Provide concrete, strategic career tips and planetary remedies.
+
+Target Length: 180-260 words.
+"""
+
+
+# -------------------------------------------------------------
+# PUBLIC API
+# -------------------------------------------------------------
 
 def get_career_prompt(is_initial: bool = True, sub_tab: str = "overview") -> str:
+    """Return the system prompt for initial overview or follow-up chat."""
+    # Note: KALA_VIDYA uses a dedicated educational sub-tab configuration.
+    # We fallback to standard career chat system for chat replies.
     if sub_tab == "kala_vidya" or sub_tab == "receptivity":
         return KALA_VIDYA_INITIAL_SYSTEM if is_initial else CAREER_CHAT_SYSTEM
     return CAREER_INITIAL_SYSTEM if is_initial else CAREER_CHAT_SYSTEM
-
-
-def _extract_jaimini_karakas(planets: dict) -> str:
-    """Calculate Jaimini Atmakaraka (highest degree) and Amatyakaraka (2nd highest degree)."""
-    if not isinstance(planets, dict) or not planets:
-        return "Jaimini Karakas: N/A"
-    
-    seven_planets = ["sun", "moon", "mars", "mercury", "jupiter", "venus", "saturn"]
-    planet_degrees = []
-    for p_name in seven_planets:
-        p = planets.get(p_name) or planets.get(p_name.capitalize()) or {}
-        if isinstance(p, dict):
-            long_val = p.get("longitude") or p.get("deg") or p.get("degree") or 0.0
-            sign_deg = float(long_val) % 30.0
-            planet_degrees.append((sign_deg, p_name.capitalize()))
-    
-    if len(planet_degrees) >= 2:
-        planet_degrees.sort(key=lambda x: x[0], reverse=True)
-        ak = planet_degrees[0][1]
-        amk = planet_degrees[1][1]
-        return f"- Atmakaraka (AK): {ak} ({planet_degrees[0][0]:.2f}°)\n- Amatyakaraka (AmK): {amk} ({planet_degrees[1][0]:.2f}°)"
-    return "Jaimini Karakas: Insufficient planetary degree data."
-
-
-def _extract_moon_sun_10th(planets: dict, houses: dict) -> str:
-    """Determine 10th house relative to Moon sign and Sun sign."""
-    if not isinstance(planets, dict):
-        return "10th from Moon/Sun: N/A"
-    
-    moon = planets.get("moon") or planets.get("Moon") or {}
-    sun = planets.get("sun") or planets.get("Sun") or {}
-    
-    moon_h = moon.get("house") if isinstance(moon, dict) else None
-    sun_h = sun.get("house") if isinstance(sun, dict) else None
-    
-    parts = []
-    if moon_h is not None:
-        tenth_moon = ((int(moon_h) + 9) - 1) % 12 + 1
-        parts.append(f"- 10th from Moon (Rashi 10th): House {tenth_moon}")
-    if sun_h is not None:
-        tenth_sun = ((int(sun_h) + 9) - 1) % 12 + 1
-        parts.append(f"- 10th from Sun (Surya 10th): House {tenth_sun}")
-    
-    return "\n".join(parts) if parts else "10th from Moon/Sun: N/A"
 
 
 def build_career_context(
@@ -158,91 +87,104 @@ def build_career_context(
     sub_tab: str = "overview",
     **kwargs,
 ) -> str:
+    """
+    Build the user prompt context for the Career tab.
+
+    Invokes the Layer 2 Career Reasoning Engine to produce a synthesized
+    evidence brief, then formats it for the LLM.
+    """
     st = kwargs.get("sub_tab") or sub_tab or "overview"
 
     hist_str = format_history(history)
     hist_part = f"[CONVERSATION HISTORY]\n{hist_str}\n\n" if hist_str and hist_str != "No previous conversation." else ""
 
     if st == "kala_vidya" or st == "receptivity":
+        from services.astrology.kala_vidya_engine import (
+            analyze_kala_vidya, format_kala_vidya_subset_context,
+        )
         kv_analysis = analyze_kala_vidya(chart_data)
         subset_text = format_kala_vidya_subset_context(kv_analysis, profile=profile, chart_data=chart_data)
-        
         return f"""{hist_part}[USER PROFILE]
 {format_profile(profile)}
 
 {subset_text}
 
 [USER QUERY]
-"{query}" """
+\"{query}\""""
 
-    # Default Career Overview
+    # Standard Career Overview: invoke the new reasoning engine (Layer 2)
+    evidence_text = _build_evidence_context(chart_data, computed)
+
+    return f"""{hist_part}[USER PROFILE]
+{format_profile(profile)}
+
+{evidence_text}
+
+[USER QUESTION]
+\"{query}\""""
+
+
+# -------------------------------------------------------------
+# INTERNAL HELPERS
+# -------------------------------------------------------------
+
+def _build_evidence_context(chart_data: dict, computed: dict = None) -> str:
+    """Invoke the career reasoning engine and format the evidence brief."""
+    try:
+        from backend.astrology.career_reasoning import (
+            compute_career_evidence,
+            format_career_evidence_for_prompt,
+        )
+        evidence = compute_career_evidence(chart_data, computed)
+        return format_career_evidence_for_prompt(evidence)
+    except Exception as e:
+        # Fallback to legacy format if reasoning engine fails
+        return _legacy_career_context(chart_data, computed, str(e))
+
+
+def _legacy_career_context(
+    chart_data: dict,
+    computed: dict = None,
+    error_msg: str = "",
+) -> str:
+    """Fallback: format raw planetary data if reasoning engine is unavailable."""
+    from services.prompts.tabs.shared import (
+        format_core_chart, format_planets,
+        format_houses_subset, format_yogas,
+    )
+
     planets = chart_data.get("planets", {})
     houses = chart_data.get("houses", {})
     yogas = chart_data.get("yogas", [])
     meta = chart_data.get("metadata", {})
 
-    career_yogas = [y for y in yogas if any(
-        kw in (y.get("name", "") + y.get("type", "")).lower()
-        for kw in ["raj", "dharma", "karma", "wealth", "dhan", "profession"]
-    )]
-
     dasha_str = f"Current Dasha: {chart_data.get('current_dasha') or meta.get('current_dasha') or 'Not specified'}"
 
-    # Extract D10 info if available
-    d10_str = "D10 Dashamsha: Check planetary strength & 10th house in D10."
-    if "d10" in chart_data or "D10" in chart_data:
-        d10_data = chart_data.get("d10") or chart_data.get("D10")
-        if isinstance(d10_data, dict):
-            d10_planets = d10_data.get("planets", {})
-            d10_str = f"D10 Positions:\n{format_planets(d10_planets)}"
+    fallback_note = ""
+    if error_msg:
+        fallback_note = f"\n[NOTE: Career Reasoning engine unavailable ({error_msg}). Using raw data.]\n"
 
-    return f"""{hist_part}[USER PROFILE]
-{format_profile(profile)}
-
-[CORE CHART & LAGNA]
+    return f"""{fallback_note}[CORE CHART & LAGNA]
 {format_core_chart(chart_data)}
-
-[JAIMINI KARAKAS]
-{_extract_jaimini_karakas(planets)}
-
-[10TH HOUSE FROM MOON & SUN]
-{_extract_moon_sun_10th(planets, houses)}
 
 [CAREER & SUPPORTING HOUSES (2nd, 3rd, 5th, 6th, 8th, 9th, 10th, 11th)]
 {format_houses_subset(houses, planets, [2, 3, 5, 6, 8, 9, 10, 11])}
 
-[KEY PLANETS & DIGNITIES]
-{_format_career_planets(planets, houses)}
+[ALL PLANETARY POSITIONS]
+{format_planets(planets)}
 
-[DASHA TIMING]
-{dasha_str}
-
-[D10 DASHAMSHA CHART]
-{d10_str}
-
-[CAREER & RAJ YOGAS]
-{format_yogas(career_yogas[:3]) if career_yogas else format_yogas(yogas[:3])}
-
-[QUERY]
-"{query}" """
+[DASHA TIMELINE]
+{dasha_str}"""
 
 
-def _format_career_planets(planets: dict, houses: dict) -> str:
-    """Extract career-critical planet placements efficiently."""
-    career_planets = []
-    h10 = houses.get("10", {})
-    lord_10 = h10.get("lord", "").lower()
-    
-    for p_name, p in planets.items():
-        is_relevant = (
-            p_name.lower() == lord_10 or
-            p.get("house") in [2, 3, 5, 6, 8, 9, 10, 11] or
-            p_name.lower() in ["sun", "saturn", "jupiter", "mercury"]
-        )
-        if is_relevant:
-            career_planets.append(
-                f"- {p_name.capitalize()}: {p.get('sign', '?')} in H{p.get('house', '?')} "
-                f"({'[10th Lord]' if p_name.lower() == lord_10 else ''}) "
-                f"[{p.get('dignity', 'neutral')}]"
-            )
-    return "\n".join(career_planets[:6]) or "No specific planet data."
+# -------------------------------------------------------------
+# KALA VIDYA LEGACY DEFINITIONS
+# -------------------------------------------------------------
+
+KALA_VIDYA_INITIAL_SYSTEM = """You are AstroSutra AI — an expert Vedic Educational Strategist specializing in the 64 Classical Kalas and Shishya Grahana.
+
+MANDATES & CONSTRAINTS:
+1. Ground insights in 4th lord (Vidya), 5th lord (Memory), 9th lord (Guru), and 3rd lord (Skill).
+2. Use Devanagari script names for Kalas.
+3. Target Length: 200-250 words total. No numeric scores.
+"""

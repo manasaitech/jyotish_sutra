@@ -113,20 +113,20 @@ const TAB_SUGGESTIONS: Record<string, string[]> = {
     '🌿 Remedies for harmony and respect with family-in-law',
   ],
   health: [
-    '🩺 What are my primary physical & organ vulnerabilities?',
-    '🧠 How to eliminate mental anxiety & sleep issues using Moon remedies?',
-    '⚡ Which active Dasha period requires heightened immunity care?',
-    '🌿 What is my dominant Ayurvedic Dosha (Vata/Pitta/Kapha) balance?',
+    '🩺 What are my primary physical & organ vulnerabilities under Vedic Medical Astrology?',
+    '🌿 What is my dominant Ayurvedic Tridosha (Vata-Pitta-Kapha) balance and Prakriti?',
+    '🌱 Which Ayurvedic herbs and natural remedies align with my planetary chart?',
+    '⚡ Which active Dasha requires targeted health and immunity remedies?',
   ],
   food: [
-    '🍲 Which exact foods & spices balance my planetary Prakriti?',
-    '🚫 What dietary habits or foods should I strictly avoid for my 2nd house?',
-    '🥛 Which weekday fasting or Sattvic diet boosts my vitality?',
-    '🌿 Best daily eating schedule for my digestive Agni (Mars/Sun)?',
+    '🍲 Which exact foods & spices balance my planetary Ayurvedic Prakriti?',
+    '🚫 What dietary habits should I avoid to maintain optimal Agni (digestive fire)?',
+    '🥛 Which weekday fasting or Sattvic diet boosts my metabolic vitality?',
+    '🌿 What is my best daily eating schedule based on my Ayurvedic chart?',
   ],
   remedies: [
     '💎 Which gemstone (Ratna) is 100% safe and auspicious for my Lagna?',
-    '🕉️ What is my personal powerhouse daily Mantra for rapid peace & success?',
+    '🌱 How can I use Ayurvedic daily routines (Dinacharya) as planetary remedies?',
     '🪐 Which planet needs urgent pacification (Dan/Pooja) right now?',
     '⚡ How to perform simple home remedies to clear active Rahu/Saturn afflictions?',
   ],
@@ -299,15 +299,8 @@ export default function TabChat({
         </div>
       ) : (
         <>
-          {/* Suggestion Chips */}
-          {!loading && (
-            <div className="mb-4">
-              <SuggestionChips suggestions={suggestions} onSelect={handleSuggestionSelect} />
-            </div>
-          )}
-
-          {/* Input Bar */}
-          <div className="flex items-center gap-1.5 sm:gap-2 bg-surface p-1.5 sm:p-2 rounded-xl sm:rounded-2xl border border-outline-variant shadow-xs focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/20 transition-all">
+          {/* Highlighted Input Bar */}
+          <div className="flex items-center gap-1.5 sm:gap-2 bg-amber-500/[0.04] p-2.5 sm:p-3 rounded-xl sm:rounded-2xl border-2 border-amber-500 shadow-md shadow-amber-500/10 focus-within:border-amber-600 focus-within:ring-4 focus-within:ring-amber-500/20 focus-within:shadow-lg focus-within:shadow-amber-500/15 transition-all">
             <input
               type="text"
               value={input}
@@ -325,6 +318,13 @@ export default function TabChat({
               <span className="material-symbols-outlined text-lg sm:text-xl">send</span>
             </button>
           </div>
+
+          {/* Suggestion Chips (Moved Below Chatbox) */}
+          {!loading && (
+            <div className="mt-4">
+              <SuggestionChips suggestions={suggestions} onSelect={handleSuggestionSelect} />
+            </div>
+          )}
         </>
       )}
     </div>

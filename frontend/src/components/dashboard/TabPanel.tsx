@@ -6,7 +6,6 @@ import { ALL_TABS } from './TabNavigation'
 import SummaryCards from './SummaryCards'
 import TabChat, { type Message } from './TabChat'
 import PredictionFeedbackCard from '../chat/PredictionFeedbackCard'
-import ExpertConsultationCard from '../expert/ExpertConsultationCard'
 import AnimatedKundliChart from './AnimatedKundliChart'
 import PlanetaryTable from './PlanetaryTable'
 import RelationshipTargetSelector, { type RelationshipTarget, RELATIONSHIP_TARGETS } from './RelationshipTargetSelector'
@@ -368,9 +367,6 @@ export default function TabPanel({
             </>
           )}
         </div>
-
-        {/* 1-on-1 Expert Consultation Section (Mr. Sanoj Kumar) */}
-        <ExpertConsultationCard tab={tab} />
 
         {/* Tab Dedicated Chat Section */}
         <TabChat
