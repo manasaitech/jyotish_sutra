@@ -97,7 +97,7 @@ export default function LandingPage({ onGetStarted }: LandingPageProps) {
 
               {/* Subtitle */}
               <p className="text-base sm:text-lg md:text-xl text-on-surface-variant max-w-lg leading-relaxed font-light">
-                Experience the precision of Vedic Astrology and Ayurvedic medicine, curated through an artisanal neural lens for holistic healing and remedies.
+                Experience the wisdom of Vedic Astrology and Ayurvedic medicine, curated through an artisanal neural lens for holistic healing and remedies.
               </p>
 
               {/* CTA Buttons */}
@@ -147,7 +147,7 @@ export default function LandingPage({ onGetStarted }: LandingPageProps) {
             {[
               {
                 icon: 'auto_stories',
-                title: 'Vedic Jyotish Precision',
+                title: 'Vedic Jyotish',
                 desc: 'Surgical computation of birth charts, Dashas, and planetary alignments based on precise astronomical calculations.',
                 tag: 'Astrology • 01',
               },
