@@ -52,7 +52,7 @@ function PublicLayout({ children }: { children: React.ReactNode }) {
   const navLink = (label: string, to: string) => (
     <Link
       to={to}
-      className={`font-medium hover:text-primary transition-colors text-xs tracking-[0.15em] uppercase ${
+      className={`font-semibold hover:text-primary transition-colors text-[10px] xl:text-xs tracking-[0.12em] xl:tracking-[0.15em] uppercase ${
         location.pathname === to ? 'text-primary font-bold' : 'text-on-surface-variant'
       }`}
     >
@@ -88,13 +88,14 @@ function PublicLayout({ children }: { children: React.ReactNode }) {
           {/* Logo */}
           <Link
             to={user ? '/app' : '/'}
-            className="font-display text-lg sm:text-2xl md:text-3xl text-primary font-bold italic tracking-tight cursor-pointer no-underline whitespace-nowrap mr-1 sm:mr-0"
+            className="flex items-center gap-2 font-display text-base sm:text-xl md:text-2xl text-primary font-bold italic tracking-tight cursor-pointer no-underline whitespace-nowrap shrink-0 mr-1 sm:mr-0"
           >
-            AstroSutra AI
+            <img src="/logo.png" alt="AstroSutra AI Logo" className="w-7 h-7 sm:w-8 sm:h-8 object-contain rounded-xl shrink-0 animate-fade-in" />
+            <span>AstroSutra AI</span>
           </Link>
 
           {/* Desktop links */}
-          <div className="hidden lg:flex items-center gap-6 xl:gap-8">
+          <div className="hidden lg:flex items-center gap-4 xl:gap-6 shrink-0">
             {navLink('Home', '/')}
             {user && navLink('Dashboard', '/app')}
             <a
@@ -109,7 +110,7 @@ function PublicLayout({ children }: { children: React.ReactNode }) {
                   )
                 }
               }}
-              className="text-on-surface-variant font-medium hover:text-primary transition-colors text-xs tracking-[0.15em] uppercase"
+              className="text-on-surface-variant font-semibold hover:text-primary transition-colors text-[10px] xl:text-xs tracking-[0.12em] xl:tracking-[0.15em] uppercase"
             >
               Features
             </a>
@@ -125,7 +126,7 @@ function PublicLayout({ children }: { children: React.ReactNode }) {
                   )
                 }
               }}
-              className="text-on-surface-variant font-medium hover:text-primary transition-colors text-xs tracking-[0.15em] uppercase"
+              className="text-on-surface-variant font-semibold hover:text-primary transition-colors text-[10px] xl:text-xs tracking-[0.12em] xl:tracking-[0.15em] uppercase"
             >
               Testimonials
             </a>
