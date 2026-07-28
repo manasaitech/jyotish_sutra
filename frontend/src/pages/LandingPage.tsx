@@ -123,7 +123,7 @@ export default function LandingPage({ onGetStarted }: LandingPageProps) {
             </div>
 
             {/* Animated Kundli Chart Visual */}
-            <div className="flex justify-center items-center relative order-first md:order-last max-w-[280px] xs:max-w-xs sm:max-w-sm md:max-w-none mx-auto w-full">
+            <div className="flex justify-center items-center relative max-w-[280px] xs:max-w-xs sm:max-w-sm md:max-w-none mx-auto w-full mt-4 md:mt-0">
               <HeroKundliChart />
             </div>
           </div>
