@@ -2,6 +2,7 @@
  * ProfilePage — Full-page settings & profile management view for AstroSutra AI.
  * Replaces the old Navbar dropdown with a premium, feature-rich profile section.
  */
+import { useState } from 'react'
 import type { UserProfile } from '../types/profile'
 import { useAuth } from '../context/AuthContext'
 import { getCurrentTier } from '../utils/subscriptionManager'
@@ -29,8 +30,26 @@ export default function ProfilePage({
   onNavigateBack,
   onEditProfileDetails,
 }: ProfilePageProps) {
-  const { user, logout } = useAuth()
+  const { user, logout, updateAccountProfile } = useAuth()
   const { theme, toggleTheme } = useTheme()
+
+  const [isEditingName, setIsEditingName] = useState(false)
+  const [editNameValue, setEditNameValue] = useState('')
+  const [isSavingName, setIsSavingName] = useState(false)
+
+  const handleSaveName = async () => {
+    if (!editNameValue.trim()) return
+    setIsSavingName(true)
+    try {
+      await updateAccountProfile(editNameValue.trim())
+      setIsEditingName(false)
+    } catch (error) {
+      console.error("Failed to update profile name:", error)
+      alert("Failed to update name. Please try again.")
+    } finally {
+      setIsSavingName(false)
+    }
+  }
 
   const currentTier = getCurrentTier()
   const tierConfig = TIER_CONFIG[currentTier]
@@ -82,12 +101,52 @@ export default function ProfilePage({
 
             {/* User Info */}
             <div className="flex-1 min-w-0 space-y-2">
-              {/* Name */}
-              <div className="flex items-center gap-2">
-                <h2 className="text-xl font-bold text-on-surface truncate">
-                  {user?.displayName || 'Seeker'}
-                </h2>
-              </div>
+              {/* Name (Editable) */}
+              {isEditingName ? (
+                <div className="flex items-center gap-1.5 max-w-full">
+                  <input
+                    type="text"
+                    value={editNameValue}
+                    onChange={(e) => setEditNameValue(e.target.value)}
+                    className="px-2 py-1 rounded-xl border border-slate-300 text-sm font-semibold focus:ring-2 focus:ring-amber-500 focus:outline-none bg-surface text-on-surface w-full max-w-[200px]"
+                    placeholder="Enter name"
+                    autoFocus
+                    disabled={isSavingName}
+                  />
+                  <button
+                    onClick={handleSaveName}
+                    disabled={isSavingName || !editNameValue.trim()}
+                    className="p-1.5 bg-emerald-500 text-white rounded-lg hover:bg-emerald-600 transition-colors shadow-sm cursor-pointer disabled:opacity-50 flex items-center justify-center shrink-0"
+                    title="Save name"
+                  >
+                    <span className="material-symbols-outlined text-sm block">check</span>
+                  </button>
+                  <button
+                    onClick={() => setIsEditingName(false)}
+                    disabled={isSavingName}
+                    className="p-1.5 bg-surface-variant text-on-surface-variant rounded-lg hover:bg-outline-variant transition-colors shadow-xs cursor-pointer flex items-center justify-center shrink-0"
+                    title="Cancel"
+                  >
+                    <span className="material-symbols-outlined text-sm block">close</span>
+                  </button>
+                </div>
+              ) : (
+                <div className="flex items-center gap-2">
+                  <h2 className="text-xl font-bold text-on-surface truncate">
+                    {user?.displayName || 'Seeker'}
+                  </h2>
+                  <button
+                    onClick={() => {
+                      setEditNameValue(user?.displayName || 'Seeker')
+                      setIsEditingName(true)
+                    }}
+                    className="text-on-surface-variant/60 hover:text-primary transition-colors cursor-pointer flex items-center justify-center shrink-0 p-1 rounded-lg hover:bg-surface-variant/40"
+                    title="Edit display name"
+                  >
+                    <span className="material-symbols-outlined text-base">edit</span>
+                  </button>
+                </div>
+              )}
 
               {/* Email */}
               <div className="flex items-center gap-2 text-on-surface-variant">
