@@ -16,7 +16,7 @@ interface ProfilePageProps {
   onDeleteProfile: (profileId: string) => void
   onOpenPricing: () => void
   onNavigateBack: () => void
-  onEditProfile: () => void
+  onEditProfileDetails: (profileId: string) => void
 }
 
 export default function ProfilePage({
@@ -27,7 +27,7 @@ export default function ProfilePage({
   onDeleteProfile,
   onOpenPricing,
   onNavigateBack,
-  onEditProfile,
+  onEditProfileDetails,
 }: ProfilePageProps) {
   const { user, logout } = useAuth()
   const { theme, toggleTheme } = useTheme()
@@ -82,18 +82,11 @@ export default function ProfilePage({
 
             {/* User Info */}
             <div className="flex-1 min-w-0 space-y-2">
-              {/* Name and Edit Button */}
+              {/* Name */}
               <div className="flex items-center gap-2">
                 <h2 className="text-xl font-bold text-on-surface truncate">
                   {user?.displayName || 'Seeker'}
                 </h2>
-                <button
-                  onClick={onEditProfile}
-                  className="text-on-surface-variant/60 hover:text-primary transition-colors cursor-pointer"
-                  title="Edit profile details"
-                >
-                  <span className="material-symbols-outlined text-base">edit</span>
-                </button>
               </div>
 
               {/* Email */}
@@ -260,21 +253,36 @@ export default function ProfilePage({
                     </div>
                   </button>
 
-                  {/* Delete button */}
-                  {profiles.length > 1 && (
+                  {/* Action buttons (Edit & Delete) */}
+                  <div className="flex items-center gap-1 shrink-0 ml-2">
+                    {/* Edit button */}
                     <button
                       onClick={(e) => {
                         e.stopPropagation()
-                        if (confirm(`Remove profile for ${profile.name}?`)) {
-                          onDeleteProfile(profile.id)
-                        }
+                        onEditProfileDetails(profile.id)
                       }}
-                      title="Remove profile"
-                      className="text-on-surface-variant/50 hover:text-red-500 p-2 rounded-xl hover:bg-red-500/10 transition-all cursor-pointer ml-2"
+                      title="Edit birth details"
+                      className="text-on-surface-variant/50 hover:text-primary p-2 rounded-xl hover:bg-primary/10 transition-all cursor-pointer"
                     >
-                      <span className="material-symbols-outlined text-base">delete_outline</span>
+                      <span className="material-symbols-outlined text-base">edit</span>
                     </button>
-                  )}
+
+                    {/* Delete button */}
+                    {profiles.length > 1 && (
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          if (confirm(`Remove profile for ${profile.name}?`)) {
+                            onDeleteProfile(profile.id)
+                          }
+                        }}
+                        title="Remove profile"
+                        className="text-on-surface-variant/50 hover:text-red-500 p-2 rounded-xl hover:bg-red-500/10 transition-all cursor-pointer"
+                      >
+                        <span className="material-symbols-outlined text-base">delete_outline</span>
+                      </button>
+                    )}
+                  </div>
                 </div>
               )
             })}

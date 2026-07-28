@@ -334,8 +334,8 @@ export default function ChatPage() {
           navigate('/pricing')
         }}
         onNavigateBack={() => setShowProfile(false)}
-        onEditProfile={() => {
-          setEditProfileId(activeId || user?.uid || null)
+        onEditProfileDetails={(id) => {
+          setEditProfileId(id)
           setStep('welcome')
           setShowProfile(false)
         }}
@@ -360,10 +360,6 @@ export default function ChatPage() {
         activeProfileId={activeId}
         onOpenProfile={() => setShowProfile(true)}
         onOpenPricing={() => navigate('/pricing')}
-        onResetProfile={() => {
-          setEditProfileId(activeId)
-          setStep('welcome')
-        }}
       />
     )
   }
@@ -405,6 +401,10 @@ export default function ChatPage() {
             <BirthDetailsForm
               onSubmit={handleBirthSubmit}
               initialData={editProfileId ? (profiles.find(p => p.id === editProfileId)?.birthData || undefined) : undefined}
+              onCancel={activeId ? () => {
+                setEditProfileId(null)
+                setStep('ready')
+              } : undefined}
             />
           )}
 

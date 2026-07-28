@@ -30,9 +30,10 @@ interface Suggestion {
 interface BirthDetailsFormProps {
   onSubmit: (data: BirthData) => void
   initialData?: BirthData
+  onCancel?: () => void
 }
 
-export default function BirthDetailsForm({ onSubmit, initialData }: BirthDetailsFormProps) {
+export default function BirthDetailsForm({ onSubmit, initialData, onCancel }: BirthDetailsFormProps) {
   const [mode, setMode] = useState<OnboardingMode>(
     initialData?.mode === 'partial' || initialData?.mode === 'prashna' ? 'partial' : 'exact'
   )
@@ -438,24 +439,36 @@ export default function BirthDetailsForm({ onSubmit, initialData }: BirthDetails
           </div>
         </div>
 
-        {/* Primary Action Button — Submit Everything on 1 Page! */}
-        <button
-          type="button"
-          onClick={handleFormSubmit}
-          disabled={!name.trim() || (mode === 'exact' && (!dob || !tob))}
-          className="w-full bg-primary text-white font-bold py-4 rounded-2xl text-sm sm:text-base shadow-lg shadow-primary/25 hover:scale-[1.01] active:scale-[0.99] transition-all disabled:opacity-50 cursor-pointer flex items-center justify-center gap-2"
-        >
-          <span>
-            {initialData
-              ? '💾 Save Profile Changes'
-              : mode === 'exact'
-              ? '✨ Generate Complete Janma Kundli'
-              : '✨ Start Astrological Guidance'}
-          </span>
-          <span className="material-symbols-outlined text-lg">
-            {initialData ? 'save' : 'arrow_forward'}
-          </span>
-        </button>
+        {/* Primary Actions — Submit & optional Go Back */}
+        <div className="flex flex-col sm:flex-row gap-3">
+          {onCancel && (
+            <button
+              type="button"
+              onClick={onCancel}
+              className="flex-1 bg-surface border border-outline-variant hover:bg-surface-variant/40 text-on-surface font-bold py-4 rounded-2xl text-sm sm:text-base shadow-xs transition-all cursor-pointer flex items-center justify-center gap-2"
+            >
+              <span className="material-symbols-outlined text-lg">arrow_back</span>
+              <span>Go Back</span>
+            </button>
+          )}
+          <button
+            type="button"
+            onClick={handleFormSubmit}
+            disabled={!name.trim() || (mode === 'exact' && (!dob || !tob))}
+            className={`${onCancel ? 'flex-grow sm:flex-1' : 'w-full'} bg-primary text-white font-bold py-4 rounded-2xl text-sm sm:text-base shadow-lg shadow-primary/25 hover:scale-[1.01] active:scale-[0.99] transition-all disabled:opacity-50 cursor-pointer flex items-center justify-center gap-2`}
+          >
+            <span>
+              {initialData
+                ? '💾 Save Profile Changes'
+                : mode === 'exact'
+                ? '✨ Generate Complete Janma Kundli'
+                : '✨ Start Astrological Guidance'}
+            </span>
+            <span className="material-symbols-outlined text-lg">
+              {initialData ? 'save' : 'arrow_forward'}
+            </span>
+          </button>
+        </div>
       </div>
     </div>
   )

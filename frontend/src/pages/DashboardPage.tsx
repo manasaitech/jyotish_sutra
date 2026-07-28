@@ -17,7 +17,6 @@ interface DashboardPageProps {
   activeProfileId?: string
   onOpenProfile?: () => void
   onOpenPricing?: () => void
-  onResetProfile: () => void
 }
 
 export default function DashboardPage({
@@ -31,7 +30,6 @@ export default function DashboardPage({
   activeProfileId,
   onOpenProfile,
   onOpenPricing,
-  onResetProfile,
 }: DashboardPageProps) {
   const [activeTab, setActiveTab] = useState<TabType>('overview')
 
@@ -91,13 +89,6 @@ export default function DashboardPage({
               )}
             </p>
           </div>
-
-          <button
-            onClick={onResetProfile}
-            className="px-4 py-2 text-sm font-semibold text-white bg-orange-500 hover:bg-orange-600 rounded-lg shadow-md transition-all duration-200 cursor-pointer shrink-0"
-          >
-            Edit Details
-          </button>
         </div>
 
         {/* Tab Panel View */}
