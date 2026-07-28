@@ -54,6 +54,7 @@ export default function ProfilePage({
   const currentTier = getCurrentTier()
   const tierConfig = TIER_CONFIG[currentTier]
   const maxProfiles = getMaxProfilesForTier(currentTier)
+  const activeProfile = profiles.find((p) => p.id === activeProfileId) || profiles[0]
 
 
   // Get initials for avatar
@@ -159,6 +160,35 @@ export default function ProfilePage({
                 <span className="material-symbols-outlined text-sm">calendar_today</span>
                 <span className="text-xs">Member since {new Date().toLocaleDateString('en-IN', { month: 'long', year: 'numeric' })}</span>
               </div>
+
+              {/* Active Profile Birth Details */}
+              {activeProfile?.birthData && (
+                <div className="mt-3.5 pt-3.5 border-t border-outline-variant/60 space-y-2">
+                  <p className="text-[10px] uppercase font-extrabold tracking-wider text-primary">Active Birth Chart Details</p>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-2 text-xs text-on-surface-variant">
+                    <div className="flex items-center gap-2">
+                      <span className="material-symbols-outlined text-sm shrink-0">cake</span>
+                      <span>DOB: <strong className="text-on-surface font-bold">{activeProfile.birthData.dateOfBirth}</strong></span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="material-symbols-outlined text-sm shrink-0">schedule</span>
+                      <span>TOB: <strong className="text-on-surface font-bold">{activeProfile.birthData.timeOfBirth || 'Unknown'}</strong></span>
+                    </div>
+                    <div className="flex items-center gap-2 sm:col-span-2">
+                      <span className="material-symbols-outlined text-sm shrink-0">location_on</span>
+                      <span className="truncate">POB: <strong className="text-on-surface font-bold">{activeProfile.birthData.placeName || 'Unknown'}</strong></span>
+                    </div>
+                  </div>
+                  
+                  <button
+                    onClick={() => onEditProfileDetails(activeProfile.id)}
+                    className="mt-1 flex items-center gap-1 text-[11px] font-bold text-primary hover:text-amber-600 transition-colors cursor-pointer w-fit"
+                  >
+                    <span className="material-symbols-outlined text-xs">edit</span>
+                    Edit Birth Details
+                  </button>
+                </div>
+              )}
             </div>
           </div>
         </section>
