@@ -77,7 +77,7 @@ export default function LoginPage({ onSuccess, onClose }: LoginPageProps) {
   }
 
   return (
-    <div className="min-h-screen bg-[#FAF8F3] flex items-center justify-center p-3 sm:p-6 py-6 relative overflow-x-hidden font-sans">
+    <div className="min-h-screen bg-background flex items-center justify-center p-3 sm:p-6 py-6 relative overflow-x-hidden font-sans">
       {/* BACKGROUND CELESTIAL BLURS */}
       <div className="absolute top-10 left-1/4 w-72 sm:w-96 h-72 sm:h-96 bg-amber-500/10 rounded-full blur-3xl pointer-events-none" />
       <div className="absolute bottom-10 right-1/4 w-72 sm:w-96 h-72 sm:h-96 bg-primary/10 rounded-full blur-3xl pointer-events-none" />

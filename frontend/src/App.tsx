@@ -83,11 +83,11 @@ function PublicLayout({ children }: { children: React.ReactNode }) {
         backgroundImage:
           'radial-gradient(circle at 2px 2px, rgba(137, 115, 101, 0.05) 1px, transparent 0)',
         backgroundSize: '24px 24px',
-        backgroundColor: '#FAF8F3',
+        backgroundColor: 'var(--color-background)',
       }}
     >
       {/* ══════════════ TOP NAVIGATION BAR ══════════════ */}
-      <nav className="sticky top-0 w-full z-50 backdrop-blur-md border-b border-outline-variant/60 bg-[#FAF8F3]/90">
+      <nav className="sticky top-0 w-full z-50 backdrop-blur-md border-b border-outline-variant/60 bg-background/90">
         <div className="flex justify-between items-center px-4 sm:px-6 md:px-10 py-3.5 sm:py-5 max-w-7xl mx-auto">
 
           {/* Logo */}
@@ -230,7 +230,7 @@ function AppRoutes() {
   // Auth loading spinner for /app and /login
   if (loading && (location.pathname === '/app' || location.pathname === '/login')) {
     return (
-      <div className="min-h-screen bg-[#FAF8F3] flex flex-col items-center justify-center space-y-4 font-sans">
+      <div className="min-h-screen bg-background flex flex-col items-center justify-center space-y-4 font-sans">
         <div className="w-12 h-12 border-4 border-amber-500 border-t-transparent rounded-full animate-spin shadow-md" />
         <p className="text-sm font-semibold text-on-surface-variant animate-pulse">
           Connecting to AstroSutra AI...
