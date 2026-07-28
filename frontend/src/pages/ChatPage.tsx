@@ -1,11 +1,12 @@
 import { useState, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
 import Navbar from '../components/layout/Navbar'
+import Footer from '../components/layout/Footer'
 import BirthDetailsForm, { type BirthData } from '../components/chat/BirthDetailsForm'
 import ComputingCard from '../components/chat/ComputingCard'
 
 import AssistantMessage from '../components/chat/AssistantMessage'
 import DashboardPage from './DashboardPage'
-import PricingPage from './PricingPage'
 import ProfilePage from './ProfilePage'
 
 import type { UserProfile } from '../types/profile'
@@ -29,10 +30,10 @@ const API_BASE_URL =
 
 
 export default function ChatPage() {
+  const navigate = useNavigate()
   const { user } = useAuth()
   const [sessionId] = useState(() => Math.random().toString(36).substring(7))
   const [step, setStep] = useState<ChatStep>('loading')
-  const [showPricing, setShowPricing] = useState(false)
   const [showProfile, setShowProfile] = useState(false)
 
   // Multi-profile state
@@ -312,13 +313,6 @@ export default function ChatPage() {
     }
   }
 
-  // -----------------------------------------------------------------------
-  // Render Pricing Page if user clicked Pricing
-  // -----------------------------------------------------------------------
-  if (showPricing) {
-    return <PricingPage onNavigateBack={() => setShowPricing(false)} />
-  }
-
   // Render Profile Page if user clicked Profile
   // -----------------------------------------------------------------------
   if (showProfile) {
@@ -337,7 +331,7 @@ export default function ChatPage() {
         onDeleteProfile={handleDeleteProfile}
         onOpenPricing={() => {
           setShowProfile(false)
-          setShowPricing(true)
+          navigate('/pricing')
         }}
         onNavigateBack={() => setShowProfile(false)}
         onEditProfile={() => {
@@ -365,7 +359,7 @@ export default function ChatPage() {
         profiles={profiles}
         activeProfileId={activeId}
         onOpenProfile={() => setShowProfile(true)}
-        onOpenPricing={() => setShowPricing(true)}
+        onOpenPricing={() => navigate('/pricing')}
         onResetProfile={() => {
           setEditProfileId(activeId)
           setStep('welcome')
@@ -380,7 +374,7 @@ export default function ChatPage() {
         profiles={profiles}
         activeProfileId={activeId || undefined}
         onOpenProfile={() => setShowProfile(true)}
-        onOpenPricing={() => setShowPricing(true)}
+        onOpenPricing={() => navigate('/pricing')}
       />
 
       <main className="relative z-10 max-w-[800px] mx-auto px-4 pt-12 pb-[180px]">
@@ -427,6 +421,7 @@ export default function ChatPage() {
 
         </div>
       </main>
+      <Footer />
     </div>
   )
 }

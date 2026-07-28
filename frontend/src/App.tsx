@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import { BrowserRouter, Routes, Route, Navigate, useNavigate, useLocation, Link } from 'react-router-dom'
 import ChatPage from './pages/ChatPage'
 import LoginPage from './pages/LoginPage'
@@ -37,11 +37,17 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
 }
 
 // ─────────────────────────────────────────────
+import Footer from './components/layout/Footer'
+import ExpertConsultationModal from './components/expert/ExpertConsultationModal'
+
+// ─────────────────────────────────────────────
 // Persistent public layout — shared header + footer
 // ─────────────────────────────────────────────
 function PublicLayout({ children }: { children: React.ReactNode }) {
   const navigate = useNavigate()
   const location = useLocation()
+  const { user, logout } = useAuth()
+  const [isExpertModalOpen, setIsExpertModalOpen] = useState(false)
 
   // Scroll to top whenever the route changes
   useEffect(() => {
@@ -60,6 +66,15 @@ function PublicLayout({ children }: { children: React.ReactNode }) {
   )
 
   const handleSignIn = () => navigate('/login')
+  const handleGoDashboard = () => navigate('/app')
+  const handleSignOut = async () => {
+    try {
+      await logout()
+      navigate('/')
+    } catch (err) {
+      console.error('Logout error:', err)
+    }
+  }
 
   return (
     <div
@@ -77,7 +92,7 @@ function PublicLayout({ children }: { children: React.ReactNode }) {
 
           {/* Logo */}
           <Link
-            to="/"
+            to={user ? '/app' : '/'}
             className="font-display text-2xl sm:text-3xl md:text-4xl text-primary font-bold italic tracking-tight cursor-pointer no-underline"
           >
             AstroSutra AI
@@ -86,6 +101,7 @@ function PublicLayout({ children }: { children: React.ReactNode }) {
           {/* Desktop links */}
           <div className="hidden md:flex items-center gap-8">
             {navLink('Home', '/')}
+            {user && navLink('Dashboard', '/app')}
             <a
               href="#features"
               onClick={(e) => {
@@ -124,106 +140,67 @@ function PublicLayout({ children }: { children: React.ReactNode }) {
 
           {/* CTA buttons */}
           <div className="flex items-center gap-2 sm:gap-3">
+            {/* Talk to Expert Button */}
             <button
-              onClick={handleSignIn}
-              className="text-primary border border-primary/40 hover:bg-primary-fixed/30 px-3 sm:px-5 py-2 sm:py-2.5 text-xs sm:text-sm font-semibold tracking-wider uppercase transition-all cursor-pointer bg-transparent"
+              onClick={() => setIsExpertModalOpen(true)}
+              className="flex items-center gap-1 px-3 sm:px-4 py-2 sm:py-2.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-slate-950 font-extrabold text-xs tracking-wider uppercase shadow-md transition-all cursor-pointer border border-amber-300 shrink-0"
             >
-              Sign In
+              <span className="material-symbols-outlined text-sm sm:text-base" style={{ fontVariationSettings: "'FILL' 1" }}>
+                support_agent
+              </span>
+              <span className="hidden sm:inline">Talk to Expert (₹251)</span>
+              <span className="sm:hidden">Expert</span>
             </button>
-            <button
-              onClick={handleSignIn}
-              className="bg-primary text-white px-4 sm:px-6 py-2 sm:py-2.5 text-xs sm:text-sm font-semibold tracking-wider uppercase hover:bg-primary-container transition-all cursor-pointer shadow-md"
-              style={{ boxShadow: '2px 2px 0px rgba(137, 115, 101, 0.1)' }}
-            >
-              Get Started
-            </button>
+
+            {user ? (
+              <>
+                <button
+                  onClick={handleGoDashboard}
+                  className="bg-primary text-white px-3.5 sm:px-5 py-2 sm:py-2.5 text-xs sm:text-sm font-semibold tracking-wider uppercase hover:bg-primary-container transition-all cursor-pointer shadow-md flex items-center gap-1.5 rounded-xl"
+                >
+                  <span className="material-symbols-outlined text-sm sm:text-base">dashboard</span>
+                  <span>Go to Dashboard</span>
+                </button>
+                <button
+                  onClick={handleSignOut}
+                  className="text-on-surface-variant hover:text-rose-600 border border-outline-variant hover:border-rose-300 px-2.5 sm:px-3.5 py-2 sm:py-2.5 text-xs sm:text-sm font-medium tracking-wider uppercase transition-all cursor-pointer bg-transparent rounded-xl"
+                  title="Sign Out"
+                >
+                  Sign Out
+                </button>
+              </>
+            ) : (
+              <>
+                <button
+                  onClick={handleSignIn}
+                  className="text-primary border border-primary/40 hover:bg-primary-fixed/30 px-3 sm:px-5 py-2 sm:py-2.5 text-xs sm:text-sm font-semibold tracking-wider uppercase transition-all cursor-pointer bg-transparent"
+                >
+                  Sign In
+                </button>
+                <button
+                  onClick={handleSignIn}
+                  className="bg-primary text-white px-4 sm:px-6 py-2 sm:py-2.5 text-xs sm:text-sm font-semibold tracking-wider uppercase hover:bg-primary-container transition-all cursor-pointer shadow-md"
+                  style={{ boxShadow: '2px 2px 0px rgba(137, 115, 101, 0.1)' }}
+                >
+                  Get Started
+                </button>
+              </>
+            )}
           </div>
         </div>
       </nav>
+
+      {/* Expert Consultation Modal */}
+      <ExpertConsultationModal
+        isOpen={isExpertModalOpen}
+        onClose={() => setIsExpertModalOpen(false)}
+      />
 
       {/* ══════════════ PAGE CONTENT ══════════════ */}
       <main className="flex-grow">{children}</main>
 
       {/* ══════════════ FOOTER ══════════════ */}
-      <footer className="w-full py-10 sm:py-16 bg-surface-variant/40 border-t border-outline-variant">
-        <div className="flex flex-col md:flex-row justify-between items-center px-4 sm:px-6 md:px-10 gap-6 sm:gap-8 max-w-7xl mx-auto">
-
-          {/* Brand + ISS */}
-          <div className="flex flex-col items-center md:items-start gap-2">
-            <Link
-              to="/"
-              className="font-display text-2xl sm:text-3xl text-primary font-bold italic tracking-tight cursor-pointer no-underline"
-            >
-              AstroSutra AI
-            </Link>
-            <p className="text-[11px] sm:text-xs tracking-[0.12em] uppercase text-on-surface-variant">
-              © 2026 AstroSutra AI. All Rights Reserved. Supported by{' '}
-              <a
-                href="https://manasai.tech"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-primary hover:underline font-bold"
-              >
-                manasai.tech
-              </a>
-            </p>
-            <div className="mt-4 flex items-center gap-4 max-w-lg">
-              <img
-                src="https://issdelhi.org/wp-content/uploads/2025/04/ISS-LOGO-White-2048x1974.webp"
-                alt="ISS Delhi Logo"
-                className="w-18 h-18 object-contain shrink-0"
-              />
-              <div className="text-left">
-                <p className="text-[11px] sm:text-xs font-bold text-primary tracking-wide uppercase">In Collaboration With</p>
-                <p className="text-[11px] sm:text-xs text-on-surface-variant leading-relaxed font-medium">
-                  <strong>ISS</strong> (Institute for Science and Spirituality Trust)<br />
-                  An IKS Research Centre recognised by the IKS Division,<br />
-                  Ministry of Education, Govt of India
-                </p>
-              </div>
-            </div>
-          </div>
-
-          {/* Quick links */}
-          <div className="flex flex-wrap justify-center gap-5 sm:gap-8">
-            <Link to="/privacy" className="text-on-surface-variant hover:text-primary transition-colors text-[11px] sm:text-xs tracking-[0.12em] uppercase no-underline">
-              Privacy
-            </Link>
-            <Link to="/terms" className="text-on-surface-variant hover:text-primary transition-colors text-[11px] sm:text-xs tracking-[0.12em] uppercase no-underline">
-              Terms
-            </Link>
-            <Link to="/" className="text-on-surface-variant hover:text-primary transition-colors text-[11px] sm:text-xs tracking-[0.12em] uppercase no-underline">
-              Home
-            </Link>
-            <Link to="/pricing" className="text-on-surface-variant hover:text-primary transition-colors text-[11px] sm:text-xs tracking-[0.12em] uppercase no-underline">
-              Pricing
-            </Link>
-            <Link to="/contact" className="text-on-surface-variant hover:text-primary transition-colors text-[11px] sm:text-xs tracking-[0.12em] uppercase no-underline">
-              Contact
-            </Link>
-          </div>
-
-          {/* Social icons */}
-          <div className="flex gap-4 sm:gap-6">
-            <a
-              href="https://issdelhi.org"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="w-9 h-9 sm:w-10 sm:h-10 border border-outline-variant flex items-center justify-center hover:bg-primary hover:text-white text-on-surface-variant transition-all cursor-pointer"
-              title="Visit ISS website"
-            >
-              <span className="material-symbols-outlined text-sm">public</span>
-            </a>
-            <Link
-              to="/contact"
-              className="w-9 h-9 sm:w-10 sm:h-10 border border-outline-variant flex items-center justify-center hover:bg-primary hover:text-white text-on-surface-variant transition-all cursor-pointer no-underline"
-              title="Contact Us"
-            >
-              <span className="material-symbols-outlined text-sm">mail</span>
-            </Link>
-          </div>
-        </div>
-      </footer>
+      <Footer />
     </div>
   )
 }

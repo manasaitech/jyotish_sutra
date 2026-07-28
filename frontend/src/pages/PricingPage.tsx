@@ -147,12 +147,9 @@ export default function PricingPage({
   const tiers = Object.values(TIER_CONFIG)
 
   return (
-    <>
-      {/* Spacer to clear header */}
-      <div className="h-6" />
-
+    <div className="py-8">
       {/* Hero Section */}
-      <div className="max-w-5xl mx-auto px-4 pt-12 pb-6 text-center">
+      <div className="max-w-5xl mx-auto px-4 pt-6 pb-6 text-center">
         <div className="inline-flex items-center gap-2 bg-primary-fixed text-primary px-4 py-1.5 rounded-full text-xs font-bold mb-5 border border-primary/20">
           <span className="material-symbols-outlined text-sm" style={{ fontVariationSettings: "'FILL' 1" }}>
             workspace_premium
@@ -361,6 +358,6 @@ export default function PricingPage({
           </div>
         </div>
       )}
-    </>
+    </div>
   )
 }

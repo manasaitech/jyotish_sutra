@@ -247,3 +247,99 @@ def verify_payment(
         "message": "Payment verified and subscription activated successfully.",
         "tier": plan.tier
     }
+
+
+class CreateConsultationOrderRequest(BaseModel):
+    plan: str  # 'single' (₹251) or 'full' (₹2001)
+
+class VerifyConsultationRequest(BaseModel):
+    razorpay_payment_id: str
+    razorpay_order_id: str
+    razorpay_signature: str
+    plan: str
+    name: str
+    phone: str
+    email: Optional[str] = None
+    topic: str
+    date: str
+    time_slot: str
+    question: Optional[str] = ""
+
+@router.post("/billing/create-consultation-order")
+def create_consultation_order(req: CreateConsultationOrderRequest):
+    """Create Razorpay order for Expert Consultation (₹251 or ₹2001). Publicly accessible for fast booking."""
+    client, key_id = get_razorpay_client()
+    
+    amount_inr = 251.0 if req.plan == 'single' else 3001.0
+    amount_paise = int(amount_inr * 100)
+
+    try:
+        order = client.order.create({
+            "amount": amount_paise,
+            "currency": "INR",
+            "receipt": f"consult_{uuid.uuid4().hex[:10]}",
+            "notes": {
+                "type": "expert_consultation",
+                "plan": req.plan
+            }
+        })
+        return {
+            "order_id": order["id"],
+            "amount": amount_paise,
+            "currency": "INR",
+            "key_id": key_id
+        }
+    except Exception as err:
+        print(f"[Create Consultation Order Error] {err}")
+        raise HTTPException(status_code=500, detail=f"Razorpay order creation failed: {str(err)}")
+
+
+@router.post("/billing/verify-consultation")
+def verify_consultation_payment(req: VerifyConsultationRequest):
+    """Verify Razorpay payment signature and send email notifications to Customer & Guruji/Support."""
+    from utils.email import send_consultation_emails
+
+    client, _ = get_razorpay_client()
+
+    # 1. Verify Razorpay Signature
+    try:
+        client.utility.verify_payment_signature({
+            "razorpay_order_id": req.razorpay_order_id,
+            "razorpay_payment_id": req.razorpay_payment_id,
+            "razorpay_signature": req.razorpay_signature
+        })
+    except Exception as sig_err:
+        print(f"[Consultation Signature Error] {sig_err}")
+        raise HTTPException(status_code=400, detail="Payment verification failed: Invalid Razorpay signature.")
+
+    # 2. Amount and Details
+    amount_inr = 251.0 if req.plan == 'single' else 3001.0
+    booking_id = "ASTRO-" + str(uuid.uuid4().hex[:8]).upper()
+    customer_email = req.email.strip() if (req.email and "@" in req.email) else f"{req.phone.strip()}@consultation.astrosutra.ai"
+
+    # 3. Dispatch Emails to Customer and Guruji (anmoldixit091@gmail.com)
+    try:
+        send_consultation_emails(
+            customer_name=req.name.strip(),
+            customer_phone=req.phone.strip(),
+            customer_email=customer_email,
+            plan_tier=req.plan,
+            amount=amount_inr,
+            booking_id=booking_id,
+            payment_id=req.razorpay_payment_id,
+            order_id=req.razorpay_order_id,
+            topic=req.topic,
+            preferred_date=req.date or "As per availability",
+            time_slot=req.time_slot or "10:00 AM - 1:00 PM",
+            question=req.question or ""
+        )
+    except Exception as mail_err:
+        print(f"[Consultation Email Error] Suppressed mail error: {mail_err}")
+
+    return {
+        "success": True,
+        "booking_id": booking_id,
+        "payment_id": req.razorpay_payment_id,
+        "message": "Payment verified and appointment request emails sent successfully."
+    }
+
