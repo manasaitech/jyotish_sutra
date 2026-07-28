@@ -93,13 +93,13 @@ function PublicLayout({ children }: { children: React.ReactNode }) {
           {/* Logo */}
           <Link
             to={user ? '/app' : '/'}
-            className="font-display text-2xl sm:text-3xl md:text-4xl text-primary font-bold italic tracking-tight cursor-pointer no-underline"
+            className="font-display text-xl sm:text-2xl md:text-3xl text-primary font-bold italic tracking-tight cursor-pointer no-underline whitespace-nowrap"
           >
             AstroSutra AI
           </Link>
 
           {/* Desktop links */}
-          <div className="hidden md:flex items-center gap-8">
+          <div className="hidden lg:flex items-center gap-6 xl:gap-8">
             {navLink('Home', '/')}
             {user && navLink('Dashboard', '/app')}
             <a
