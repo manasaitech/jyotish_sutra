@@ -13,6 +13,7 @@ import RelationshipScoreCard from './RelationshipScoreCard'
 import CareerSubTabNavigation, { type CareerSubTab } from './CareerSubTabNavigation'
 import KalaVidyaDashboard from './KalaVidyaDashboard'
 import PrashnaDashboardView from './PrashnaDashboardView'
+import AstroLoader from '../layout/AstroLoader'
 import PersonalityDashboard from './PersonalityDashboard'
 import RemediesDashboard from './RemediesDashboard'
 import LockedTabOverlay from './LockedTabOverlay'
@@ -345,11 +346,12 @@ export default function TabPanel({
           </div>
 
           {loadingInitial ? (
-            <div className="py-12 text-center space-y-4">
-              <div className="w-10 h-10 border-3 border-primary border-t-transparent rounded-full animate-spin mx-auto" />
-              <p className="text-xs text-on-surface-variant font-medium animate-pulse">
-                Consulting Vedic Ephemeris & Reading Planetary Alignments...
-              </p>
+            <div className="py-8">
+              <AstroLoader
+                fullscreen={false}
+                size="md"
+                message="Consulting Vedic Ephemeris & Reading Planetary Alignments..."
+              />
             </div>
           ) : (
             <>

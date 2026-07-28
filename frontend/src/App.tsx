@@ -15,6 +15,8 @@ const API_BASE_URL =
     ? 'http://localhost:8000'
     : 'https://kundli-gpt-clone-back.onrender.com')
 
+import AstroLoader from './components/layout/AstroLoader'
+
 // ─────────────────────────────────────────────
 // Auth guard — redirects unauthenticated users to /login
 // ─────────────────────────────────────────────
@@ -22,14 +24,7 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { user, loading } = useAuth()
 
   if (loading) {
-    return (
-      <div className="min-h-screen bg-[#FAF8F3] flex flex-col items-center justify-center space-y-4 font-sans">
-        <div className="w-12 h-12 border-4 border-amber-500 border-t-transparent rounded-full animate-spin shadow-md" />
-        <p className="text-sm font-semibold text-on-surface-variant animate-pulse">
-          Connecting to AstroSutra AI...
-        </p>
-      </div>
-    )
+    return <AstroLoader message="Connecting to AstroSutra AI..." />
   }
 
   if (!user) return <Navigate to="/login" replace />
@@ -229,14 +224,7 @@ function AppRoutes() {
 
   // Auth loading spinner for /app and /login
   if (loading && (location.pathname === '/app' || location.pathname === '/login')) {
-    return (
-      <div className="min-h-screen bg-background flex flex-col items-center justify-center space-y-4 font-sans">
-        <div className="w-12 h-12 border-4 border-amber-500 border-t-transparent rounded-full animate-spin shadow-md" />
-        <p className="text-sm font-semibold text-on-surface-variant animate-pulse">
-          Connecting to AstroSutra AI...
-        </p>
-      </div>
-    )
+    return <AstroLoader message="Connecting to AstroSutra AI..." />
   }
 
   return (
