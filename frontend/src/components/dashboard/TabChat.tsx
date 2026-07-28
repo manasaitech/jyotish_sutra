@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 import ReactMarkdown from 'react-markdown'
 import AssistantMessage from '../chat/AssistantMessage'
 import SuggestionChips from '../chat/SuggestionChips'
+import PredictionFeedbackCard from '../chat/PredictionFeedbackCard'
 import type { TabType } from './TabNavigation'
 import { getCurrentTier, isChatLimitReached, getRemainingChats, incrementChatCount } from '../../utils/subscriptionManager'
 import { getChatLimitForTier } from '../../config/subscriptionConfig'
@@ -19,6 +20,7 @@ interface TabChatProps {
   tabName?: string
   sessionId?: string
   userId?: string
+  birthData?: any
   messages: Message[]
   onSendMessage: (text: string) => void
   loading: boolean
@@ -151,6 +153,9 @@ const TAB_SUGGESTIONS: Record<string, string[]> = {
 export default function TabChat({
   tab = 'overview',
   tabName,
+  sessionId,
+  userId,
+  birthData,
   messages,
   onSendMessage,
   loading,
@@ -235,12 +240,21 @@ export default function TabChat({
         {messages.map((msg, idx) => {
           const isUser = msg.sender === 'user' || msg.role === 'user'
           const textContent = msg.text || msg.content || ''
+          const prevUserMsg = !isUser && idx > 0 ? (messages[idx - 1]?.text || messages[idx - 1]?.content || '') : ''
 
           return !isUser ? (
             <AssistantMessage key={idx} icon="auto_awesome">
               <div className="font-body text-sm leading-relaxed text-on-surface markdown-container">
                 <ReactMarkdown>{textContent}</ReactMarkdown>
               </div>
+              <PredictionFeedbackCard
+                tab={tab || 'general'}
+                userPrompt={prevUserMsg}
+                aiResponse={textContent}
+                birthData={birthData}
+                userId={userId}
+                sessionId={sessionId}
+              />
             </AssistantMessage>
           ) : (
             <div key={idx} className="flex justify-end animate-fade-in-up">

@@ -5,6 +5,7 @@ import type { TabType } from './TabNavigation'
 import { ALL_TABS } from './TabNavigation'
 import SummaryCards from './SummaryCards'
 import TabChat, { type Message } from './TabChat'
+import PredictionFeedbackCard from '../chat/PredictionFeedbackCard'
 import AnimatedKundliChart from './AnimatedKundliChart'
 import PlanetaryTable from './PlanetaryTable'
 import RelationshipTargetSelector, { type RelationshipTarget, RELATIONSHIP_TARGETS } from './RelationshipTargetSelector'
@@ -351,9 +352,19 @@ export default function TabPanel({
               </p>
             </div>
           ) : (
-            <div className="markdown-container text-sm leading-relaxed text-on-background">
-              <ReactMarkdown>{initialReading}</ReactMarkdown>
-            </div>
+            <>
+              <div className="markdown-container text-sm leading-relaxed text-on-background">
+                <ReactMarkdown>{initialReading}</ReactMarkdown>
+              </div>
+              <PredictionFeedbackCard
+                tab={tab}
+                userPrompt={`Initial ${displayTitle} Horoscope Analysis`}
+                aiResponse={initialReading}
+                birthData={birthData}
+                userId={userId}
+                sessionId={sessionId}
+              />
+            </>
           )}
         </div>
 
@@ -361,6 +372,9 @@ export default function TabPanel({
         <TabChat
           tab={tab}
           tabName={displayTitle}
+          sessionId={sessionId}
+          userId={userId}
+          birthData={birthData}
           messages={messages}
           loading={loadingChat}
           onSendMessage={handleSendMessage}

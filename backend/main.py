@@ -22,6 +22,7 @@ from api.dasha import router as dasha_router
 from api.auth import router as auth_router
 from api.billing import router as billing_router
 from api.contact import router as contact_router
+from api.feedback import router as feedback_router
 
 IS_PRODUCTION = os.getenv("ENV") == "production"
 
@@ -75,6 +76,15 @@ app.include_router(dasha_router, prefix="/api", tags=["Dasha Timeline"])
 app.include_router(auth_router, prefix="/api", tags=["Firebase Authentication"])
 app.include_router(billing_router, prefix="/api", tags=["Billing & Payments"])
 app.include_router(contact_router, prefix="/api", tags=["Contact Us"])
+app.include_router(feedback_router, prefix="/api", tags=["Prediction Feedback"])
+
+@app.on_event("startup")
+def on_startup():
+    try:
+        from api.feedback import _ensure_feedback_table_exists
+        _ensure_feedback_table_exists()
+    except Exception as e:
+        print(f"[Startup DB] Note: {e}")
 
 @app.get("/")
 def root():

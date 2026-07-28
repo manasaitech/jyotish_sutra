@@ -2,9 +2,9 @@
 Vedic Relationship Analysis Engine — Multi-Target Relationship Intelligence.
 
 Supports 9 relationship categories:
-- Father (9th, 10th, 1st | Sun, Jupiter | Pitru Dosha)
-- Mother (4th, 1st, 10th | Moon, Venus | Matru Yogas)
-- Siblings (3rd, 11th | Mars, Mercury | Bhratri Yogas)
+- Father (9th, 10th, 1st | Sun, Jupiter | Jaimini AK | Pitru Dosha)
+- Mother (4th, 1st, 10th, 9th | Moon, Venus | Jaimini MK | D12 Dwadasamsha | Matru Yogas/Doshas)
+- Siblings (3rd, 11th, 6th | Mars, Jupiter, Mercury | Jaimini BK | D3 Drekkana | Bhratri Yogas/Doshas)
 - Spouse / Partner (7th, 2nd, 8th, 12th | Venus, Jupiter, Darakaraka | D9 Navamsa | Manglik)
 - Children (5th, 9th | Jupiter, Sun | D7 Saptamsa | Putra Yogas)
 - Friends (11th, 3rd | Mercury, Jupiter | Maitri Yogas)
@@ -22,36 +22,37 @@ RELATIONSHIP_CONFIGS: Dict[str, Dict[str, Any]] = {
         "icon": "👨‍🦳",
         "primary_houses": [9, 10, 1],
         "karakas": ["sun", "jupiter"],
-        "divisional": None,
+        "divisional": "D12 Dwadasamsha",
         "check_doshas": ["pitru_dosha", "sun_affliction"],
         "focus_areas": [
-            "Emotional Bond", "Respect", "Communication", "Financial Support",
-            "Father's Influence", "Karmic Lessons", "Areas of Conflict",
-            "Relationship Timeline", "Improvement Suggestions"
+            "Emotional Bond", "Respect & Guidance", "Father's Influence & Status",
+            "Karmic Lessons", "Areas of Conflict", "Timeline & Harmonization"
         ]
     },
     "mother": {
         "title": "Mother (Matr)",
         "icon": "👩‍🦳",
-        "primary_houses": [4, 1, 10],
+        "primary_houses": [4, 1, 10, 9],
         "karakas": ["moon", "venus"],
-        "divisional": None,
-        "check_doshas": ["moon_affliction"],
+        "divisional": "D12 Dwadasamsha",
+        "check_doshas": ["moon_affliction", "matru_dosha"],
         "focus_areas": [
-            "Emotional Bond", "Care & Nurturing", "Mental Connection",
-            "Home Environment", "Communication", "Support", "Challenges"
+            "Emotional Nurturing & Bond", "Mother's Temperament & Health",
+            "Home Peace & Early Upbringing", "Past-Life Karmic Connection",
+            "Communication & Friction Triggers", "Maternal Support & Blessings"
         ]
     },
     "siblings": {
         "title": "Siblings (Bhratr)",
         "icon": "👦",
-        "primary_houses": [3, 11],
-        "karakas": ["mars", "mercury"],
-        "divisional": None,
-        "check_doshas": ["bhratri_dosha"],
+        "primary_houses": [3, 11, 6],
+        "karakas": ["mars", "jupiter", "mercury"],
+        "divisional": "D3 Drekkana",
+        "check_doshas": ["bhratri_dosha", "mars_rahu_clash"],
         "focus_areas": [
-            "Support", "Rivalry", "Communication", "Cooperation",
-            "Business Together", "Long-term Bond"
+            "Younger Siblings (3rd House & Mars)", "Elder Siblings (11th House & Jupiter)",
+            "Cooperation vs Competition/Rivalry", "Shared Family Property & Wealth",
+            "Communication Alignment", "Long-term Fraternal Bond"
         ]
     },
     "spouse": {
@@ -130,10 +131,36 @@ RELATIONSHIP_CONFIGS: Dict[str, Dict[str, Any]] = {
 }
 
 
+def _calculate_jaimini_7_karakas(planets: dict) -> dict:
+    """Calculate the 7 Jaimini Chara Karakas: AK, AmK, BK, MK, PK, GK, DK."""
+    if not isinstance(planets, dict) or not planets:
+        return {}
+
+    seven = ["sun", "moon", "mars", "mercury", "jupiter", "venus", "saturn"]
+    p_degs = []
+    for p_name in seven:
+        p = planets.get(p_name) or planets.get(p_name.capitalize()) or {}
+        if isinstance(p, dict):
+            long_val = p.get("longitude") or p.get("deg") or p.get("degree") or 0.0
+            sign_deg = float(long_val) % 30.0
+            p_degs.append((sign_deg, p_name.capitalize()))
+
+    if len(p_degs) < 2:
+        return {}
+
+    p_degs.sort(key=lambda x: x[0], reverse=True)
+    karakas = {}
+    labels = ["Atmakaraka (AK)", "Amatyakaraka (AmK)", "Bhratrikaraka (BK)", "Matrukaraka (MK)", "Putrakaraka (PK)", "Gnatikaraka (GK)", "Darakaraka (DK)"]
+    for i, (deg, p_name) in enumerate(p_degs[:7]):
+        if i < len(labels):
+            karakas[labels[i]] = f"{p_name} ({deg:.2f}°)"
+    return karakas
+
+
 def analyze_relationship(chart_data: dict, relationship_type: str = "spouse") -> dict:
     """
     Computes a dedicated relationship package for the selected target.
-    Calculates house & lord dignities, karakas, aspects, Yogas/Doshas, and relationship score (0-100).
+    Calculates house & lord dignities, karakas, aspects, Yogas/Doshas, Jaimini karakas, and relationship score (0-100).
     """
     rel_type = relationship_type.lower()
     if rel_type not in RELATIONSHIP_CONFIGS:
@@ -208,7 +235,7 @@ def analyze_relationship(chart_data: dict, relationship_type: str = "spouse") ->
                 "combust": is_combust,
             })
 
-    # 3. Check Target-Specific Doshas & Yogas
+    # 3. Check Deep Target-Specific Classical Doshas & Yogas
     active_doshas = []
     if rel_type == "spouse":
         manglik = doshas.get("manglik", {})
@@ -217,16 +244,121 @@ def analyze_relationship(chart_data: dict, relationship_type: str = "spouse") ->
             karaka_score_mod -= 10
         else:
             active_doshas.append("Non-Manglik (No major Mars martial affliction)")
-    elif rel_type == "father":
-        sun_p = planets.get("sun", {})
-        if sun_p.get("house") in [8, 12] or sun_p.get("dignity") == "debilitated":
-            active_doshas.append("Pitru Affirmation: Sun weakened or in dusthana")
+
+        saturn_p = planets.get("saturn", {}) or planets.get("Saturn", {})
+        if str(saturn_p.get("house")) == "7":
+            active_doshas.append("Saturn in 7th House: Pragmatic/mature spouse, delayed marriage timing, heavy karmic lessons")
+
+    elif rel_type == "mother":
+        moon_p = planets.get("moon", {}) or planets.get("Moon", {})
+        h4_info = houses.get("4", {})
+        h4_lord = h4_info.get("lord", "").lower()
+        h4_lord_p = planets.get(h4_lord, {})
+
+        moon_house = moon_p.get("house")
+        h4_planets = [p_name.capitalize() for p_name, p in planets.items() if str(p.get("house")) == "4"]
+
+        # Check specific planets residing in 4th house (Matru Bhava)
+        if "Mars" in h4_planets:
+            active_doshas.append("Mars in 4th House (Matru/Bhoomi Klesha): Fiery friction; native's temper or impulsive choices inadvertently cause emotional/health strain to mother")
             karaka_score_mod -= 8
-    elif rel_type == "children":
-        jup_p = planets.get("jupiter", {})
-        if jup_p.get("house") in [6, 8, 12]:
-            active_doshas.append("Santana Caution: Jupiter in 6th/8th/12th")
+        if "Saturn" in h4_planets:
+            active_doshas.append("Saturn in 4th House (Matru Karshya): Emotional restraint, early emotional isolation, or mother bearing heavy domestic hardship")
+            karaka_score_mod -= 7
+        if "Rahu" in h4_planets:
+            active_doshas.append("Rahu in 4th House (Matru Rina): Unconventional bond, native's decisions creating unforeseen anxiety/worry for mother, past-life karmic debt")
+            karaka_score_mod -= 7
+        if "Ketu" in h4_planets:
+            active_doshas.append("Ketu in 4th House: Emotional detachment or feeling disconnected from maternal/domestic roots")
             karaka_score_mod -= 6
+        if "Sun" in h4_planets:
+            active_doshas.append("Sun in 4th House: Ego clashes with mother or dominant maternal personality")
+            karaka_score_mod -= 4
+
+        # Benefics in 4th
+        if any(b in h4_planets for b in ["Jupiter", "Venus", "Moon", "Mercury"]):
+            active_doshas.append("Benefic in 4th House (Matru Sukha Yoga): Mother is a source of wisdom, protection, emotional prosperity, and blessings")
+            karaka_score_mod += 10
+
+        # Check Moon conjunctions
+        moon_conj = [
+            p_name.capitalize() for p_name, p in planets.items()
+            if p_name.lower() != "moon" and p.get("house") == moon_house
+        ]
+
+        if any(m in [c.lower() for c in moon_conj] for m in ["rahu", "ketu"]):
+            active_doshas.append("Chandra-Rahu/Ketu Affliction: Emotional distance / mother's health anxiety")
+            karaka_score_mod -= 8
+        if "Saturn" in moon_conj:
+            active_doshas.append("Punarfoo / Shani-Chandra: Emotional restraint & heavy responsibilities on mother")
+            karaka_score_mod -= 6
+        if "Mars" in moon_conj:
+            active_doshas.append("Chandra-Mangal Yoga: Fiery dynamics & strong-willed maternal temperament")
+
+        if moon_house in [6, 8, 12]:
+            active_doshas.append(f"Moon in House {moon_house} (Dusthana): Sensitive maternal health or physical distance")
+            karaka_score_mod -= 8
+
+        if h4_lord_p and h4_lord_p.get("house") in [6, 8, 12]:
+            active_doshas.append(f"4th Lord ({h4_lord.capitalize()}) in House {h4_lord_p.get('house')}: Matru Bhava lord in Dusthana (Maternal challenges/distance)")
+            karaka_score_mod -= 6
+
+    elif rel_type == "siblings":
+        mars_p = planets.get("mars", {}) or planets.get("Mars", {})
+        h3_info = houses.get("3", {})
+        h11_info = houses.get("11", {})
+        h3_lord = h3_info.get("lord", "").lower()
+        h11_lord = h11_info.get("lord", "").lower()
+        h3_lord_p = planets.get(h3_lord, {})
+        h11_lord_p = planets.get(h11_lord, {})
+
+        h3_planets = [p_name.capitalize() for p_name, p in planets.items() if str(p.get("house")) == "3"]
+        h11_planets = [p_name.capitalize() for p_name, p in planets.items() if str(p.get("house")) == "11"]
+
+        if "Mars" in h3_planets or "Mars" in h11_planets:
+            active_doshas.append("Mars in Bhratri Bhava: High energy, competitive drive with siblings, risk of property disputes")
+
+        if "Rahu" in h3_planets or "Rahu" in h11_planets or (mars_p.get("house") and any(p.get("house") == mars_p.get("house") for p_name, p in planets.items() if p_name.lower() == "rahu")):
+            active_doshas.append("Angarak Bhratri Friction: Rahu/Mars influence on 3rd/11th houses causing competitive rivalry or sudden friction")
+            karaka_score_mod -= 6
+
+        if "Saturn" in h3_planets:
+            active_doshas.append("Saturn in 3rd House: Age gap, formal relationship, or heavy responsibility towards younger siblings")
+        if "Saturn" in h11_planets:
+            active_doshas.append("Saturn in 11th House: Reserved bond or delayed closeness with elder siblings")
+
+        if any(b in h3_planets or b in h11_planets for b in ["Jupiter", "Venus"]):
+            active_doshas.append("Benefic in 3rd/11th (Bhratri Vriddhi Yoga): Supportive siblings who bring mutual financial/emotional elevation")
+            karaka_score_mod += 8
+
+        if h3_lord_p and h3_lord_p.get("house") in [6, 8, 12]:
+            active_doshas.append(f"3rd Lord ({h3_lord.capitalize()}) in House {h3_lord_p.get('house')}: Younger sibling vulnerability/distance")
+            karaka_score_mod -= 5
+        if h11_lord_p and h11_lord_p.get("house") in [6, 8, 12]:
+            active_doshas.append(f"11th Lord ({h11_lord.capitalize()}) in House {h11_lord_p.get('house')}: Elder sibling vulnerability/distance")
+            karaka_score_mod -= 5
+
+    elif rel_type == "father":
+        sun_p = planets.get("sun", {}) or planets.get("Sun", {})
+        h9_info = houses.get("9", {})
+        h9_planets = [p_name.capitalize() for p_name, p in planets.items() if str(p.get("house")) == "9"]
+
+        if sun_p.get("house") in [8, 12] or sun_p.get("dignity") == "debilitated":
+            active_doshas.append("Pitru Affirmation: Sun weakened or in dusthana (Ideological clashes or distance from father)")
+            karaka_score_mod -= 8
+        if "Saturn" in h9_planets or "Rahu" in h9_planets:
+            active_doshas.append("Saturn/Rahu in 9th House (Pitru Rina): Strict father figure, high expectations, or heavy paternal karma")
+            karaka_score_mod -= 6
+
+    elif rel_type == "children":
+        jup_p = planets.get("jupiter", {}) or planets.get("Jupiter", {})
+        h5_planets = [p_name.capitalize() for p_name, p in planets.items() if str(p.get("house")) == "5"]
+
+        if jup_p.get("house") in [6, 8, 12]:
+            active_doshas.append("Santana Caution: Jupiter in 6th/8th/12th (Parenting lessons/child health attention)")
+            karaka_score_mod -= 6
+        if any(m in h5_planets for m in ["Rahu", "Ketu", "Saturn"]):
+            active_doshas.append("Malefic in 5th House: Unconventional child development or delayed parenting timing")
 
     # Relevant Yogas
     rel_yogas = [
@@ -241,6 +373,9 @@ def analyze_relationship(chart_data: dict, relationship_type: str = "spouse") ->
     raw_score = base_score + house_score_mod + karaka_score_mod
     final_score = max(25, min(96, raw_score))
 
+    # Calculate Jaimini Karakas
+    jaimini_map = _calculate_jaimini_7_karakas(planets)
+
     return {
         "target": rel_type,
         "title": cfg["title"],
@@ -248,6 +383,7 @@ def analyze_relationship(chart_data: dict, relationship_type: str = "spouse") ->
         "score": final_score,
         "houses": house_details,
         "karakas": karaka_details,
+        "jaimini_karakas": jaimini_map,
         "divisional": cfg["divisional"],
         "doshas": active_doshas,
         "yogas": rel_yogas[:4],
@@ -260,10 +396,12 @@ def format_relationship_subset_context(analysis: dict, profile: dict = None, his
     Formats ONLY the relevant astrological subset for the chosen relationship target.
     Eliminates token bloat while providing rich target data.
     """
+    target = analysis.get("target", "spouse")
     title = analysis.get("title", "Relationship")
     score = analysis.get("score", 70)
     houses = analysis.get("houses", [])
     karakas = analysis.get("karakas", [])
+    jaimini_karakas = analysis.get("jaimini_karakas", {})
     doshas = analysis.get("doshas", [])
     yogas = analysis.get("yogas", [])
     divisional = analysis.get("divisional")
@@ -288,22 +426,37 @@ def format_relationship_subset_context(analysis: dict, profile: dict = None, his
             f"- {k['planet']}: In {k['sign']} (House {k['house']}) — {', '.join(status_parts)}"
         )
 
+    # Format Jaimini karaka info for target
+    jaimini_lines = []
+    if target == "mother" and "Matrukaraka (MK)" in jaimini_karakas:
+        jaimini_lines.append(f"- Matrukaraka (MK): {jaimini_karakas['Matrukaraka (MK)']}")
+    elif target == "siblings" and "Bhratrikaraka (BK)" in jaimini_karakas:
+        jaimini_lines.append(f"- Bhratrikaraka (BK): {jaimini_karakas['Bhratrikaraka (BK)']}")
+    elif target == "spouse" and "Darakaraka (DK)" in jaimini_karakas:
+        jaimini_lines.append(f"- Darakaraka (DK): {jaimini_karakas['Darakaraka (DK)']}")
+    elif target == "father" and "Atmakaraka (AK)" in jaimini_karakas:
+        jaimini_lines.append(f"- Atmakaraka (AK): {jaimini_karakas['Atmakaraka (AK)']}")
+    elif target == "children" and "Putrakaraka (PK)" in jaimini_karakas:
+        jaimini_lines.append(f"- Putrakaraka (PK): {jaimini_karakas['Putrakaraka (PK)']}")
+
     name = profile.get("name", "Seeker") if profile else "Seeker"
 
     return f"""[RELATIONSHIP TARGET DATA: {title.upper()}]
 Subject Name: {name}
 
 [PRIMARY HOUSES FOR {title.upper()}]
-
 {chr(10).join(house_lines)}
 
 [PRIMARY KARAKA PLANETS]
 {chr(10).join(karaka_lines) if karaka_lines else "Standard Karaka planetary alignment."}
 
+[JAIMINI CHARA KARAKA FOR TARGET]
+{chr(10).join(jaimini_lines) if jaimini_lines else "- Standard Jaimini Karaka alignment."}
+
 [DIVISIONAL CHART SUPPORT]
 {f"Chart: {divisional} active indicators." if divisional else "D1 Lagna primary indicators."}
 
-[DOSHAS & AFFLICTIONS]
+[CLASSICAL DOSHAS, AFFLICTIONS & YOGAS]
 {chr(10).join(f"- {d}" for d in doshas) if doshas else "- No severe target-specific afflictions detected."}
 
 [SUPPORTIVE YOGAS]
