@@ -112,6 +112,8 @@ function HeaderCard({ header }: { header: ReportHeader }) {
 
 function SectionPanel({ section }: { section: ReportSection }) {
   const [isExpanded, setIsExpanded] = useState(true)
+  const isFood = section.sectionId === 'food'
+  const headerIcon = isFood ? 'restaurant' : 'medical_information'
 
   return (
     <div className="celestial-card rounded-2xl border border-outline-variant/50 overflow-hidden">
@@ -122,7 +124,7 @@ function SectionPanel({ section }: { section: ReportSection }) {
       >
         <div className="flex items-center gap-2.5">
           <span className="material-symbols-outlined text-primary text-xl" style={{ fontVariationSettings: "'FILL' 1" }}>
-            medical_information
+            {headerIcon}
           </span>
           <h3 className="font-display text-base sm:text-lg font-bold text-primary">
             {section.title}
@@ -144,7 +146,7 @@ function SectionPanel({ section }: { section: ReportSection }) {
           )}
 
           {/* Data Table */}
-          {section.table?.length > 0 && <FindingsTable rows={section.table} />}
+          {section.table?.length > 0 && <FindingsTable rows={section.table} sectionId={section.sectionId} />}
         </div>
       </div>
     </div>
@@ -155,7 +157,15 @@ function SectionPanel({ section }: { section: ReportSection }) {
 // FINDINGS DATA TABLE
 // ═══════════════════════════════════════════════════════════════
 
-function FindingsTable({ rows }: { rows: TableRow[] }) {
+interface FindingsTableProps {
+  rows: TableRow[]
+  sectionId?: string
+}
+
+function FindingsTable({ rows, sectionId }: FindingsTableProps) {
+  const isFood = sectionId === 'food'
+  const badgeIcon = isFood ? 'spa' : 'health_and_safety'
+
   return (
     <div className="space-y-3">
       <div className="flex items-center gap-2 mb-1">
@@ -172,9 +182,9 @@ function FindingsTable({ rows }: { rows: TableRow[] }) {
         {rows.map((row, i) => (
           <div key={i} className="bg-surface rounded-xl p-4 border border-outline-variant/40 space-y-2.5">
             <div className="flex">
-              <span className="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-bold bg-amber-500/10 text-amber-600 dark:text-amber-400 rounded-lg border border-amber-500/20">
+              <span className="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-bold bg-primary/10 text-primary rounded-lg border border-primary/20">
                 <span className="material-symbols-outlined text-[15px]" style={{ fontVariationSettings: "'FILL' 1" }}>
-                  health_and_safety
+                  {badgeIcon}
                 </span>
                 {renderHighlightedText(row.primaryFinding)}
               </span>
@@ -233,9 +243,9 @@ function FindingsTable({ rows }: { rows: TableRow[] }) {
                 className={`border-b border-outline-variant/20 last:border-b-0 ${i % 2 === 0 ? '' : 'bg-surface/50'}`}
               >
                 <td className="p-3 align-top w-[18%] min-w-[140px] whitespace-normal">
-                  <span className="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-bold bg-amber-500/10 text-amber-600 dark:text-amber-400 rounded-lg border border-amber-500/20 shadow-2xs">
+                  <span className="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-bold bg-primary/10 text-primary rounded-lg border border-primary/20 shadow-2xs">
                     <span className="material-symbols-outlined text-sm" style={{ fontVariationSettings: "'FILL' 1" }}>
-                      health_and_safety
+                      {badgeIcon}
                     </span>
                     {renderHighlightedText(row.primaryFinding)}
                   </span>

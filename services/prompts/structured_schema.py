@@ -86,7 +86,7 @@ SECTION_REGISTRY: Dict[str, Dict[str, str]] = {
 }
 
 # Tabs that are enabled for the structured JSON pipeline
-STRUCTURED_ENABLED_TABS = {"health"}
+STRUCTURED_ENABLED_TABS = {"health", "food"}
 
 
 # ═══════════════════════════════════════════════════════════════
