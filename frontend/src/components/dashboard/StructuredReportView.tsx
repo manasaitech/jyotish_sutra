@@ -21,36 +21,7 @@ import type {
   ReportHeader,
   ReportSection,
   TableRow,
-  PlanetaryFactor,
-  Yoga,
-  Dosha,
-  UpcomingPeriod,
 } from '../../types/structuredReport'
-
-// ═══════════════════════════════════════════════════════════════
-// Planet emoji mapping for visual flair
-// ═══════════════════════════════════════════════════════════════
-
-const PLANET_ICONS: Record<string, string> = {
-  Sun: '☉',
-  Moon: '☽',
-  Mars: '♂',
-  Mercury: '☿',
-  Jupiter: '♃',
-  Venus: '♀',
-  Saturn: '♄',
-  Rahu: '☊',
-  Ketu: '☋',
-}
-
-const SEVERITY_COLORS: Record<string, string> = {
-  negligible: 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-300',
-  low: 'bg-sky-100 text-sky-800 dark:bg-sky-900/30 dark:text-sky-300',
-  moderate: 'bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300',
-  elevated: 'bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-300',
-  high: 'bg-rose-100 text-rose-800 dark:bg-rose-900/30 dark:text-rose-300',
-  unknown: 'bg-slate-100 text-slate-700 dark:bg-slate-800/30 dark:text-slate-300',
-}
 
 // ═══════════════════════════════════════════════════════════════
 // MAIN COMPONENT
@@ -69,27 +40,10 @@ export default function StructuredReportView({ report }: StructuredReportViewPro
       {/* Header Card */}
       {r.header && <HeaderCard header={r.header} />}
 
-      {/* Executive Summary */}
-      {r.executiveSummary && <SummaryCard summary={r.executiveSummary} />}
-
       {/* Sections */}
       {r.sections?.map((section, i) => (
         <SectionPanel key={section.sectionId || i} section={section} />
       ))}
-
-      {/* Important Yogas */}
-      {r.importantYogas?.length > 0 && <YogaCards yogas={r.importantYogas} />}
-
-      {/* Doshas */}
-      {r.doshas?.length > 0 && <DoshaTable doshas={r.doshas} />}
-
-      {/* Overall Recommendations */}
-      {r.overallRecommendations?.length > 0 && (
-        <RecommendationChecklist items={r.overallRecommendations} />
-      )}
-
-      {/* Upcoming Periods Timeline */}
-      {r.upcomingPeriods?.length > 0 && <PeriodTimeline periods={r.upcomingPeriods} />}
 
       {/* Disclaimer */}
       {r.disclaimer && <DisclaimerCard text={r.disclaimer} />}
@@ -131,29 +85,7 @@ function HeaderCard({ header }: { header: ReportHeader }) {
 }
 
 // ═══════════════════════════════════════════════════════════════
-// EXECUTIVE SUMMARY CARD
-// ═══════════════════════════════════════════════════════════════
-
-function SummaryCard({ summary }: { summary: string }) {
-  return (
-    <div className="celestial-card rounded-2xl p-5 sm:p-6 border border-outline-variant/50">
-      <div className="flex items-center gap-2 mb-3">
-        <span className="material-symbols-outlined text-primary text-lg" style={{ fontVariationSettings: "'FILL' 1" }}>
-          summarize
-        </span>
-        <h3 className="text-xs font-bold uppercase tracking-wider text-on-surface-variant">
-          Executive Summary
-        </h3>
-      </div>
-      <p className="text-sm leading-relaxed text-on-background">
-        {summary}
-      </p>
-    </div>
-  )
-}
-
-// ═══════════════════════════════════════════════════════════════
-// SECTION PANEL (Summary + Table + Planets + Observations)
+// SECTION PANEL (Summary + Table)
 // ═══════════════════════════════════════════════════════════════
 
 function SectionPanel({ section }: { section: ReportSection }) {
@@ -181,26 +113,16 @@ function SectionPanel({ section }: { section: ReportSection }) {
 
       {/* Section Content */}
       <div className={`transition-all duration-300 overflow-hidden ${isExpanded ? 'max-h-[2000px] opacity-100' : 'max-h-0 opacity-0'}`}>
-        <div className="px-5 sm:px-6 pb-5 sm:pb-6 space-y-5">
+        <div className="px-5 sm:px-6 pb-5 sm:pb-6 space-y-4">
           {/* Summary */}
           {section.summary && (
-            <p className="text-sm leading-relaxed text-on-background bg-primary-fixed/10 rounded-xl p-4 border border-primary/10">
+            <p className="text-xs leading-relaxed text-on-surface-variant bg-surface/60 rounded-xl p-3.5 border border-outline-variant/30">
               {section.summary}
             </p>
           )}
 
           {/* Data Table */}
           {section.table?.length > 0 && <FindingsTable rows={section.table} />}
-
-          {/* Planetary Factors */}
-          {section.planetaryFactors?.length > 0 && (
-            <PlanetFactorCards factors={section.planetaryFactors} />
-          )}
-
-          {/* Key Observations */}
-          {section.keyObservations?.length > 0 && (
-            <ObservationList items={section.keyObservations} />
-          )}
         </div>
       </div>
     </div>
@@ -315,245 +237,7 @@ function FindingsTable({ rows }: { rows: TableRow[] }) {
   )
 }
 
-// ═══════════════════════════════════════════════════════════════
-// PLANETARY FACTOR CARDS
-// ═══════════════════════════════════════════════════════════════
 
-function PlanetFactorCards({ factors }: { factors: PlanetaryFactor[] }) {
-  return (
-    <div>
-      <div className="flex items-center gap-2 mb-3">
-        <span className="material-symbols-outlined text-on-surface-variant text-sm">
-          public
-        </span>
-        <h4 className="text-[10px] font-bold uppercase tracking-wider text-on-surface-variant">
-          Planetary Factors
-        </h4>
-      </div>
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-        {factors.map((factor, i) => {
-          const icon = PLANET_ICONS[factor.planet] || '🪐'
-          return (
-            <div
-              key={i}
-              className="flex gap-3 bg-surface rounded-xl p-3.5 border border-outline-variant/40 hover:border-primary/30 transition-colors"
-            >
-              <div className="w-9 h-9 bg-primary-fixed rounded-lg flex items-center justify-center text-primary font-bold text-lg shrink-0 shadow-xs">
-                {icon}
-              </div>
-              <div className="min-w-0">
-                <h5 className="text-xs font-bold text-primary">
-                  {factor.planet}
-                </h5>
-                <p className="text-[11px] text-on-background leading-relaxed mt-0.5">
-                  {factor.impact}
-                </p>
-                <p className="text-[10px] text-on-surface-variant italic mt-1 leading-relaxed">
-                  {factor.reason}
-                </p>
-              </div>
-            </div>
-          )
-        })}
-      </div>
-    </div>
-  )
-}
-
-// ═══════════════════════════════════════════════════════════════
-// OBSERVATION BADGE LIST
-// ═══════════════════════════════════════════════════════════════
-
-function ObservationList({ items }: { items: string[] }) {
-  return (
-    <div>
-      <div className="flex items-center gap-2 mb-2.5">
-        <span className="material-symbols-outlined text-on-surface-variant text-sm" style={{ fontVariationSettings: "'FILL' 1" }}>
-          visibility
-        </span>
-        <h4 className="text-[10px] font-bold uppercase tracking-wider text-on-surface-variant">
-          Key Observations
-        </h4>
-      </div>
-      <div className="space-y-2">
-        {items.map((obs, i) => (
-          <div key={i} className="flex items-start gap-2.5 bg-surface/60 rounded-lg px-3.5 py-2.5 border border-outline-variant/30">
-            <span className="material-symbols-outlined text-primary text-sm mt-0.5 shrink-0" style={{ fontVariationSettings: "'FILL' 1" }}>
-              circle
-            </span>
-            <p className="text-xs text-on-background leading-relaxed">{obs}</p>
-          </div>
-        ))}
-      </div>
-    </div>
-  )
-}
-
-// ═══════════════════════════════════════════════════════════════
-// YOGA CARDS
-// ═══════════════════════════════════════════════════════════════
-
-function YogaCards({ yogas }: { yogas: Yoga[] }) {
-  return (
-    <div className="celestial-card rounded-2xl p-5 sm:p-6 border border-outline-variant/50">
-      <div className="flex items-center gap-2 mb-4">
-        <span className="material-symbols-outlined text-primary text-lg" style={{ fontVariationSettings: "'FILL' 1" }}>
-          self_improvement
-        </span>
-        <h3 className="text-xs font-bold uppercase tracking-wider text-on-surface-variant">
-          Important Yogas
-        </h3>
-      </div>
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-        {yogas.map((yoga, i) => (
-          <div
-            key={i}
-            className="bg-surface rounded-xl p-4 border border-outline-variant/40 hover:border-amber-400/40 transition-colors"
-          >
-            <h5 className="text-sm font-bold text-primary mb-1">
-              {yoga.name}
-            </h5>
-            <p className="text-xs text-on-background leading-relaxed">
-              {yoga.effect}
-            </p>
-            <p className="text-[10px] text-on-surface-variant italic mt-1.5 leading-relaxed">
-              {yoga.reason}
-            </p>
-          </div>
-        ))}
-      </div>
-    </div>
-  )
-}
-
-// ═══════════════════════════════════════════════════════════════
-// DOSHA TABLE
-// ═══════════════════════════════════════════════════════════════
-
-function DoshaTable({ doshas }: { doshas: Dosha[] }) {
-  return (
-    <div className="celestial-card rounded-2xl p-5 sm:p-6 border border-outline-variant/50">
-      <div className="flex items-center gap-2 mb-4">
-        <span className="material-symbols-outlined text-rose-500 text-lg" style={{ fontVariationSettings: "'FILL' 1" }}>
-          warning
-        </span>
-        <h3 className="text-xs font-bold uppercase tracking-wider text-on-surface-variant">
-          Dosha Analysis
-        </h3>
-      </div>
-      <div className="space-y-3">
-        {doshas.map((dosha, i) => (
-          <div
-            key={i}
-            className="bg-surface rounded-xl p-4 border border-outline-variant/40 flex flex-col sm:flex-row sm:items-start gap-3"
-          >
-            <div className="flex items-center gap-2 sm:min-w-[140px]">
-              <h5 className="text-sm font-bold text-on-background">
-                {dosha.name}
-              </h5>
-              <span className={`px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider rounded-full ${SEVERITY_COLORS[dosha.severity?.toLowerCase()] || SEVERITY_COLORS.unknown}`}>
-                {dosha.severity || 'unknown'}
-              </span>
-            </div>
-            <div className="flex-1 min-w-0">
-              <p className="text-xs text-on-background leading-relaxed">
-                {dosha.reason}
-              </p>
-              {dosha.recommendedRemedy && (
-                <div className="flex items-start gap-1.5 mt-2">
-                  <span className="material-symbols-outlined text-emerald-600 dark:text-emerald-400 text-xs mt-0.5 shrink-0">
-                    spa
-                  </span>
-                  <p className="text-[11px] text-emerald-700 dark:text-emerald-300 leading-relaxed">
-                    {dosha.recommendedRemedy}
-                  </p>
-                </div>
-              )}
-            </div>
-          </div>
-        ))}
-      </div>
-    </div>
-  )
-}
-
-// ═══════════════════════════════════════════════════════════════
-// RECOMMENDATION CHECKLIST
-// ═══════════════════════════════════════════════════════════════
-
-function RecommendationChecklist({ items }: { items: string[] }) {
-  return (
-    <div className="celestial-card rounded-2xl p-5 sm:p-6 border border-outline-variant/50">
-      <div className="flex items-center gap-2 mb-4">
-        <span className="material-symbols-outlined text-emerald-600 dark:text-emerald-400 text-lg" style={{ fontVariationSettings: "'FILL' 1" }}>
-          checklist
-        </span>
-        <h3 className="text-xs font-bold uppercase tracking-wider text-on-surface-variant">
-          Overall Recommendations
-        </h3>
-      </div>
-      <div className="space-y-2">
-        {items.map((item, i) => (
-          <div
-            key={i}
-            className="flex items-start gap-2.5 bg-emerald-50/50 dark:bg-emerald-900/15 rounded-lg px-3.5 py-2.5 border border-emerald-200/40 dark:border-emerald-700/20"
-          >
-            <span className="material-symbols-outlined text-emerald-600 dark:text-emerald-400 text-sm mt-0.5 shrink-0" style={{ fontVariationSettings: "'FILL' 1" }}>
-              check_circle
-            </span>
-            <p className="text-xs text-on-background leading-relaxed">{item}</p>
-          </div>
-        ))}
-      </div>
-    </div>
-  )
-}
-
-// ═══════════════════════════════════════════════════════════════
-// UPCOMING PERIODS TIMELINE
-// ═══════════════════════════════════════════════════════════════
-
-function PeriodTimeline({ periods }: { periods: UpcomingPeriod[] }) {
-  return (
-    <div className="celestial-card rounded-2xl p-5 sm:p-6 border border-outline-variant/50">
-      <div className="flex items-center gap-2 mb-4">
-        <span className="material-symbols-outlined text-primary text-lg" style={{ fontVariationSettings: "'FILL' 1" }}>
-          timeline
-        </span>
-        <h3 className="text-xs font-bold uppercase tracking-wider text-on-surface-variant">
-          Upcoming Periods
-        </h3>
-      </div>
-      <div className="relative space-y-0">
-        {periods.map((period, i) => (
-          <div key={i} className="flex gap-4">
-            {/* Timeline Line */}
-            <div className="flex flex-col items-center">
-              <div className="w-3 h-3 bg-primary rounded-full shadow-sm shrink-0 z-10" />
-              {i < periods.length - 1 && (
-                <div className="w-0.5 flex-1 bg-primary/20 min-h-[40px]" />
-              )}
-            </div>
-            {/* Content */}
-            <div className="pb-5 -mt-0.5 min-w-0">
-              <h5 className="text-xs font-bold text-primary">
-                {period.period}
-              </h5>
-              <p className="text-xs text-on-background leading-relaxed mt-0.5">
-                {period.effect}
-              </p>
-              {period.suggestion && (
-                <p className="text-[10px] text-on-surface-variant italic mt-1 leading-relaxed">
-                  💡 {period.suggestion}
-                </p>
-              )}
-            </div>
-          </div>
-        ))}
-      </div>
-    </div>
-  )
-}
 
 // ═══════════════════════════════════════════════════════════════
 // DISCLAIMER CALLOUT
