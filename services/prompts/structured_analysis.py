@@ -70,7 +70,7 @@ def run_structured_analysis(
         raw_response = client.generate(
             system_prompt=system_prompt,
             user_prompt=user_prompt,
-            max_tokens=1500,
+            max_tokens=900,
         )
 
         if not raw_response:
@@ -80,7 +80,12 @@ def run_structured_analysis(
         # ── Step 5: Extract JSON from LLM response ──
         parsed = _extract_json(raw_response)
         if parsed is None:
-            print(f"[StructuredAnalysis] Failed to extract JSON from LLM response. Raw (first 500 chars): {raw_response[:500]}")
+            print(f"[StructuredAnalysis] Failed to extract JSON from LLM response. Raw (first 500 chars): {raw_response[:500] if raw_response else None}")
+            return None
+
+        # ── Step 5.5: Check for API error response JSON ──
+        if isinstance(parsed, dict) and "error" in parsed:
+            print(f"[StructuredAnalysis] LLM / API returned error JSON: {parsed}")
             return None
 
         # ── Step 6: Validate Schema ──
