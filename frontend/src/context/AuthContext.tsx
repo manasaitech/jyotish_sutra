@@ -91,8 +91,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (syncResult && syncResult.db_user && syncResult.db_user.subscription_tier) {
         setCurrentTier(syncResult.db_user.subscription_tier)
       }
+      localStorage.setItem('astro_is_logged_in', 'true')
     } catch (err: any) {
       console.error('PostgreSQL authentication sync failed:', err)
+      localStorage.removeItem('astro_is_logged_in')
       await signOut(auth)
       throw err
     }
@@ -111,12 +113,23 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     let unsubscribed = false
     let unsubscribe = () => {}
 
-    // Safety timeout: Never keep the app on a loading screen for more than 2 seconds
+    // Safety timeout: Never keep the app on a loading screen for more than 2 seconds for unauthenticated users
     const timeoutId = setTimeout(() => {
-      if (!unsubscribed) {
+      const hasSession = localStorage.getItem('astro_is_logged_in') === 'true'
+      if (!unsubscribed && !hasSession) {
         setLoading(false)
       }
     }, 2000)
+
+    // Safety timeout for logged-in users (slow network / cold backend): 30 seconds
+    const sessionTimeoutId = setTimeout(() => {
+      const hasSession = localStorage.getItem('astro_is_logged_in') === 'true'
+      if (!unsubscribed && hasSession) {
+        console.warn('Session restore timed out')
+        localStorage.removeItem('astro_is_logged_in')
+        setLoading(false)
+      }
+    }, 30000)
 
     try {
       if (auth && typeof auth === 'object') {
@@ -124,6 +137,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           auth,
           async (currUser) => {
             clearTimeout(timeoutId)
+            clearTimeout(sessionTimeoutId)
             setFirebaseUser(currUser)
             if (currUser) {
               try {
@@ -135,28 +149,34 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             } else {
               setAuthUser(null)
               setToken(null)
+              localStorage.removeItem('astro_is_logged_in')
             }
             setLoading(false)
           },
           (err) => {
             console.error('Auth state error:', err)
             clearTimeout(timeoutId)
+            clearTimeout(sessionTimeoutId)
+            localStorage.removeItem('astro_is_logged_in')
             setLoading(false)
           }
         )
       } else {
         clearTimeout(timeoutId)
+        clearTimeout(sessionTimeoutId)
         setLoading(false)
       }
     } catch (e) {
       console.error('onAuthStateChanged init error:', e)
       clearTimeout(timeoutId)
+      clearTimeout(sessionTimeoutId)
       setLoading(false)
     }
 
     return () => {
       unsubscribed = true
       clearTimeout(timeoutId)
+      clearTimeout(sessionTimeoutId)
       unsubscribe()
     }
   }, [])
@@ -193,6 +213,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     await signOut(auth)
     setAuthUser(null)
     setToken(null)
+    localStorage.removeItem('astro_is_logged_in')
   }
 
   const getIdToken = async (): Promise<string | null> => {
