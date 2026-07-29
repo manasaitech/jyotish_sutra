@@ -171,9 +171,14 @@ function FindingsTable({ rows }: { rows: TableRow[] }) {
       <div className="space-y-3 lg:hidden">
         {rows.map((row, i) => (
           <div key={i} className="bg-surface rounded-xl p-4 border border-outline-variant/40 space-y-2.5">
-            <h5 className="text-sm font-bold text-primary">
-              {renderHighlightedText(row.primaryFinding)}
-            </h5>
+            <div className="flex">
+              <span className="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-bold bg-amber-500/10 text-amber-600 dark:text-amber-400 rounded-lg border border-amber-500/20">
+                <span className="material-symbols-outlined text-[15px]" style={{ fontVariationSettings: "'FILL' 1" }}>
+                  health_and_safety
+                </span>
+                {renderHighlightedText(row.primaryFinding)}
+              </span>
+            </div>
             <p className="text-xs text-on-background leading-relaxed">
               {renderHighlightedText(row.details)}
             </p>
@@ -227,8 +232,13 @@ function FindingsTable({ rows }: { rows: TableRow[] }) {
                 key={i}
                 className={`border-b border-outline-variant/20 last:border-b-0 ${i % 2 === 0 ? '' : 'bg-surface/50'}`}
               >
-                <td className="p-3 font-semibold text-primary align-top w-[18%] min-w-[140px] whitespace-normal">
-                  {renderHighlightedText(row.primaryFinding)}
+                <td className="p-3 align-top w-[18%] min-w-[140px] whitespace-normal">
+                  <span className="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-bold bg-amber-500/10 text-amber-600 dark:text-amber-400 rounded-lg border border-amber-500/20 shadow-2xs">
+                    <span className="material-symbols-outlined text-sm" style={{ fontVariationSettings: "'FILL' 1" }}>
+                      health_and_safety
+                    </span>
+                    {renderHighlightedText(row.primaryFinding)}
+                  </span>
                 </td>
                 <td className="p-3 text-on-background leading-relaxed align-top w-[30%] min-w-[240px]">
                   {renderHighlightedText(row.details)}
