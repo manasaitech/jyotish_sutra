@@ -62,14 +62,14 @@ class GroqClient:
         ordered_keys = keys[start_idx:] + keys[:start_idx]
 
         last_error_message = "No API key configured."
+        models = ["llama-3.3-70b-versatile", "llama-3.1-8b-instant", "mixtral-8x7b-32768"]
+        bad_keys = set()
 
-        for key in ordered_keys:
-            if not key:
-                continue
+        for model_name in models:
+            for key in ordered_keys:
+                if not key or key in bad_keys:
+                    continue
 
-            # Models to try in order of priority: 70b -> 8b-instant -> mixtral
-            models = ["llama-3.3-70b-versatile", "llama-3.1-8b-instant", "mixtral-8x7b-32768"]
-            for model_name in models:
                 try:
                     url = "https://api.groq.com/openai/v1/chat/completions"
                     headers = {
@@ -91,12 +91,11 @@ class GroqClient:
                         res_data = response.json()
                         return res_data["choices"][0]["message"]["content"]
                     else:
-                        last_error_message = f"Key ending ...{key[-6:]} HTTP {response.status_code}: {response.text}"
-                        # If rate-limited (429) or unauthorized (401), break inner model loop to try the next key immediately
-                        if response.status_code in (429, 401):
-                            break
+                        last_error_message = f"Model {model_name} with Key ending ...{key[-6:]} HTTP {response.status_code}: {response.text}"
+                        if response.status_code == 401:
+                            bad_keys.add(key)
                 except Exception as e:
-                    last_error_message = f"Key ending ...{key[-6:]} Error: {str(e)}"
+                    last_error_message = f"Model {model_name} with Key ending ...{key[-6:]} Error: {str(e)}"
                     continue
 
         # If all keys and models fail
