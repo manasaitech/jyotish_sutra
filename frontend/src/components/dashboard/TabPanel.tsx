@@ -34,6 +34,7 @@ import { getCurrentTier } from '../../utils/subscriptionManager'
 export interface TabCacheItem {
   initialReading: string
   messages: Message[]
+  structuredData?: StructuredReport | null
 }
 
 interface TabPanelProps {
@@ -100,7 +101,7 @@ export default function TabPanel({
   const [initialReading, setInitialReading] = useState<string>(cachedItem?.initialReading || '')
   const [loadingInitial, setLoadingInitial] = useState<boolean>(!cachedItem?.initialReading)
   const [loadingChat, setLoadingChat] = useState<boolean>(false)
-  const [structuredData, setStructuredData] = useState<StructuredReport | null>(null)
+  const [structuredData, setStructuredData] = useState<StructuredReport | null>(cachedItem?.structuredData || null)
 
   // Sync state if cached item exists or cache key changes
   useEffect(() => {
@@ -113,6 +114,7 @@ export default function TabPanel({
     if (existing?.initialReading) {
       setInitialReading(existing.initialReading)
       setMessages(existing.messages || [])
+      setStructuredData(existing.structuredData || null)
       setLoadingInitial(false)
       return
     }
@@ -153,14 +155,18 @@ export default function TabPanel({
           setLoadingInitial(false)
 
           // Extract structured JSON report if available
+          let structDataObj: StructuredReport | null = null
           if (data.structured && data.structured.report) {
-            setStructuredData(data.structured as StructuredReport)
-          } else {
-            setStructuredData(null)
+            structDataObj = data.structured as StructuredReport
           }
-
+          setStructuredData(structDataObj)
+ 
           if (onUpdateCacheByKey) {
-            onUpdateCacheByKey(currentKey, { initialReading: text, messages: [] })
+            onUpdateCacheByKey(currentKey, {
+              initialReading: text,
+              messages: [],
+              structuredData: structDataObj
+            })
           }
         }
       } catch (err) {
@@ -224,7 +230,7 @@ export default function TabPanel({
       setMessages(finalMessages)
 
       if (onUpdateCacheByKey) {
-        onUpdateCacheByKey(cacheKey, { initialReading, messages: finalMessages })
+        onUpdateCacheByKey(cacheKey, { initialReading, messages: finalMessages, structuredData })
       }
     } catch (err) {
       console.error('Chat error:', err)
