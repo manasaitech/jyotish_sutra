@@ -31,12 +31,22 @@ TAB_REGISTRY = {
 
 
 
+SIMPLE_LANGUAGE_RULE = """
+UNIVERSAL RULES (apply to ALL tabs):
+- Paragraph 1 MUST directly answer the user's question by name with a specific timeline. Never start with "Based on precomputed details" or "As per the evidence brief."
+- Explain astrological reasoning in simple everyday words that someone with ZERO astrology knowledge can understand. When mentioning planets, always explain what they represent (e.g. "Jupiter, the planet of growth and luck"). When mentioning houses, explain them simply (e.g. "the part of your chart that governs career").
+- Speak as if you are personally reading their chart right now, not quoting a report.
+"""
+
+
 def get_tab_system_prompt(tab: str, is_initial: bool = True, sub_tab: str = "overview") -> str:
     """Return the system prompt for a given tab, switching between initial overview and chat mode."""
     entry = TAB_REGISTRY.get(tab, TAB_REGISTRY["overview"])
     if tab == "career":
-        return entry["system"](is_initial=is_initial, sub_tab=sub_tab)
-    return entry["system"](is_initial=is_initial)
+        base = entry["system"](is_initial=is_initial, sub_tab=sub_tab)
+    else:
+        base = entry["system"](is_initial=is_initial)
+    return base + SIMPLE_LANGUAGE_RULE
 
 
 
