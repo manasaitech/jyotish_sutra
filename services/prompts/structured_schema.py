@@ -236,7 +236,7 @@ For EVERY section (health, food, remedies, career, finance, personality, spiritu
 
 4. For 'career' section (Career & Professional Path):
    - primaryFinding: Must be a specific professional phase, corporate/business choice, or career domain activation (e.g., "Corporate Management Promotion", "Independent Tech Consulting Launch").
-   - details: Recommend top career domains, describe service (job) vs business (entrepreneurship) potential, and suggest key growth habits.
+   - details: Must recommend and explicitly identify the top 3 specific career domains or industries (e.g., "Software Development, Corporate Management, and Financial Analysis"), describe service (job) vs business (entrepreneurship) potential, and suggest key growth habits.
    - astrologicalReason: Cite Amatyakaraka placement, 10th house/lord strength, and the active Dasha timeline (must specify exact year and month ranges for the upcoming career shifts).
    - recommendedActions: (1-3 career growth or strategic steps tailored to the finding).
 
