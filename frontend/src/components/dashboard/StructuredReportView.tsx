@@ -204,19 +204,19 @@ function FindingsTable({ rows }: { rows: TableRow[] }) {
 
       {/* Desktop: Actual table */}
       <div className="hidden lg:block rounded-xl border border-outline-variant/40 overflow-hidden">
-        <table className="w-full text-xs">
+        <table className="w-full text-sm">
           <thead>
             <tr className="bg-surface border-b border-outline-variant/40">
-              <th className="text-left p-3 font-bold text-on-surface-variant uppercase tracking-wider text-[10px] w-[18%] min-w-[140px]">
+              <th className="text-left p-3 font-bold text-on-surface-variant uppercase tracking-wider text-[11px] w-[18%] min-w-[140px]">
                 Finding
               </th>
-              <th className="text-left p-3 font-bold text-on-surface-variant uppercase tracking-wider text-[10px] w-[30%] min-w-[240px]">
+              <th className="text-left p-3 font-bold text-on-surface-variant uppercase tracking-wider text-[11px] w-[30%] min-w-[240px]">
                 Details
               </th>
-              <th className="text-left p-3 font-bold text-on-surface-variant uppercase tracking-wider text-[10px] w-[32%] min-w-[260px]">
+              <th className="text-left p-3 font-bold text-on-surface-variant uppercase tracking-wider text-[11px] w-[32%] min-w-[260px]">
                 Astrological Reason
               </th>
-              <th className="text-left p-3 font-bold text-on-surface-variant uppercase tracking-wider text-[10px] w-[20%] min-w-[160px]">
+              <th className="text-left p-3 font-bold text-on-surface-variant uppercase tracking-wider text-[11px] w-[20%] min-w-[160px]">
                 Actions
               </th>
             </tr>
@@ -241,7 +241,7 @@ function FindingsTable({ rows }: { rows: TableRow[] }) {
                     {row.recommendedActions?.map((action, j) => (
                       <span
                         key={j}
-                        className="inline-flex items-center gap-1.5 px-2.5 py-1 text-[10px] font-semibold bg-emerald-50 text-emerald-700 dark:bg-emerald-900/25 dark:text-emerald-300 rounded-lg border border-emerald-200/60 dark:border-emerald-700/30 whitespace-normal text-left"
+                        className="inline-flex items-center gap-1.5 px-2.5 py-1 text-[11px] font-semibold bg-emerald-50 text-emerald-700 dark:bg-emerald-900/25 dark:text-emerald-300 rounded-lg border border-emerald-200/60 dark:border-emerald-700/30 whitespace-normal text-left"
                       >
                         <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full shrink-0 animate-pulse" />
                         {renderHighlightedText(action)}
