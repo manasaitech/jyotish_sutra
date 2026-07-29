@@ -24,6 +24,28 @@ import type {
 } from '../../types/structuredReport'
 
 // ═══════════════════════════════════════════════════════════════
+// TEXT HIGHLIGHTING HELPER
+// ═══════════════════════════════════════════════════════════════
+
+function renderHighlightedText(text: string | null | undefined) {
+  if (!text) return null
+  const parts = text.split('**')
+  return (
+    <>
+      {parts.map((part, i) =>
+        i % 2 === 1 ? (
+          <strong key={i} className="text-primary font-extrabold bg-primary/5 px-1 rounded-xs">
+            {part}
+          </strong>
+        ) : (
+          part
+        )
+      )}
+    </>
+  )
+}
+
+// ═══════════════════════════════════════════════════════════════
 // MAIN COMPONENT
 // ═══════════════════════════════════════════════════════════════
 
@@ -117,7 +139,7 @@ function SectionPanel({ section }: { section: ReportSection }) {
           {/* Summary */}
           {section.summary && (
             <p className="text-xs leading-relaxed text-on-surface-variant bg-surface/60 rounded-xl p-3.5 border border-outline-variant/30">
-              {section.summary}
+              {renderHighlightedText(section.summary)}
             </p>
           )}
 
@@ -150,30 +172,28 @@ function FindingsTable({ rows }: { rows: TableRow[] }) {
         {rows.map((row, i) => (
           <div key={i} className="bg-surface rounded-xl p-4 border border-outline-variant/40 space-y-2.5">
             <h5 className="text-sm font-bold text-primary">
-              {row.primaryFinding}
+              {renderHighlightedText(row.primaryFinding)}
             </h5>
             <p className="text-xs text-on-background leading-relaxed">
-              {row.details}
+              {renderHighlightedText(row.details)}
             </p>
             <div className="flex items-start gap-1.5">
               <span className="material-symbols-outlined text-amber-600 dark:text-amber-400 text-xs mt-0.5 shrink-0">
                 star
               </span>
               <p className="text-[11px] text-on-surface-variant italic leading-relaxed">
-                {row.astrologicalReason}
+                {renderHighlightedText(row.astrologicalReason)}
               </p>
             </div>
             {row.recommendedActions?.length > 0 && (
-              <div className="flex flex-wrap gap-1.5 pt-1">
+              <div className="flex flex-col items-start gap-1.5 pt-1">
                 {row.recommendedActions.map((action, j) => (
                   <span
                     key={j}
-                    className="inline-flex items-center gap-1 px-2.5 py-1 text-[10px] font-semibold bg-emerald-50 text-emerald-700 dark:bg-emerald-900/25 dark:text-emerald-300 rounded-lg border border-emerald-200/60 dark:border-emerald-700/30"
+                    className="inline-flex items-center gap-1.5 px-2.5 py-1 text-[10px] font-semibold bg-emerald-50 text-emerald-700 dark:bg-emerald-900/25 dark:text-emerald-300 rounded-lg border border-emerald-200/60 dark:border-emerald-700/30 text-left"
                   >
-                    <span className="material-symbols-outlined text-[10px]">
-                      check_circle
-                    </span>
-                    {action}
+                    <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full shrink-0 animate-pulse" />
+                    {renderHighlightedText(action)}
                   </span>
                 ))}
               </div>
@@ -208,13 +228,13 @@ function FindingsTable({ rows }: { rows: TableRow[] }) {
                 className={`border-b border-outline-variant/20 last:border-b-0 ${i % 2 === 0 ? '' : 'bg-surface/50'}`}
               >
                 <td className="p-3 font-semibold text-primary align-top w-[18%] min-w-[140px] whitespace-normal">
-                  {row.primaryFinding}
+                  {renderHighlightedText(row.primaryFinding)}
                 </td>
                 <td className="p-3 text-on-background leading-relaxed align-top w-[30%] min-w-[240px]">
-                  {row.details}
+                  {renderHighlightedText(row.details)}
                 </td>
                 <td className="p-3 text-on-surface-variant italic leading-relaxed align-top w-[32%] min-w-[260px]">
-                  {row.astrologicalReason}
+                  {renderHighlightedText(row.astrologicalReason)}
                 </td>
                 <td className="p-3 align-top w-[20%] min-w-[160px]">
                   <div className="flex flex-col items-start gap-1.5">
@@ -224,7 +244,7 @@ function FindingsTable({ rows }: { rows: TableRow[] }) {
                         className="inline-flex items-center gap-1.5 px-2.5 py-1 text-[10px] font-semibold bg-emerald-50 text-emerald-700 dark:bg-emerald-900/25 dark:text-emerald-300 rounded-lg border border-emerald-200/60 dark:border-emerald-700/30 whitespace-normal text-left"
                       >
                         <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full shrink-0 animate-pulse" />
-                        {action}
+                        {renderHighlightedText(action)}
                       </span>
                     ))}
                   </div>
