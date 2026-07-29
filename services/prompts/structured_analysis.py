@@ -70,7 +70,7 @@ def run_structured_analysis(
         raw_response = client.generate(
             system_prompt=system_prompt,
             user_prompt=user_prompt,
-            max_tokens=900,
+            max_tokens=1500,
         )
 
         if not raw_response:
