@@ -216,10 +216,10 @@ Every table row must contain:
    - recommendedActions: (1-3 short restorative action items tailored to the finding).
 
 2. For 'food' section (Diet & Nutrition):
-   - primaryFinding: Must be a specific dietary category, Prakriti diet type, or meal timing phase (e.g., "Pitta-Cooling Lunch Regime", "Warm Vata-Pacifying Breakfast", "Light Kapha Dinner").
-   - details: Must suggest specific food items, herbs, grains, and oils to favor or avoid (e.g., favoring sweet fruits, oats, and ghee, while avoiding hot spices, tomatoes, and fermented foods) based on the native's elements, Prakriti, and digestive fire (Agni).
-   - astrologicalReason: Must explain the native's Prakriti (Vata/Pitta/Kapha) score and how planetary placements influence their metabolic fire (Agni) (e.g., "Dominant Pitta score of 50.1% with Mars fire in the 4th house aspecting 6th house").
-   - recommendedActions: Must suggest specific food items or dietary habits with precise timing instructions (e.g., "Have a heavy warm lunch at 12:30 PM", "Drink warm cardamom milk 30 minutes before sleep").
+   - primaryFinding: Must be a specific Prakriti diet type, meal timing phase, OR therapeutic diet addressing an identified health vulnerability (e.g., "Pitta-Cooling Lunch Regime", "Anti-Inflammatory Skin Diet", "Vata-Soothing Joint Nutrition").
+   - details: Must suggest specific food items, herbs, grains, and oils to favor or avoid based on BOTH the native's Prakriti constitution and their specific health vulnerabilities/afflictions found in the chart (e.g., if skin/acne vulnerability is present, prescribe specific cooling herbs and avoid tomatoes/fermented items; if bone/joint sensitivity is present, suggest specific calcium/magnesium rich foods and warm spices).
+   - astrologicalReason: Must explain how their Prakriti score AND specific planetary afflictions in houses/lords trigger this health sensitivity and subsequent dietary need (e.g., "Dominant Pitta score of 50.1% combined with Mars fire aspecting the 6th house, creating digestive and skin vulnerabilities requiring cooling therapeutic foods").
+   - recommendedActions: Must suggest specific food items or dietary habits with precise timing instructions tailored to Prakriti and the health issues (e.g., "Have a heavy warm lunch at 12:30 PM", "Drink warm cardamom milk 30 minutes before sleep").
 
 Keep every value concise. Never return paragraphs inside table cells.
 Return arrays whenever multiple values exist.
