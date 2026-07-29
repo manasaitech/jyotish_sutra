@@ -19,6 +19,8 @@ import RemediesDashboard from './RemediesDashboard'
 import LockedTabOverlay from './LockedTabOverlay'
 import KundliMatchingView from '../matching/KundliMatchingView'
 import DashaTimelineView from '../dasha/DashaTimelineView'
+import StructuredReportView from './StructuredReportView'
+import type { StructuredReport } from '../../types/structuredReport'
 import type { UserProfile } from '../../types/profile'
 import { SCIENTIFIC_REFERENCE_LINKS } from '../../config/scientificreference'
 import {
@@ -98,6 +100,7 @@ export default function TabPanel({
   const [initialReading, setInitialReading] = useState<string>(cachedItem?.initialReading || '')
   const [loadingInitial, setLoadingInitial] = useState<boolean>(!cachedItem?.initialReading)
   const [loadingChat, setLoadingChat] = useState<boolean>(false)
+  const [structuredData, setStructuredData] = useState<StructuredReport | null>(null)
 
   // Sync state if cached item exists or cache key changes
   useEffect(() => {
@@ -148,6 +151,14 @@ export default function TabPanel({
           setInitialReading(text)
           setMessages([])
           setLoadingInitial(false)
+
+          // Extract structured JSON report if available
+          if (data.structured && data.structured.report) {
+            setStructuredData(data.structured as StructuredReport)
+          } else {
+            setStructuredData(null)
+          }
+
           if (onUpdateCacheByKey) {
             onUpdateCacheByKey(currentKey, { initialReading: text, messages: [] })
           }
@@ -355,9 +366,14 @@ export default function TabPanel({
             </div>
           ) : (
             <>
-              <div className="markdown-container text-sm leading-relaxed text-on-background">
-                <ReactMarkdown>{initialReading}</ReactMarkdown>
-              </div>
+              {/* Render structured report if available, otherwise fall back to markdown */}
+              {structuredData ? (
+                <StructuredReportView report={structuredData} />
+              ) : (
+                <div className="markdown-container text-sm leading-relaxed text-on-background">
+                  <ReactMarkdown>{initialReading}</ReactMarkdown>
+                </div>
+              )}
               <PredictionFeedbackCard
                 tab={tab}
                 userPrompt={`Initial ${displayTitle} Horoscope Analysis`}

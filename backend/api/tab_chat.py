@@ -86,6 +86,45 @@ def handle_tab_chat(req: TabChatRequest, current_user: dict = Depends(require_cu
             or len(history) == 0
         )
 
+        # ── Structured JSON Pipeline (enterprise mode) ──
+        # For structured-enabled tabs on initial reads, attempt the structured analysis pipeline.
+        # If it succeeds, we return structured JSON alongside a fallback markdown summary.
+        # If it fails, we fall through to the existing markdown prose pipeline.
+        from services.prompts.structured_schema import is_structured_enabled
+
+        structured_result = None
+        if is_initial and is_structured_enabled(req.tab) and mode == "exact":
+            try:
+                from services.prompts.structured_analysis import run_structured_analysis
+                structured_result = run_structured_analysis(
+                    chart_data=chart_data,
+                    profile=profile,
+                    computed=computed,
+                    section_ids=[req.tab],
+                    history=history,
+                )
+            except Exception as struct_err:
+                print(f"[TabChat] Structured pipeline failed, falling back to markdown: {struct_err}")
+                structured_result = None
+
+            if structured_result is not None:
+                # Build a fallback markdown summary from the structured data for backward compatibility
+                fallback_text = _structured_to_markdown_fallback(structured_result)
+
+                from utils.trust_note import append_trust_note
+                fallback_text = append_trust_note(fallback_text)
+
+                # Save chat turn to session history
+                chat_store.add_message(req.session_id, req.user_id, "user", req.message)
+                chat_store.add_message(req.session_id, req.user_id, "assistant", fallback_text)
+
+                return {
+                    "response": fallback_text,
+                    "structured": structured_result,
+                    "session_count": len(chat_store.get_history(req.session_id)),
+                }
+
+        # ── Standard Markdown Prose Pipeline (existing behavior) ──
         # Use Prashna/Partial initial prompt ONLY for overview tab initial reading
         if mode == "prashna" and req.tab == "overview" and is_initial:
             from services.prompts.prashna import get_prashna_prompt
@@ -141,3 +180,50 @@ def handle_tab_chat(req: TabChatRequest, current_user: dict = Depends(require_cu
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+
+def _structured_to_markdown_fallback(structured: dict) -> str:
+    """
+    Convert a structured report JSON into a simple markdown summary string.
+    Used as the `response` field for backward compatibility with older frontend versions.
+    """
+    try:
+        report = structured.get("report", {})
+        parts = []
+
+        # Executive summary
+        summary = report.get("executiveSummary", "")
+        if summary:
+            parts.append(summary)
+
+        # Section summaries
+        for section in report.get("sections", []):
+            title = section.get("title", "")
+            sec_summary = section.get("summary", "")
+            if title and sec_summary:
+                parts.append(f"**{title}**: {sec_summary}")
+
+            # Key observations
+            observations = section.get("keyObservations", [])
+            if observations:
+                for obs in observations:
+                    if isinstance(obs, str) and obs.strip():
+                        parts.append(f"• {obs}")
+
+        # Overall recommendations
+        recs = report.get("overallRecommendations", [])
+        if recs:
+            parts.append("\n**Recommendations:**")
+            for rec in recs:
+                if isinstance(rec, str) and rec.strip():
+                    parts.append(f"• {rec}")
+
+        # Disclaimer
+        disclaimer = report.get("disclaimer", "")
+        if disclaimer:
+            parts.append(f"\n*{disclaimer}*")
+
+        return "\n\n".join(parts) if parts else "Analysis complete. Please view the structured report."
+    except Exception:
+        return "Structured analysis complete."
+

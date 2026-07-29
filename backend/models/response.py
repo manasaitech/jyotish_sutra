@@ -39,6 +39,7 @@ class ChartResponse(BaseModel):
 class ChatResponse(BaseModel):
     response: str
     session_count: int
+    structured: Optional[Dict[str, Any]] = None  # Structured JSON report (when available)
 
 class ProfileResponse(BaseModel):
     """Response from the profile lookup endpoint."""
