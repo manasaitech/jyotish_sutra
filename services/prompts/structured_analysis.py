@@ -63,14 +63,14 @@ def run_structured_analysis(
         system_prompt = get_structured_system_prompt(section_ids)
 
         # ── Step 3: Build User Prompt (the structured document) ──
-        user_prompt = json.dumps(input_document, indent=2, default=str)
+        user_prompt = json.dumps(input_document, separators=(",", ":"), default=str)
 
         # ── Step 4: Call LLM ──
         client = LLMFactory.get_client()
         raw_response = client.generate(
             system_prompt=system_prompt,
             user_prompt=user_prompt,
-            max_tokens=1500,
+            max_tokens=2000,
         )
 
         if not raw_response:
@@ -152,6 +152,28 @@ def _extract_json(raw: str) -> Optional[Dict[str, Any]]:
         fixed = re.sub(r',\s*([}\]])', r'\1', candidate)
         try:
             return json.loads(fixed)
+        except json.JSONDecodeError:
+            pass
+
+    # Strategy 5: Repair truncated JSON (LLM ran out of tokens mid-response)
+    if first_brace != -1:
+        candidate = text[first_brace:]
+        # Remove any trailing incomplete string value (cut mid-sentence)
+        candidate = re.sub(r',\s*"[^"]*"\s*:\s*"[^"]*$', '', candidate)
+        candidate = re.sub(r'"[^"]*$', '""', candidate)
+        # Remove trailing commas
+        candidate = re.sub(r',\s*$', '', candidate)
+        # Count and close unclosed braces/brackets
+        open_braces = candidate.count('{') - candidate.count('}')
+        open_brackets = candidate.count('[') - candidate.count(']')
+        candidate += ']' * max(0, open_brackets)
+        candidate += '}' * max(0, open_braces)
+        # Clean trailing commas before closers
+        candidate = re.sub(r',\s*([}\]])', r'\1', candidate)
+        try:
+            result = json.loads(candidate)
+            print("[StructuredAnalysis] Repaired truncated JSON successfully")
+            return result
         except json.JSONDecodeError:
             pass
 
