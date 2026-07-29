@@ -235,16 +235,19 @@ For EVERY section (health, food, remedies, career, finance, personality, spiritu
    - recommendedActions: Specific actionable steps with precise daily timing or calendar schedule (e.g. "Recite the Rahu Beej Mantra at sunset on Saturdays", "Donate rice on Monday mornings").
 
 4. For 'career' section (Career & Professional Path):
-   - primaryFinding: Must be a specific professional phase, corporate/business choice, or career domain activation (e.g., "Corporate Management Promotion", "Independent Tech Consulting Launch").
-   - details: Must recommend and explicitly identify the top 3 specific career domains or industries (e.g., "Software Development, Corporate Management, and Financial Analysis"), describe service (job) vs business (entrepreneurship) potential, and suggest key growth habits.
-   - astrologicalReason: Cite Amatyakaraka placement, 10th house/lord strength, and the active Dasha timeline (must specify exact year and month ranges for the upcoming career shifts).
-   - recommendedActions: (1-3 career growth or strategic steps tailored to the finding).
+   - The FIRST row of this section's table must ALWAYS be "Top Career Domains" (primaryFinding: "Top Career Domains"). Its details must recommend and explicitly identify the top 3 specific career domains or industries (e.g., "[Domain A], [Domain B], and [Domain C]") based strictly on the native's 10th house sign/planets, 10th lord placement, Amatyakaraka planet, and planetary strengths in the birth chart.
+   - Subsequent rows (rows 2 and onwards) must represent other career phases, service (job) vs business (entrepreneurship) potential, or specific timeline growth recommendations.
+   - For all career rows:
+     * astrologicalReason: Explain the specific 10th house dynamics, 10th lord, Amatyakaraka, and planetary aspects that justify these choices, along with the active Dasha timeline (must specify exact year and month ranges for the upcoming career shifts).
+     * recommendedActions: (1-3 career growth or strategic steps tailored to the finding).
 
 5. For 'finance' section (Finance & Wealth):
-   - primaryFinding: Must be a specific wealth accumulation phase, investment window, or financial risk period (e.g., "Dhana Yoga Real Estate Gains", "Elevated Expenditure Phase").
-   - details: Savings potential, investment avenues (stocks, real estate, metals), and risk profiling.
-   - astrologicalReason: Cite 2nd/11th houses/lords, benefic aspects, and the active Dasha timeline (must specify exact year and month ranges for financial windows).
-   - recommendedActions: (1-3 financial habits or investment steps tailored to the finding).
+   - The FIRST row of this section's table must ALWAYS be "Primary Wealth Sources" (primaryFinding: "Primary Wealth Sources"). Its details must recommend and identify the exact ways, professions, or sources (e.g., source 1,source 2, source3) from which financial gain is possible based on 2nd and 11th houses, their lords, and aspecting planets.
+   - The SECOND row of this section's table must ALWAYS be "Favourable Wealth Period" (primaryFinding: "Favourable Wealth Period"). Its details must specify the exact month and year timeline range (e.g., "From this year to that year") of wealth peaks, dasha gains, or positive investment transits.
+   - Subsequent rows (rows 3 and onwards) can cover general savings potential, asset preferences, or financial risk profiling.
+   - For all finance rows:
+     * astrologicalReason: Cite 2nd/11th houses/lords, benefic aspects, and the active Dasha timeline (must specify exact year and month ranges).
+     * recommendedActions: (1-3 financial habits or investment steps tailored to the finding).
 
 6. For 'personality' section (Personality & Temperament):
    - primaryFinding: Core psychological pattern, temperament type, or behavioral cycle shift (e.g., "Saturnine Discipline Phase", "Intellectual Mercury Expansion").
