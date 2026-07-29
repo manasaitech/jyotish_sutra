@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { BrowserRouter, Routes, Route, Navigate, useNavigate, useLocation, Link } from 'react-router-dom'
+import { BrowserRouter, Routes, Route, useNavigate, useLocation, Link } from 'react-router-dom'
 import ChatPage from './pages/ChatPage'
 import LoginPage from './pages/LoginPage'
 import LandingPage from './pages/LandingPage'
@@ -16,6 +16,7 @@ const API_BASE_URL =
     : 'https://kundli-gpt-clone-back.onrender.com')
 
 import AstroLoader from './components/layout/AstroLoader'
+import NotFoundPage from './pages/NotFoundPage'
 
 // ─────────────────────────────────────────────
 // Auth guard — redirects unauthenticated users to /login
@@ -27,7 +28,7 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
     return <AstroLoader message="Connecting to AstroSutra AI..." />
   }
 
-  if (!user) return <Navigate to="/login" replace />
+  if (!user) return <NotFoundPage />
   return <>{children}</>
 }
 
@@ -216,13 +217,6 @@ function AppRoutes() {
     }
   }, [user, loading, location.pathname, navigate])
 
-  // If user logs out while on /app, redirect to landing
-  useEffect(() => {
-    if (!loading && !user && location.pathname === '/app') {
-      navigate('/', { replace: true })
-    }
-  }, [user, loading, location.pathname, navigate])
-
   // Auth loading spinner for /app and /login
   if (loading && (location.pathname === '/app' || location.pathname === '/login')) {
     return <AstroLoader message="Connecting to AstroSutra AI..." />
@@ -293,8 +287,8 @@ function AppRoutes() {
         }
       />
 
-      {/* Catch-all: redirect unknown routes to landing */}
-      <Route path="*" element={<Navigate to="/" replace />} />
+      {/* Catch-all: show beautiful cosmic Not Found page */}
+      <Route path="*" element={<NotFoundPage />} />
     </Routes>
   )
 }

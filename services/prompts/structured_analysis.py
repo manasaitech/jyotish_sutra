@@ -86,7 +86,7 @@ def run_structured_analysis(
         # ── Step 6: Validate Schema ──
         validated = _validate_report_schema(parsed)
         if validated is None:
-            print(f"[StructuredAnalysis] Schema validation failed.")
+            print(f"[StructuredAnalysis] Schema validation failed. Root keys: {list(parsed.keys()) if isinstance(parsed, dict) else type(parsed)}")
             return None
 
         return validated
@@ -157,26 +157,50 @@ def _extract_json(raw: str) -> Optional[Dict[str, Any]]:
 # SCHEMA VALIDATION — Structural checks
 # ═══════════════════════════════════════════════════════════════
 
-def _validate_report_schema(data: Dict[str, Any]) -> Optional[Dict[str, Any]]:
+def _validate_report_schema(data: Any) -> Optional[Dict[str, Any]]:
     """
-    Validate that the parsed JSON matches the expected report structure.
+    Validate and robustly normalize the parsed JSON to match the expected report structure.
 
-    We don't enforce strict types on every field — just check that the
-    top-level structure is correct and essential keys exist.
-    Returns the data if valid, None otherwise.
+    Handles common LLM structure deviations:
+    - Root is a list of sections instead of a dict
+    - Root is a single section directly
+    - Root is wrapped by a tab-name key (e.g. {"finance": {...}})
+    - Table rows or actions are dicts/strings instead of lists
     """
     if not isinstance(data, dict):
-        return None
+        if isinstance(data, list):
+            data = {"sections": data}
+        else:
+            return None
 
-    # Accept { "report": { ... } } or just { "header": ..., "sections": ... }
+    # 1. Normalize root wrap
     report = data.get("report")
     if report is None:
-        # Maybe the LLM returned the report contents directly (without the "report" wrapper)
-        if "sections" in data or "header" in data:
+        if "sectionId" in data or "table" in data or "planetaryFactors" in data:
+            report = {"sections": [data]}
+            data = {"report": report}
+        elif "sections" in data or "header" in data:
             report = data
             data = {"report": report}
         else:
-            return None
+            from services.prompts.structured_schema import STRUCTURED_ENABLED_TABS
+            found_tab = None
+            found_key = None
+            for key in data:
+                if key in STRUCTURED_ENABLED_TABS and isinstance(data[key], (dict, list)):
+                    found_tab = data[key]
+                    found_key = key
+                    break
+            if found_tab:
+                if isinstance(found_tab, list):
+                    report = {"sections": found_tab}
+                elif isinstance(found_tab, dict):
+                    if "sectionId" not in found_tab:
+                        found_tab["sectionId"] = found_key
+                    report = {"sections": [found_tab]}
+                data = {"report": report}
+            else:
+                return None
 
     if not isinstance(report, dict):
         return None
@@ -199,27 +223,79 @@ def _validate_report_schema(data: Dict[str, Any]) -> Optional[Dict[str, Any]]:
         "Astrological interpretations indicate tendencies and should not be considered medical, legal, or financial advice.",
     )
 
-    # Validate sections array
+    # 2. Normalize and validate sections array
     if not isinstance(report["sections"], list):
-        report["sections"] = []
+        if isinstance(report["sections"], dict):
+            report["sections"] = [report["sections"]]
+        else:
+            report["sections"] = []
 
+    cleaned_sections = []
     for section in report["sections"]:
         if not isinstance(section, dict):
             continue
         section.setdefault("sectionId", "unknown")
         section.setdefault("title", "Analysis")
         section.setdefault("summary", "")
-        section.setdefault("table", [])
-        section.setdefault("planetaryFactors", [])
-        section.setdefault("keyObservations", [])
 
-        # Validate table rows
-        if isinstance(section["table"], list):
-            for row in section["table"]:
-                if isinstance(row, dict):
-                    row.setdefault("primaryFinding", "")
-                    row.setdefault("details", "")
-                    row.setdefault("astrologicalReason", "")
-                    row.setdefault("recommendedActions", [])
+        # Table rows normalization
+        table = section.get("table")
+        if not isinstance(table, list):
+            if isinstance(table, dict):
+                table = [table]
+            else:
+                table = []
 
+        cleaned_table = []
+        for row in table:
+            if not isinstance(row, dict):
+                continue
+            row.setdefault("primaryFinding", "")
+            row.setdefault("details", "")
+            row.setdefault("astrologicalReason", "")
+
+            # Actions array normalization
+            actions = row.get("recommendedActions")
+            if isinstance(actions, str):
+                if "," in actions:
+                    row["recommendedActions"] = [a.strip() for a in actions.split(",") if a.strip()]
+                else:
+                    row["recommendedActions"] = [actions.strip()]
+            elif not isinstance(actions, list):
+                row["recommendedActions"] = []
+            else:
+                row["recommendedActions"] = [str(a) for a in actions if a is not None]
+
+            cleaned_table.append(row)
+        section["table"] = cleaned_table
+
+        # Planetary factors normalization
+        pf = section.get("planetaryFactors")
+        if not isinstance(pf, list):
+            if isinstance(pf, dict):
+                pf = [pf]
+            else:
+                pf = []
+        cleaned_pf = []
+        for factor in pf:
+            if not isinstance(factor, dict):
+                continue
+            factor.setdefault("planet", "")
+            factor.setdefault("impact", "")
+            factor.setdefault("reason", "")
+            cleaned_pf.append(factor)
+        section["planetaryFactors"] = cleaned_pf
+
+        # Key observations normalization
+        obs = section.get("keyObservations")
+        if isinstance(obs, str):
+            section["keyObservations"] = [obs]
+        elif not isinstance(obs, list):
+            section["keyObservations"] = []
+        else:
+            section["keyObservations"] = [str(o) for o in obs if o is not None]
+
+        cleaned_sections.append(section)
+
+    report["sections"] = cleaned_sections
     return data
