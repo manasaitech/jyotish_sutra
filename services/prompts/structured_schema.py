@@ -209,10 +209,10 @@ Every section must contain:
 - Key Observations (2-4 short bullet strings)
 
 Every table row must contain:
-- Primary Finding (short phrase)
-- Supporting Details (1-2 sentences)
-- Astrological Justification (1 sentence)
-- Recommended Actions (1-3 short action items)
+- primaryFinding: Must be a specific physical condition, body system, or constitutional vulnerability (e.g., "Digestive Hyperacidity", "Skin Inflammation / Acne", "Sleep Disruption & Nervous Anxiety"). NEVER write raw planetary placements (like "Mars in 4th House") as the finding.
+- details: Must describe highly specific, personalized physiological tendencies and wellness symptoms (e.g., "Tendency towards bile excess, acid reflux, or inflammatory digestion under stress") based on the input document. Avoid generic placeholder text.
+- astrologicalReason: Must cite the exact planetary placement, zodiac sign, house placement (specifically 1st, 6th, 8th, or 12th houses), aspects, or active Dasha alignment that triggers this sensitivity (e.g., "Mars in Aquarius in the 4th house aspecting the 6th house under active Sun-Venus Dasha timeline").
+- recommendedActions: (1-3 short action items tailored specifically to the finding).
 
 Keep every value concise. Never return paragraphs inside table cells.
 Return arrays whenever multiple values exist.
