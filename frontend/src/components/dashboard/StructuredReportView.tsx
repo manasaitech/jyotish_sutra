@@ -112,8 +112,7 @@ function HeaderCard({ header }: { header: ReportHeader }) {
 
 function SectionPanel({ section }: { section: ReportSection }) {
   const [isExpanded, setIsExpanded] = useState(true)
-  const isFood = section.sectionId === 'food'
-  const headerIcon = isFood ? 'restaurant' : 'medical_information'
+  const headerIcon = section.sectionId === 'food' ? 'restaurant' : (section.sectionId === 'remedies' ? 'spa' : 'medical_information')
 
   return (
     <div className="celestial-card rounded-2xl border border-outline-variant/50 overflow-hidden">
@@ -163,8 +162,7 @@ interface FindingsTableProps {
 }
 
 function FindingsTable({ rows, sectionId }: FindingsTableProps) {
-  const isFood = sectionId === 'food'
-  const badgeIcon = isFood ? 'spa' : 'health_and_safety'
+  const badgeIcon = sectionId === 'food' ? 'restaurant' : (sectionId === 'remedies' ? 'healing' : 'health_and_safety')
 
   return (
     <div className="space-y-3">

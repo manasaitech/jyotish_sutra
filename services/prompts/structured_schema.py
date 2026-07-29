@@ -86,7 +86,7 @@ SECTION_REGISTRY: Dict[str, Dict[str, str]] = {
 }
 
 # Tabs that are enabled for the structured JSON pipeline
-STRUCTURED_ENABLED_TABS = {"health", "food"}
+STRUCTURED_ENABLED_TABS = {"health", "food", "remedies"}
 
 
 # ═══════════════════════════════════════════════════════════════
@@ -220,6 +220,15 @@ Every table row must contain:
    - details: Must suggest specific food items, herbs, grains, and oils to favor or avoid based on BOTH the native's Prakriti constitution and their specific health vulnerabilities/afflictions found in the chart (e.g., if skin/acne vulnerability is present, prescribe specific cooling herbs and avoid tomatoes/fermented items; if bone/joint sensitivity is present, suggest specific calcium/magnesium rich foods and warm spices).
    - astrologicalReason: Must explain how their Prakriti score AND specific planetary afflictions in houses/lords trigger this health sensitivity and subsequent dietary need (e.g., "Dominant Pitta score of 50.1% combined with Mars fire aspecting the 6th house, creating digestive and skin vulnerabilities requiring cooling therapeutic foods").
    - recommendedActions: Must suggest specific food items or dietary habits with precise timing instructions tailored to Prakriti and the health issues (e.g., "Have a heavy warm lunch at 12:30 PM", "Drink warm cardamom milk 30 minutes before sleep").
+
+3. For 'remedies' section (Remedies & Solutions):
+   - primaryFinding: Must be a specific type of remedy category (e.g., "Active Vimshottari Dasha Remedy", "Gemstone & Color Therapy", "Fasting & Charity / Daana", "Dosha Mitigation / Puja").
+   - details: Must suggest highly specific, actionable remedies:
+     * For Dasha/Planetary remedies: Exact Sanskrit mantra text (capitalized English characters) and recitation count requirements (e.g. "Recite 'OM SHRAAM SHREEM...' 19,000 times").
+     * For Gemstones: Specify exact gemstone weight, metal setting, ring finger, and wearing day/time.
+     * For Charity/Daana: Specific items to donate (e.g. black lentils, milk), day of the week, and timing.
+   - astrologicalReason: Must explain the specific planetary affliction, weak planet, or active Dasha period that requires this remedy, including the dasha timeline (e.g. "Rahu Mahadasha active 2018-2036 under Mercury Antardasha").
+   - recommendedActions: Specific actionable steps with precise daily timing or calendar schedule (e.g. "Recite the Rahu Beej Mantra at sunset on Saturdays", "Donate rice on Monday mornings").
 
 Keep every value concise. Never return paragraphs inside table cells.
 Return arrays whenever multiple values exist.
