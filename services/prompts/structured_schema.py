@@ -209,10 +209,17 @@ Every section must contain:
 - Key Observations (2-4 short bullet strings)
 
 Every table row must contain:
-- primaryFinding: Must be a specific physical condition, body system, or constitutional vulnerability (e.g., "[Focus area or organ system sensitivity]"). Analyze the input chart data objectively and choose only those health domains that are truly afflicted or highlighted in the input. NEVER write raw planetary placements (like "Mars in 4th House") as the finding.
-- details: Must describe the specific physiological tendencies and wellness symptoms associated with that finding based strictly on the input document. Do not copy examples or bias towards digestive or skin issues unless they are actively indicated in the input data.
-- astrologicalReason: Must cite the exact planetary placement, zodiac sign, house placement (specifically 1st, 6th, 8th, or 12th houses), aspects, or active Dasha alignment that triggers this sensitivity (e.g., "[Planet] in [Zodiac Sign] in the [House Number] house aspecting the [House Number] house under active [Dasha Name] timeline").
-- recommendedActions: (1-3 short action items tailored specifically to the finding).
+1. For 'health' section:
+   - primaryFinding: Must be a specific physical condition, body system, or constitutional vulnerability (e.g., "[Physiological focus area or system sensitivity]"). NEVER write raw planetary placements (like "Mars in 4th House") as the finding.
+   - details: Must describe specific physiological tendencies and wellness symptoms associated with the finding.
+   - astrologicalReason: Must cite the exact planetary placement, house (specifically 1st, 6th, 8th, or 12th houses), aspects, or active Dasha alignment that triggers the sensitivity.
+   - recommendedActions: (1-3 short restorative action items tailored to the finding).
+
+2. For 'food' section (Diet & Nutrition):
+   - primaryFinding: Must be a specific dietary category, Prakriti diet type, or meal timing phase (e.g., "Pitta-Cooling Lunch Regime", "Warm Vata-Pacifying Breakfast", "Light Kapha Dinner").
+   - details: Must suggest specific food items, herbs, grains, and oils to favor or avoid (e.g., favoring sweet fruits, oats, and ghee, while avoiding hot spices, tomatoes, and fermented foods) based on the native's elements, Prakriti, and digestive fire (Agni).
+   - astrologicalReason: Must explain the native's Prakriti (Vata/Pitta/Kapha) score and how planetary placements influence their metabolic fire (Agni) (e.g., "Dominant Pitta score of 50.1% with Mars fire in the 4th house aspecting 6th house").
+   - recommendedActions: Must suggest specific food items or dietary habits with precise timing instructions (e.g., "Have a heavy warm lunch at 12:30 PM", "Drink warm cardamom milk 30 minutes before sleep").
 
 Keep every value concise. Never return paragraphs inside table cells.
 Return arrays whenever multiple values exist.
