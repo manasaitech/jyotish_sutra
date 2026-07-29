@@ -86,7 +86,7 @@ SECTION_REGISTRY: Dict[str, Dict[str, str]] = {
 }
 
 # Tabs that are enabled for the structured JSON pipeline
-STRUCTURED_ENABLED_TABS = {"health", "food", "remedies"}
+STRUCTURED_ENABLED_TABS = {"health", "food", "remedies", "career", "finance", "personality", "spiritual", "overview"}
 
 
 # ═══════════════════════════════════════════════════════════════
@@ -209,6 +209,10 @@ Every section must contain:
 - Key Observations (2-4 short bullet strings)
 
 Every table row must contain:
+
+[GLOBAL TIMELINE CONSTRAINT]
+For EVERY section (health, food, remedies, career, finance, personality, spiritual, overview), you must compute and include a highly specific predictive timeline (specifying the exact year and month range, e.g. "From October 2026 to June 2028") based on the Vimshottari Dasha dates in the input document. Never write generic timelines (like "always" or "in future"). Integrate these timelines directly into the 'details' or 'astrologicalReason' properties of the JSON so the native knows exactly when these planetary activations happen.
+
 1. For 'health' section:
    - primaryFinding: Must be a specific physical condition, body system, or constitutional vulnerability (e.g., "[Physiological focus area or system sensitivity]"). NEVER write raw planetary placements (like "Mars in 4th House") as the finding.
    - details: Must describe specific physiological tendencies and wellness symptoms associated with the finding.
@@ -229,6 +233,36 @@ Every table row must contain:
      * For Charity/Daana: Specific items to donate (e.g. black lentils, milk), day of the week, and timing.
    - astrologicalReason: Must explain the specific planetary affliction, weak planet, or active Dasha period that requires this remedy, including the dasha timeline (e.g. "Rahu Mahadasha active 2018-2036 under Mercury Antardasha").
    - recommendedActions: Specific actionable steps with precise daily timing or calendar schedule (e.g. "Recite the Rahu Beej Mantra at sunset on Saturdays", "Donate rice on Monday mornings").
+
+4. For 'career' section (Career & Professional Path):
+   - primaryFinding: Must be a specific professional phase, corporate/business choice, or career domain activation (e.g., "Corporate Management Promotion", "Independent Tech Consulting Launch").
+   - details: Recommend top career domains, describe service (job) vs business (entrepreneurship) potential, and suggest key growth habits.
+   - astrologicalReason: Cite Amatyakaraka placement, 10th house/lord strength, and the active Dasha timeline (must specify exact year and month ranges for the upcoming career shifts).
+   - recommendedActions: (1-3 career growth or strategic steps tailored to the finding).
+
+5. For 'finance' section (Finance & Wealth):
+   - primaryFinding: Must be a specific wealth accumulation phase, investment window, or financial risk period (e.g., "Dhana Yoga Real Estate Gains", "Elevated Expenditure Phase").
+   - details: Savings potential, investment avenues (stocks, real estate, metals), and risk profiling.
+   - astrologicalReason: Cite 2nd/11th houses/lords, benefic aspects, and the active Dasha timeline (must specify exact year and month ranges for financial windows).
+   - recommendedActions: (1-3 financial habits or investment steps tailored to the finding).
+
+6. For 'personality' section (Personality & Temperament):
+   - primaryFinding: Core psychological pattern, temperament type, or behavioral cycle shift (e.g., "Saturnine Discipline Phase", "Intellectual Mercury Expansion").
+   - details: Key strengths, emotional balance tendencies, and communication habits.
+   - astrologicalReason: Cite Lagna/degree, Moon sign/house placement, and active Dasha transitions (must specify exact year and month ranges for mindset changes).
+   - recommendedActions: (1-3 personal development or reflection habits).
+
+7. For 'spiritual' section (Spiritual Growth):
+   - primaryFinding: Spiritual activation phase, inner development cycle, or yogic affinity (e.g., "Karmic Ketu Introspection", "Moksha House Awakening").
+   - details: Recommended meditation techniques, past-life karmic patterns, guru connection prospects, and path details.
+   - astrologicalReason: Cite 4th, 8th, or 12th houses/lords, Ketu placement, and active Dasha timelines (must specify exact year and month ranges).
+   - recommendedActions: (1-3 spiritual practices or sadhana schedules).
+
+8. For 'overview' section (Horoscope Overview):
+   - primaryFinding: Major life theme, dominant yoga activation, or general planetary shift (e.g., "Raja Yoga Peak", "Gaja Kesari Wisdom Cycle").
+   - details: General life path summary, vital theme highlights, and general advice.
+   - astrologicalReason: Cite chart ruler, core yogas active, and active Dasha timeline (must specify exact year and month ranges).
+   - recommendedActions: (1-3 general life alignment steps).
 
 Keep every value concise. Never return paragraphs inside table cells.
 Return arrays whenever multiple values exist.

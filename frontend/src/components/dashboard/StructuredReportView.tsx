@@ -112,7 +112,21 @@ function HeaderCard({ header }: { header: ReportHeader }) {
 
 function SectionPanel({ section }: { section: ReportSection }) {
   const [isExpanded, setIsExpanded] = useState(true)
-  const headerIcon = section.sectionId === 'food' ? 'restaurant' : (section.sectionId === 'remedies' ? 'spa' : 'medical_information')
+  
+  const getHeaderIcon = (id: string) => {
+    switch (id) {
+      case 'food': return 'restaurant'
+      case 'remedies': return 'spa'
+      case 'career': return 'work'
+      case 'finance': return 'payments'
+      case 'personality': return 'psychology'
+      case 'spiritual': return 'self_improvement'
+      case 'overview': return 'visibility'
+      default: return 'medical_information'
+    }
+  }
+
+  const headerIcon = getHeaderIcon(section.sectionId)
 
   return (
     <div className="celestial-card rounded-2xl border border-outline-variant/50 overflow-hidden">
@@ -162,7 +176,20 @@ interface FindingsTableProps {
 }
 
 function FindingsTable({ rows, sectionId }: FindingsTableProps) {
-  const badgeIcon = sectionId === 'food' ? 'restaurant' : (sectionId === 'remedies' ? 'healing' : 'health_and_safety')
+  const getBadgeIcon = (id?: string) => {
+    switch (id) {
+      case 'food': return 'restaurant'
+      case 'remedies': return 'healing'
+      case 'career': return 'work'
+      case 'finance': return 'monetization_on'
+      case 'personality': return 'psychology'
+      case 'spiritual': return 'self_improvement'
+      case 'overview': return 'visibility'
+      default: return 'health_and_safety'
+    }
+  }
+
+  const badgeIcon = getBadgeIcon(sectionId)
 
   return (
     <div className="space-y-3">
