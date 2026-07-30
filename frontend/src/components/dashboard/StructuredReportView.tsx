@@ -230,9 +230,9 @@ function FindingsTable({ rows, sectionId }: FindingsTableProps) {
                 {row.recommendedActions.map((action, j) => (
                   <span
                     key={j}
-                    className="inline-flex items-center gap-1.5 px-2.5 py-1 text-[10px] font-semibold bg-emerald-50 text-emerald-700 dark:bg-emerald-900/25 dark:text-emerald-300 rounded-lg border border-emerald-200/60 dark:border-emerald-700/30 text-left"
+                    className="inline-flex items-center gap-1.5 px-2.5 py-1 text-[10px] font-semibold bg-emerald-50 text-emerald-950 dark:bg-emerald-900/25 dark:text-emerald-100 rounded-lg border border-emerald-200/60 dark:border-emerald-700/30 text-left"
                   >
-                    <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full shrink-0 animate-pulse" />
+                    <span className="w-1.5 h-1.5 bg-emerald-600 rounded-full shrink-0 animate-pulse" />
                     {renderHighlightedText(action)}
                   </span>
                 ))}
@@ -286,9 +286,9 @@ function FindingsTable({ rows, sectionId }: FindingsTableProps) {
                     {row.recommendedActions?.map((action, j) => (
                       <span
                         key={j}
-                        className="inline-flex items-center gap-1.5 px-2.5 py-1 text-[11px] font-semibold bg-emerald-50 text-emerald-700 dark:bg-emerald-900/25 dark:text-emerald-300 rounded-lg border border-emerald-200/60 dark:border-emerald-700/30 whitespace-normal text-left"
+                        className="inline-flex items-center gap-1.5 px-2.5 py-1 text-[11px] font-semibold bg-emerald-50 text-emerald-950 dark:bg-emerald-900/25 dark:text-emerald-100 rounded-lg border border-emerald-200/60 dark:border-emerald-700/30 whitespace-normal text-left"
                       >
-                        <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full shrink-0 animate-pulse" />
+                        <span className="w-1.5 h-1.5 bg-emerald-600 rounded-full shrink-0 animate-pulse" />
                         {renderHighlightedText(action)}
                       </span>
                     ))}

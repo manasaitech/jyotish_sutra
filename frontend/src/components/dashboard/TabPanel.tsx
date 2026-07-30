@@ -16,6 +16,7 @@ import PrashnaDashboardView from './PrashnaDashboardView'
 import AstroLoader from '../layout/AstroLoader'
 import PersonalityDashboard from './PersonalityDashboard'
 import RemediesDashboard from './RemediesDashboard'
+import DoshaDashboard from './DoshaDashboard'
 import LockedTabOverlay from './LockedTabOverlay'
 import KundliMatchingView from '../matching/KundliMatchingView'
 import DashaTimelineView from '../dasha/DashaTimelineView'
@@ -378,7 +379,7 @@ export default function TabPanel({
             <>
               {/* Render structured report if available, otherwise fall back to markdown */}
               {structuredData ? (
-                tab === 'doshas' ? (
+                (tab as string) === 'doshas' ? (
                   <DoshaDashboard report={structuredData as any} />
                 ) : (
                   <StructuredReportView report={structuredData} />

@@ -67,7 +67,7 @@ export default function PredictionFeedbackCard({
       </div>
 
       {submitted ? (
-        <div className="flex items-center gap-1 text-emerald-700 font-bold bg-emerald-50 px-2.5 py-1 rounded-lg border border-emerald-200 animate-fade-in-up">
+        <div className="flex items-center gap-1 text-emerald-950 font-bold bg-emerald-50 px-2.5 py-1 rounded-lg border border-emerald-200 animate-fade-in-up">
           <span className="material-symbols-outlined text-sm">check_circle</span>
           <span>Thank you! Saved {rating} ⭐</span>
         </div>
