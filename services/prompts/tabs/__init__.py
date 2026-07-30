@@ -123,8 +123,15 @@ def get_dasha_dosha_prompt_context(chart_data: dict, session: dict = None, profi
         
         dasha_text = "\n".join(dasha_parts) if dasha_parts else "No active dasha information found."
 
-        # Compute Doshas Timeline
-        dosha_res = compute_doshas(chart_data)
+        # Try to resolve precomputed doshas from active session first to avoid recalculation differences
+        dosha_res = None
+        if session and isinstance(session, dict) and "precomputed_doshas" in session:
+            dosha_res = session["precomputed_doshas"]
+
+        if not dosha_res:
+            computed = chart_data.get("computed")
+            dosha_res = compute_doshas(chart_data, computed)
+
         ongoing = dosha_res.get("ongoing", [])
         upcoming = dosha_res.get("upcoming", [])
         completed = dosha_res.get("completed", [])
