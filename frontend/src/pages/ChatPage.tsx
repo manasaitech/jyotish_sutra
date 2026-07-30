@@ -32,7 +32,13 @@ const API_BASE_URL =
 export default function ChatPage() {
   const navigate = useNavigate()
   const { user } = useAuth()
-  const [sessionId] = useState(() => Math.random().toString(36).substring(7))
+  const [sessionId] = useState(() => {
+    const saved = localStorage.getItem('astrosutra_persistent_session')
+    if (saved) return saved
+    const newId = Math.random().toString(36).substring(7)
+    localStorage.setItem('astrosutra_persistent_session', newId)
+    return newId
+  })
   const [step, setStep] = useState<ChatStep>('loading')
   const [showProfile, setShowProfile] = useState(false)
 

@@ -87,6 +87,21 @@ def handle_tab_chat(req: TabChatRequest, current_user: dict = Depends(require_cu
             or len(history) == 0
         )
 
+        # Check if the exact initial prompt was already asked in this session to prevent duplicate LLM calls on refresh/switch
+        if is_initial and len(history) > 0:
+            for idx, msg in enumerate(history):
+                if msg.get("role") == "user" and msg.get("content") == req.message:
+                    # Look at next assistant message
+                    if idx + 1 < len(history) and history[idx + 1].get("role") == "assistant":
+                        cached_msg = history[idx + 1]
+                        cached_struct = cached_msg.get("metadata", {}).get("structured")
+                        print(f"[TabChat] Returning cached response for tab={req.tab} from history.")
+                        return {
+                            "response": cached_msg.get("content"),
+                            "structured": cached_struct,
+                            "session_count": len(history),
+                        }
+
         # ── Structured JSON Pipeline (enterprise mode) ──
         # For structured-enabled tabs on initial reads, attempt the structured analysis pipeline.
         # If it succeeds, we return structured JSON alongside a fallback markdown summary.
@@ -117,7 +132,7 @@ def handle_tab_chat(req: TabChatRequest, current_user: dict = Depends(require_cu
 
                 # Save chat turn to session history
                 chat_store.add_message(req.session_id, req.user_id, "user", req.message)
-                chat_store.add_message(req.session_id, req.user_id, "assistant", fallback_text)
+                chat_store.add_message(req.session_id, req.user_id, "assistant", fallback_text, metadata={"structured": structured_result})
 
                 return {
                     "response": fallback_text,

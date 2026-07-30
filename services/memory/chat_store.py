@@ -52,7 +52,7 @@ class ChatStore:
         finally:
             db.close()
 
-    def add_message(self, session_id: str, user_id: str | None, role: str, content: str) -> None:
+    def add_message(self, session_id: str, user_id: str | None, role: str, content: str, metadata: dict = None) -> None:
         """Save a new chat message to the database and increment message count."""
         db_session_id = self.get_or_create_session(session_id, user_id)
         db = SessionLocal()
@@ -61,7 +61,8 @@ class ChatStore:
             msg = ChatMessage(
                 session_id=db_session_id,
                 role=role,
-                content=content
+                content=content,
+                metadata_=metadata or {}
             )
             db.add(msg)
 
@@ -94,6 +95,7 @@ class ChatStore:
                 history.append({
                     "role": msg.role,
                     "content": msg.content,
+                    "metadata": msg.metadata_ or {},
                     "created_at": msg.created_at.isoformat() if msg.created_at else datetime.utcnow().isoformat()
                 })
             return history
