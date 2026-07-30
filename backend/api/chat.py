@@ -50,6 +50,19 @@ def handle_chat(req: ChatRequest, current_user: dict = Depends(require_current_u
         session = session_store.get_session(req.session_id)
         history = chat_store.get_history(req.session_id)
 
+        # Check if the exact prompt was already asked in this session to prevent duplicate LLM calls
+        if len(history) > 0:
+            for idx, msg in enumerate(history):
+                if msg.get("role") == "user" and msg.get("content", "").strip() == req.message.strip():
+                    # Look at next assistant message
+                    if idx + 1 < len(history) and history[idx + 1].get("role") == "assistant":
+                        cached_msg = history[idx + 1]
+                        print(f"[Chat] Returning cached response for prompt='{req.message}' from history.")
+                        return {
+                            "response": cached_msg.get("content"),
+                            "session_count": len(history),
+                        }
+
         # 1. Block if birth chart is not generated yet
         if not chart_data:
             return {

@@ -87,15 +87,15 @@ def handle_tab_chat(req: TabChatRequest, current_user: dict = Depends(require_cu
             or len(history) == 0
         )
 
-        # Check if the exact initial prompt was already asked in this session to prevent duplicate LLM calls on refresh/switch
-        if is_initial and len(history) > 0:
+        # Check if the exact user prompt was already asked in this session to prevent duplicate LLM calls
+        if len(history) > 0:
             for idx, msg in enumerate(history):
-                if msg.get("role") == "user" and msg.get("content") == req.message:
+                if msg.get("role") == "user" and msg.get("content", "").strip() == req.message.strip():
                     # Look at next assistant message
                     if idx + 1 < len(history) and history[idx + 1].get("role") == "assistant":
                         cached_msg = history[idx + 1]
                         cached_struct = cached_msg.get("metadata", {}).get("structured")
-                        print(f"[TabChat] Returning cached response for tab={req.tab} from history.")
+                        print(f"[TabChat] Returning cached response for prompt='{req.message}' from history.")
                         return {
                             "response": cached_msg.get("content"),
                             "structured": cached_struct,

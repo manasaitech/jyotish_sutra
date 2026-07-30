@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 
 import Navbar from '../components/layout/Navbar'
 import TabNavigation, { type TabType } from '../components/dashboard/TabNavigation'
@@ -34,10 +34,26 @@ export default function DashboardPage({
   const [activeTab, setActiveTab] = useState<TabType>('overview')
 
   // Granular persistent cache for tab readings, sub-tabs, and chat messages across switches
-  const [tabCache, setTabCache] = useState<Record<string, TabCacheItem>>({})
+  const [tabCache, setTabCache] = useState<Record<string, TabCacheItem>>(() => {
+    const key = `astrosutra_tab_cache_${activeProfileId || 'default'}`
+    const saved = sessionStorage.getItem(key)
+    return saved ? JSON.parse(saved) : {}
+  })
+
+  // Re-hydrate tabCache when switching profile
+  useEffect(() => {
+    const key = `astrosutra_tab_cache_${activeProfileId || 'default'}`
+    const saved = sessionStorage.getItem(key)
+    setTabCache(saved ? JSON.parse(saved) : {})
+  }, [activeProfileId])
 
   const handleUpdateCacheByKey = (key: string, item: TabCacheItem) => {
-    setTabCache((prev) => ({ ...prev, [key]: item }))
+    setTabCache((prev) => {
+      const next = { ...prev, [key]: item }
+      const storageKey = `astrosutra_tab_cache_${activeProfileId || 'default'}`
+      sessionStorage.setItem(storageKey, JSON.stringify(next))
+      return next
+    })
   }
 
   const meta = {
