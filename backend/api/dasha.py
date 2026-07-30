@@ -32,6 +32,17 @@ def get_dasha_timeline(req: DashaTimelineRequest, authorization: Optional[str] =
                 except Exception as e:
                     print(f"[Dasha] Token verification failed: {e}")
 
+        # Check session cache first
+        session = session_store.get_session(req.session_id)
+        if session and "precomputed_dasha_package" in session:
+            print(f"[DashaTimeline API] Returning cached/precomputed timeline for session: {req.session_id}")
+            import copy
+            dasha_package = copy.deepcopy(session["precomputed_dasha_package"])
+            if req.lookup_year:
+                year_info = lookup_dasha_by_year(dasha_package["timeline"], req.lookup_year)
+                dasha_package["year_lookup"] = year_info
+            return dasha_package
+
         chart_data, birth_details = resolve_chart_data(
             session_id=req.session_id,
             user_id=req.user_id,

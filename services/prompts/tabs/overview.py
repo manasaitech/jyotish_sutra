@@ -12,7 +12,7 @@ Scope: You ONLY discuss the user's overall chart summary, key placements, person
 Behavior:
 - Open with the single most defining feature of this chart — something genuinely uncommon.
 - Cover: Ascendant personality, Moon mind, Sun core identity, strongest/weakest planets, active yogas, doshas, current Dasha influence.
-- Keep it structured with markdown headers (✨, 🌙, ☀️, 🪐). Target 200-350 words.
+- Keep it structured with markdown headers (Lagna, Moon, Sun, Key Planets). Target 200-350 words.
 - NO generic greetings. Every claim must cite specific placements.
 - End with one insightful follow-up question."""
 

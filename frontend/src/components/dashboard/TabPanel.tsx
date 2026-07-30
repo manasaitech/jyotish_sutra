@@ -20,7 +20,7 @@ import LockedTabOverlay from './LockedTabOverlay'
 import KundliMatchingView from '../matching/KundliMatchingView'
 import DashaTimelineView from '../dasha/DashaTimelineView'
 import StructuredReportView from './StructuredReportView'
-import DoshaDashboard from './DoshaDashboard'
+import DoshasTimelineView from '../doshas/DoshasTimelineView'
 import type { StructuredReport } from '../../types/structuredReport'
 import type { UserProfile } from '../../types/profile'
 import { SCIENTIFIC_REFERENCE_LINKS } from '../../config/scientificreference'
@@ -106,7 +106,7 @@ export default function TabPanel({
 
   // Sync state if cached item exists or cache key changes
   useEffect(() => {
-    if (!isAllowed || tab === 'matching') return // Don't fetch standard text for matching
+    if (!isAllowed || tab === 'matching' || tab === 'doshas') return // Don't fetch standard text for matching or doshas
 
     let cancelled = false
     const currentKey = getCacheKey()
@@ -161,7 +161,7 @@ export default function TabPanel({
             structDataObj = data.structured as StructuredReport
           }
           setStructuredData(structDataObj)
- 
+
           if (onUpdateCacheByKey) {
             onUpdateCacheByKey(currentKey, {
               initialReading: text,
@@ -277,7 +277,7 @@ export default function TabPanel({
   const scientificLink = tab !== 'marriage' ? SCIENTIFIC_REFERENCE_LINKS[tab] : null
 
   const renderMainContent = () => {
-    if (tab === 'matching') return null
+    if (tab === 'matching' || tab === 'doshas') return null
 
     if (!isTargetAllowed || !isSubTabAllowed) {
       return (
@@ -298,7 +298,7 @@ export default function TabPanel({
     return (
       <>
         {/* SummaryCards for every tab */}
-        <SummaryCards tab={tab} chartData={chartData} computed={computed} birthData={birthData} />
+        <SummaryCards tab={tab} chartData={chartData} computed={computed} birthData={birthData} structuredData={structuredData} />
 
         {/* Overview Tab Features */}
         {tab === 'overview' && (
@@ -425,6 +425,18 @@ export default function TabPanel({
           userId={userId}
           birthData={birthData}
           chartData={chartData}
+        />
+      )}
+
+      {/* Doshas Dedicated Tab View */}
+      {tab === 'doshas' && isTabAllowed && (
+        <DoshasTimelineView
+          sessionId={sessionId}
+          userId={userId}
+          birthData={birthData}
+          chartData={chartData}
+          apiBaseUrl={apiBaseUrl}
+          onOpenPricing={onOpenPricing}
         />
       )}
 

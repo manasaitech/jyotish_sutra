@@ -15,10 +15,11 @@ interface SummaryCardsProps {
   chartData: any
   computed?: any
   birthData?: any
+  structuredData?: any
 }
 
-export default function SummaryCards({ tab, chartData, computed, birthData }: SummaryCardsProps) {
-  const cards = getCardsForTab(tab, chartData, computed, birthData)
+export default function SummaryCards({ tab, chartData, computed, birthData, structuredData }: SummaryCardsProps) {
+  const cards = getCardsForTab(tab, chartData, computed, birthData, structuredData)
 
   return (
     <div className="grid grid-cols-2 md:grid-cols-4 gap-2 sm:gap-3 mb-4 sm:mb-6">
@@ -53,7 +54,7 @@ export default function SummaryCards({ tab, chartData, computed, birthData }: Su
   )
 }
 
-function getCardsForTab(tab: TabType, chartData: any, computed?: any, birthData?: any): SummaryCardItem[] {
+function getCardsForTab(tab: TabType, chartData: any, computed?: any, birthData?: any, structuredData?: any): SummaryCardItem[] {
   const meta = {
     ascendant_sign: chartData?.metadata?.ascendant_sign || chartData?.ascendant_sign || 'Aries',
     moon_sign: chartData?.metadata?.moon_sign || chartData?.moon_sign || 'Cancer',
@@ -175,6 +176,24 @@ function getCardsForTab(tab: TabType, chartData: any, computed?: any, birthData?
       ]
 
     case 'doshas': {
+      const r = structuredData?.report
+      if (r && r.summary) {
+        const totalDetected = r.summary.total_detected ?? 0
+        const allList = [...(r.ongoing || []), ...(r.upcoming || []), ...(r.completed || [])]
+        const hasManglik = allList.some((d: any) => d.name.toLowerCase().includes('manglik'))
+        const hasKaalSarp = allList.some((d: any) => d.name.toLowerCase().includes('kaal sarp'))
+        const hasSadeSati = allList.some((d: any) => d.name.toLowerCase().includes('sade sati'))
+        const ssDosha = allList.find((d: any) => d.name.toLowerCase().includes('sade sati'))
+        const ssPhase = ssDosha?.timeline?.estimated_period || ssDosha?.activation_reason || 'Active Phase'
+
+        return [
+          { label: 'Significant Doshas', value: `${totalDetected} Identified`, icon: 'warning', subtext: totalDetected > 0 ? 'Remedies advised' : 'Chart in harmony' },
+          { label: 'Manglik Status', value: hasManglik ? 'Manglik' : 'No', icon: 'favorite', subtext: hasManglik ? 'Mars in Manglik house' : 'No Mars affliction' },
+          { label: 'Kaal Sarp Yoga', value: hasKaalSarp ? 'Present' : 'Absent', icon: 'shield', subtext: hasKaalSarp ? 'Hemmed by Rahu-Ketu' : 'No Kaal Sarp' },
+          { label: 'Sade Sati Phase', value: hasSadeSati ? 'Active' : 'Not Active', icon: 'schedule', subtext: hasSadeSati ? ssPhase : 'No Sade Sati' },
+        ]
+      }
+
       const hasManglik = !!doshas.manglik?.is_present
       const hasKaalSarp = !!doshas.kaal_sarp?.is_present
       const hasSadeSati = !!doshas.sade_sati?.is_present

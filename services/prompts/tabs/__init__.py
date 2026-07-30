@@ -12,12 +12,14 @@ from services.prompts.tabs.finance import get_finance_prompt, build_finance_cont
 from services.prompts.tabs.personality import get_personality_prompt, build_personality_context
 from services.prompts.tabs.spiritual import get_spiritual_prompt, build_spiritual_context
 from services.prompts.tabs.dasha import get_dasha_prompt, build_dasha_context
+from services.prompts.tabs.doshas import get_doshas_prompt, build_doshas_context
 
 TAB_REGISTRY = {
     "overview":       {"system": get_overview_prompt,    "context": build_overview_context},
     "career":         {"system": get_career_prompt,      "context": build_career_context},
     "dasha_timeline": {"system": get_dasha_prompt,       "context": build_dasha_context},
     "dasha":          {"system": get_dasha_prompt,       "context": build_dasha_context},
+    "doshas":         {"system": get_doshas_prompt,      "context": build_doshas_context},
     "marriage":       {"system": get_marriage_prompt,     "context": build_marriage_context},
     "relationships":  {"system": get_marriage_prompt,     "context": build_marriage_context},
     "relationship":   {"system": get_marriage_prompt,     "context": build_marriage_context},
@@ -51,7 +53,101 @@ def get_tab_system_prompt(tab: str, is_initial: bool = True, sub_tab: str = "ove
 
 
 
+def get_dasha_dosha_prompt_context(chart_data: dict) -> str:
+    """Computes a brief, structured text summary of the user's active/upcoming dashas and doshas to guide LLM predictions."""
+    try:
+        from backend.astrology.dosha_reasoning import compute_doshas
+        from services.astrology.dasha import calculate_full_dasha_package
+        import datetime
+        from backend.utils.date_parser import parse_date_str
+
+        # Get planets
+        planets = chart_data.get("planets", {})
+        if not planets:
+            return ""
+
+        # Extract Moon longitude
+        moon_data = planets.get("moon", {})
+        moon_long = float(moon_data.get("longitude", 120.0)) if isinstance(moon_data, dict) else 120.0
+
+        # Extract DOB
+        meta = chart_data.get("metadata", {})
+        raw_dob = (
+            meta.get("date_of_birth") or meta.get("birth_date") or meta.get("date_str") or
+            chart_data.get("date_of_birth") or "1998-05-15"
+        )
+        
+        try:
+            birth_dt = parse_date_str(str(raw_dob))
+        except Exception:
+            birth_dt = datetime.date(1998, 5, 15)
+
+        # Calculate Dasha Package
+        dasha_package = calculate_full_dasha_package(moon_long, birth_dt)
+        dasha_parts = []
+        if dasha_package:
+            curr_maha = dasha_package.get("current_mahadasha", {})
+            curr_antar = dasha_package.get("current_antardasha", {})
+            if curr_maha:
+                dasha_parts.append(f"- Active Mahadasha: {curr_maha.get('planet_name', '')} (ends {curr_maha.get('end_date', '')})")
+            if curr_antar:
+                dasha_parts.append(f"- Active Antardasha: {curr_antar.get('planet_name', '')} (ends {curr_antar.get('end_date', '')})")
+            
+            dasha_parts.append("- Vimshottari Mahadasha Timeline:")
+            for item in dasha_package.get("timeline", []):
+                status_str = f" ({item.get('status', '')})" if item.get("status") else ""
+                dasha_parts.append(f"  * {item.get('planet_name', '')} Mahadasha: {item.get('start_date', '')} to {item.get('end_date', '')}{status_str}")
+        
+        dasha_text = "\n".join(dasha_parts) if dasha_parts else "No active dasha information found."
+
+        # Compute Doshas Timeline
+        dosha_res = compute_doshas(chart_data)
+        ongoing = dosha_res.get("ongoing", [])
+        upcoming = dosha_res.get("upcoming", [])
+        completed = dosha_res.get("completed", [])
+
+        dosha_parts = []
+        if ongoing:
+            dosha_parts.append("- Ongoing / Currently Active Doshas:")
+            for d in ongoing:
+                severity = d.get("severity") or d.get("practical_impact") or "Minimal"
+                dosha_parts.append(f"  * {d['name']} (Practical Impact: {severity}, Activation Reason: {d.get('activation_reason', '')})")
+        if upcoming:
+            dosha_parts.append("- Upcoming Dosha Activations:")
+            for d in upcoming:
+                dosha_parts.append(f"  * {d['name']} (Expected Start: {d.get('expected_start', '')}, Expected End: {d.get('expected_end', '')}, Practical Impact: {d.get('practical_impact', 'Minimal')}, Reason: {d.get('activation_reason', '')})")
+        if completed:
+            dosha_parts.append("- Completed/Past Doshas:")
+            for d in completed:
+                dosha_parts.append(f"  * {d['name']} (Active Period: {d.get('active_period', '')}, Reason: {d.get('activation_reason', '')})")
+
+        dosha_text = "\n".join(dosha_parts) if dosha_parts else "No significant doshas detected."
+
+        return f"""
+[TIME-SCOPED ASTROLOGICAL CONTEXT (IMPORTANT FOR TIMING & PREDICTIONS)]
+Use the following timeline parameters to suggest precise timings, actions to avoid, or opportunities to seize:
+
+Vimshottari Dasha Timeline:
+{dasha_text}
+
+Vedic Dosha Timeline:
+{dosha_text}
+"""
+    except Exception as e:
+        print(f"[DashaDoshaContext Error] {e}")
+        return ""
+
+
 def build_tab_context(tab: str, **kwargs) -> str:
     """Build the domain-specific user prompt context for a given tab."""
     entry = TAB_REGISTRY.get(tab, TAB_REGISTRY["overview"])
-    return entry["context"](**kwargs)
+    base_context = entry["context"](**kwargs)
+    
+    # Append Dasha & Dosha Timeline context snippet to all tabs (except dasha/doshas themselves)
+    chart_data = kwargs.get("chart_data")
+    if chart_data and tab not in ["dasha", "dasha_timeline", "doshas"]:
+        timeline_snippet = get_dasha_dosha_prompt_context(chart_data)
+        if timeline_snippet:
+            base_context = f"{base_context}\n\n{timeline_snippet}"
+            
+    return base_context

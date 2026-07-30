@@ -1804,15 +1804,79 @@ def check_sade_sati_dosha(chart_data: dict, aspect_map: dict, dasha_package: Opt
 
 
 # ═══════════════════════════════════════════════════════════════
-# MAIN DETECT WRAPPER
+# MAIN TIMELINE DOSHA GENERATOR
 # ═══════════════════════════════════════════════════════════════
+
+def generate_detailed_timeline(planets_involved: list, dasha_package: Optional[dict], birth_year: int) -> list:
+    timeline_blocks = []
+    if not dasha_package or not planets_involved:
+        return timeline_blocks
+        
+    involved = [p.lower() for p in planets_involved if p]
+    
+    mahas = []
+    antars = []
+    
+    for maha in dasha_package.get("timeline", []):
+        mp = maha["planet"].lower()
+        m_start = datetime.date.fromisoformat(maha["start_date"]).year
+        m_end = datetime.date.fromisoformat(maha["end_date"]).year
+        
+        if mp in involved:
+            mahas.append((m_start, m_end, f"{maha['planet_name']} Mahadasha"))
+            
+        for antar in maha.get("antardashas", []):
+            ap = antar["planet"].lower()
+            a_start = datetime.date.fromisoformat(antar["start_date"]).year
+            a_end = datetime.date.fromisoformat(antar["end_date"]).year
+            if ap in involved:
+                antars.append((a_start, a_end, f"{antar['planet_name']} Antardasha"))
+                
+    years = [birth_year + i for i in range(101)]
+    year_status = {}
+    for y in years:
+        status = "Dormant"
+        reason = "Dormant period"
+        for s, e, r in antars:
+            if s <= y <= e:
+                status = "Moderate Influence"
+                reason = r
+        for s, e, r in mahas:
+            if s <= y <= e:
+                status = "High Influence"
+                reason = r
+        year_status[y] = (status, reason)
+        
+    grouped = []
+    start_y = years[0]
+    curr_status, curr_reason = year_status[start_y]
+    
+    for y in years[1:]:
+        s, r = year_status[y]
+        if s != curr_status:
+            grouped.append({
+                "period": f"{start_y}–{y-1}",
+                "influence": curr_status,
+                "reason": curr_reason
+            })
+            start_y = y
+            curr_status, curr_reason = s, r
+            
+    grouped.append({
+        "period": f"{start_y}+",
+        "influence": curr_status,
+        "reason": curr_reason
+    })
+    
+    return grouped
+
 
 def compute_doshas(chart_data: dict, computed: Optional[dict] = None) -> dict:
     """
-    Computes all Vedic astrology doshas and constructs a clean, structured JSON API payload directly.
+    Computes all Vedic astrology doshas and groups them into completed, ongoing, and upcoming timelines.
+    Returns structured JSON only, strictly avoiding LLM generation.
     """
     planets = chart_data.get("planets", {})
-    
     raw_houses = chart_data.get("houses", {})
     houses_lord = {}
     for h_str, h_data in raw_houses.items():
@@ -1822,10 +1886,10 @@ def compute_doshas(chart_data: dict, computed: Optional[dict] = None) -> dict:
                 houses_lord[int(h_str)] = lord.lower()
 
     aspect_map = _build_aspect_map(planets)
-    conjunction_map = _build_conjunction_map(planets)
 
     # Resolve Dasha Package
     dasha_package = None
+    birth_year = datetime.date.today().year - 30
     try:
         moon_data = planets.get("moon", {})
         moon_long = float(moon_data.get("longitude", 120.0)) if isinstance(moon_data, dict) else 120.0
@@ -1843,6 +1907,7 @@ def compute_doshas(chart_data: dict, computed: Optional[dict] = None) -> dict:
         except Exception:
             birth_dt = datetime.date(1998, 5, 15)
             
+        birth_year = birth_dt.year
         dasha_package = calculate_full_dasha_package(moon_long, birth_dt)
     except Exception as d_err:
         print(f"[DoshaReasoning] Dasha packing failed: {d_err}")
@@ -1866,75 +1931,172 @@ def compute_doshas(chart_data: dict, computed: Optional[dict] = None) -> dict:
     aff_nine = check_ninth_house_affliction(planets, houses_lord, aspect_map, dasha_package)
     sade_sati = check_sade_sati_dosha(chart_data, aspect_map, dasha_package)
 
-    all_evidence = [
-        manglik, partial_manglik, kaal_sarp, pitra, shrapit, surya_grahan,
-        chandra_grahan, guru_chandal, kemadruma, chandra_dosha, daridra,
-        sarpa_influence, aff_six, aff_eight, guru_aff, aff_nine, sade_sati
+    # Evidences map to planets involved
+    evidence_planets = [
+        (manglik, ["mars"], True),
+        (partial_manglik, ["mars"], True),
+        (kaal_sarp, ["rahu", "ketu"], True),
+        (pitra, ["sun", "rahu", "ketu", "saturn"], True),
+        (shrapit, ["saturn", "rahu"], True),
+        (surya_grahan, ["sun", "rahu", "ketu"], True),
+        (chandra_grahan, ["moon", "rahu", "ketu"], True),
+        (guru_chandal, ["jupiter", "rahu", "ketu"], True),
+        (kemadruma, ["moon"], True),
+        (chandra_dosha, ["moon"], True),
+        (daridra, [houses_lord.get(2), houses_lord.get(11)], True),
+        (sarpa_influence, ["rahu", "ketu"], True),
+        (aff_six, [houses_lord.get(6)], True),
+        (aff_eight, [houses_lord.get(8)], True),
+        (guru_aff, ["jupiter", "saturn"], True),
+        (aff_nine, [houses_lord.get(9)], True),
+        (sade_sati, ["saturn", "moon"], True)
     ]
 
-    detected_list = [e for e in all_evidence if e.detected]
+    completed_list = []
+    ongoing_list = []
+    upcoming_list = []
 
-    # Overall Summary
-    sig_count = len([d for d in detected_list if d.formation_strength >= 3])
-    active_count = len([d for d in detected_list if d.status == "Active"])
-    mitigated_count = len([d for d in detected_list if d.mitigation_status == "Strong"])
-    
-    sensitive_areas = []
-    for d in detected_list:
-        for area, level in d.life_areas_affected.items():
-            if level in ["High", "Moderate"]:
-                sensitive_areas.append(area.capitalize())
-    priority_area = "Relationships"
-    if sensitive_areas:
-        priority_area = max(set(sensitive_areas), key=sensitive_areas.count)
+    current_year = datetime.date.today().year
 
-    # Dynamic strongest protection factors
-    strongest_protection = []
-    if "jupiter" in aspect_map.get(1, []):
-        strongest_protection.append("Jupiter aspects Lagna (vitality shield)")
-    venus = planets.get("venus")
-    if isinstance(venus, dict) and any(d in (venus.get("dignity") or "").lower() for d in ["own", "exalted"]):
-        strongest_protection.append("Strong Venus (relationship shield)")
-    moon = planets.get("moon")
-    if isinstance(moon, dict) and any(d in (moon.get("dignity") or "").lower() for d in ["own", "exalted"]):
-        strongest_protection.append("Strong Moon (emotional shield)")
-    if not strongest_protection:
-        strongest_protection.append("Benefic aspects from planets buffer core houses.")
+    for ev, planets_involved, is_permanent in evidence_planets:
+        if not ev.detected:
+            continue
+            
+        clean_planets = [p.lower() for p in planets_involved if p]
+        detailed_timeline = generate_detailed_timeline(clean_planets, dasha_package, birth_year)
+        
+        if ev.name == "Sade Sati":
+            ongoing_list.append({
+                "name": ev.name,
+                "started": str(current_year - 2),
+                "expected_end": str(current_year + 5),
+                "activation_reason": ev.timeline.get("estimated_period") or "Saturn Transit Cycle",
+                "severity": ev.practical_impact,
+                "confidence": ev.confidence,
+                "is_permanent": is_permanent,
+                "why_exists": ev.why_exists,
+                "why_active": "Saturn transiting near natal Moon sign.",
+                "formation_strength": ev.formation_strength,
+                "practical_impact": ev.practical_impact,
+                "positive_traits": ev.positive_traits,
+                "challenges": ev.challenges,
+                "protective_factors": ev.protective_factors,
+                "remedies": ev.remedies,
+                "detailed_timeline": detailed_timeline,
+                "timeline": ev.timeline
+            })
+            continue
+
+        mahas = []
+        antars = []
+        
+        if dasha_package:
+            for maha in dasha_package.get("timeline", []):
+                mp = maha["planet"].lower()
+                m_start = datetime.date.fromisoformat(maha["start_date"]).year
+                m_end = datetime.date.fromisoformat(maha["end_date"]).year
+                if mp in clean_planets:
+                    mahas.append((m_start, m_end, f"{maha['planet_name']} Mahadasha", maha["status"]))
+                for antar in maha.get("antardashas", []):
+                    ap = antar["planet"].lower()
+                    a_start = datetime.date.fromisoformat(antar["start_date"]).year
+                    a_end = datetime.date.fromisoformat(antar["end_date"]).year
+                    if ap in clean_planets:
+                        antars.append((a_start, a_end, f"{antar['planet_name']} Antardasha", antar["status"]))
+
+        has_current_maha = any(s == "current" for _, _, _, s in mahas)
+        has_current_antar = any(s == "current" for _, _, _, s in antars)
+        
+        if has_current_maha or has_current_antar:
+            active_dasha = next(((st, ed, rs) for st, ed, rs, s in mahas if s == "current"), None)
+            if not active_dasha:
+                active_dasha = next(((st, ed, rs) for st, ed, rs, s in antars if s == "current"), None)
+                
+            st_yr, ed_yr, d_name = active_dasha if active_dasha else (current_year, current_year + 5, "Planet Dasha")
+            
+            ongoing_list.append({
+                "name": ev.name,
+                "started": str(st_yr),
+                "expected_end": str(ed_yr),
+                "activation_reason": d_name,
+                "severity": ev.practical_impact,
+                "confidence": ev.confidence,
+                "is_permanent": is_permanent,
+                "why_exists": ev.why_exists,
+                "why_active": f"Activated by current running {d_name}.",
+                "formation_strength": ev.formation_strength,
+                "practical_impact": ev.practical_impact,
+                "positive_traits": ev.positive_traits,
+                "challenges": ev.challenges,
+                "protective_factors": ev.protective_factors,
+                "remedies": ev.remedies,
+                "detailed_timeline": detailed_timeline,
+                "timeline": ev.timeline
+            })
+            
+        elif any(s == "upcoming" for _, _, _, s in mahas) or any(s == "upcoming" for _, _, _, s in antars):
+            upcoming_dashas = [(st, ed, rs) for st, ed, rs, s in mahas if s == "upcoming"] + \
+                              [(st, ed, rs) for st, ed, rs, s in antars if s == "upcoming"]
+            upcoming_dashas.sort(key=lambda x: x[0])
+            st_yr, ed_yr, d_name = upcoming_dashas[0] if upcoming_dashas else (current_year + 5, current_year + 10, "Upcoming Dasha")
+            
+            upcoming_list.append({
+                "name": ev.name,
+                "expected_start": str(st_yr),
+                "expected_end": str(ed_yr),
+                "activation_reason": d_name,
+                "current_status": "Dormant",
+                "confidence": ev.confidence or "Moderate",
+                "is_permanent": is_permanent,
+                "why_exists": ev.why_exists,
+                "why_active": f"Will trigger during upcoming {d_name}.",
+                "formation_strength": ev.formation_strength,
+                "practical_impact": ev.practical_impact,
+                "positive_traits": ev.positive_traits,
+                "challenges": ev.challenges,
+                "protective_factors": ev.protective_factors,
+                "remedies": ev.remedies,
+                "detailed_timeline": detailed_timeline,
+                "timeline": ev.timeline
+            })
+            
+        else:
+            completed_dashas = [(st, ed, rs) for st, ed, rs, s in mahas if s == "completed"] + \
+                               [(st, ed, rs) for st, ed, rs, s in antars if s == "completed"]
+            completed_dashas.sort(key=lambda x: x[1], reverse=True)
+            st_yr, ed_yr, d_name = completed_dashas[0] if completed_dashas else (current_year - 10, current_year - 5, "Completed Dasha")
+            
+            completed_list.append({
+                "name": ev.name,
+                "active_period": f"{st_yr}–{ed_yr}",
+                "activation_reason": d_name,
+                "current_impact": "Minimal",
+                "confidence": ev.confidence or "Moderate",
+                "is_permanent": is_permanent,
+                "why_exists": ev.why_exists,
+                "why_active": f"Last active during {d_name} (now completed).",
+                "formation_strength": ev.formation_strength,
+                "practical_impact": ev.practical_impact,
+                "positive_traits": ev.positive_traits,
+                "challenges": ev.challenges,
+                "protective_factors": ev.protective_factors,
+                "remedies": ev.remedies,
+                "detailed_timeline": detailed_timeline,
+                "timeline": ev.timeline
+            })
+
+    total_detected = len(completed_list) + len(ongoing_list) + len(upcoming_list)
 
     summary = {
-        "significant_doshas": sig_count,
-        "currently_active": active_count,
-        "well_mitigated": mitigated_count,
-        "priority_area": priority_area,
-        "strongest_protection": strongest_protection
+        "total_detected": total_detected,
+        "ongoing": len(ongoing_list),
+        "completed": len(completed_list),
+        "upcoming": len(upcoming_list)
     }
-
-    # Strategic Mapping Flow
-    strategic_mapping = []
-    for d in detected_list:
-        # Find primary life area affected
-        life_area = "General"
-        highest_level = "None"
-        level_order = ["None", "Minimal", "Low", "Moderate", "High"]
-        for area, lvl in d.life_areas_affected.items():
-            if level_order.index(lvl) > level_order.index(highest_level):
-                highest_level = lvl
-                life_area = area.capitalize()
-        
-        strategic_mapping.append({
-            "life_area": life_area,
-            "dosha": d.name.replace(" Dosha", ""),
-            "formation_strength": d.formation_strength,
-            "status": d.status,
-            "shield": d.mitigation_status,
-            "practical_impact": d.practical_impact
-        })
-
-    # Doshas list
-    dosha_dicts = [d.to_dict() for d in detected_list]
 
     return {
         "summary": summary,
-        "strategic_mapping": strategic_mapping,
-        "doshas": dosha_dicts
+        "completed": completed_list,
+        "ongoing": ongoing_list,
+        "upcoming": upcoming_list
     }

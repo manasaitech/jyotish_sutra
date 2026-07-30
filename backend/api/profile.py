@@ -24,6 +24,60 @@ from services.astrology.remedies_calc import generate_remedy_data
 
 router = APIRouter()
 
+def precalculate_session_timelines(user_id: str, chart_data: dict, birth_details: dict, computed: dict):
+    """Precalculate Dasha and Dosha timelines and store them in the session cache."""
+    try:
+        from services.astrology.dasha import calculate_full_dasha_package, PLANET_METADATA
+        from backend.astrology.dosha_reasoning import compute_doshas
+        import datetime
+        from backend.utils.date_parser import parse_date_str
+
+        planets = chart_data.get("planets", {})
+        if not planets:
+            return
+
+        moon_data = planets.get("moon", {})
+        moon_long = float(moon_data.get("longitude", 120.0)) if isinstance(moon_data, dict) else 120.0
+
+        raw_dob = birth_details.get("date_of_birth") or "2000-01-01"
+        try:
+            birth_dt = parse_date_str(str(raw_dob))
+        except Exception:
+            birth_dt = datetime.date(2000, 1, 1)
+
+        dob_date = birth_dt.date() if isinstance(birth_dt, datetime.datetime) else birth_dt
+
+        # Calculate timelines
+        dasha_package = calculate_full_dasha_package(moon_long, dob_date)
+        
+        # Add active planet guidance text to the precalculated package
+        active = dasha_package.get("current_mahadasha", {})
+        p_name = active.get("planet", "jupiter")
+        p_info = PLANET_METADATA.get(p_name, {})
+        
+        s_date = str(active.get("start_date", ""))
+        e_date = str(active.get("end_date", ""))
+        s_year = s_date[:4] if len(s_date) >= 4 else s_date
+        e_year = e_date[:4] if len(e_date) >= 4 else e_date
+
+        dasha_package["current_mahadasha_guidance"] = {
+            "planet": p_name,
+            "title": p_info.get("title", f"{active.get('planet_name', p_name.capitalize())} Dasha Period"),
+            "theme": p_info.get("theme", "Transformation and Growth"),
+            "summary": f"You are currently navigating your {active.get('planet_name', p_name.capitalize())} Mahadasha ({s_year} to {e_year}). This major planetary period emphasizes {', '.join(p_info.get('themes', ['karmic evolution']))}.",
+            "opportunities": p_info.get("themes", ["Personal growth", "Spiritual alignment"])[:2],
+            "challenges": ["Mindfulness & Karma Balance", "Patience during planetary transits"],
+        }
+        
+        dosha_timeline = compute_doshas(chart_data, computed)
+
+        sess = session_store.get_session(user_id)
+        sess["precomputed_dasha_package"] = dasha_package
+        sess["precomputed_dosha_timeline"] = dosha_timeline
+        print(f"[Precalculation] Hydrated Dasha and Dosha timelines for user {user_id}")
+    except Exception as e:
+        print(f"[Precalculation Error] Failed to precompute timelines for {user_id}: {e}")
+
 
 def resolve_user_id(user_id: str, authorization: Optional[str] = None) -> str:
     """Check Authorization token and return verified uid if present, else original user_id."""
@@ -173,6 +227,7 @@ def get_profile(user_id: str, authorization: Optional[str] = Header(None)):
                 "remedy_data": remedies,
             }
         sess["computed_analyses"] = computed
+        precalculate_session_timelines(user_id, chart_data, birth_details, computed)
 
     return {
         "exists": True,
@@ -293,6 +348,7 @@ def update_profile(profile_id: str, req: ProfileUpdateRequest, authorization: Op
 
         # Clear session and history to trigger fresh reload
         session_store.clear_session(profile_id)
+        precalculate_session_timelines(profile_id, chart_data, birth_details, computed)
 
         return {
             "success": True,
@@ -414,6 +470,7 @@ def recalculate_chart(user_id: str, authorization: Optional[str] = Header(None))
         sess["profile"] = birth
         # Clear old chat history on recalculation
         sess["history"] = []
+        precalculate_session_timelines(user_id, chart_data, birth, computed)
 
         return {
             "recalculated": True,
