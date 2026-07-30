@@ -20,6 +20,7 @@ import LockedTabOverlay from './LockedTabOverlay'
 import KundliMatchingView from '../matching/KundliMatchingView'
 import DashaTimelineView from '../dasha/DashaTimelineView'
 import StructuredReportView from './StructuredReportView'
+import DoshaDashboard from './DoshaDashboard'
 import type { StructuredReport } from '../../types/structuredReport'
 import type { UserProfile } from '../../types/profile'
 import { SCIENTIFIC_REFERENCE_LINKS } from '../../config/scientificreference'
@@ -266,6 +267,9 @@ export default function TabPanel({
     if (tab === 'career' && careerSubTab === 'kala_vidya') {
       return '64 Kalas & Receptivity'
     }
+    if (tab === 'doshas') {
+      return 'Vedic Doshas'
+    }
     return tab.charAt(0).toUpperCase() + tab.slice(1)
   }
 
@@ -374,7 +378,11 @@ export default function TabPanel({
             <>
               {/* Render structured report if available, otherwise fall back to markdown */}
               {structuredData ? (
-                <StructuredReportView report={structuredData} />
+                tab === 'doshas' ? (
+                  <DoshaDashboard report={structuredData as any} />
+                ) : (
+                  <StructuredReportView report={structuredData} />
+                )
               ) : (
                 <div className="markdown-container text-sm leading-relaxed text-on-background">
                   <ReactMarkdown>{initialReading}</ReactMarkdown>

@@ -14,6 +14,7 @@ export type TabType =
   | 'finance'
   | 'personality'
   | 'spiritual'
+  | 'doshas'
 
 export interface TabConfig {
   id: TabType
@@ -34,6 +35,7 @@ export const ALL_TABS: TabConfig[] = [
   { id: 'finance', label: 'Finance', icon: 'payments', description: 'Wealth, Savings & Yogas' },
   { id: 'personality', label: 'Personality', icon: 'psychology', description: 'Mind, Traits & Strengths' },
   { id: 'spiritual', label: 'Spiritual Growth', icon: 'auto_awesome', description: 'Dharma, Meditation & Gita' },
+  { id: 'doshas', label: 'Doshas', icon: 'shield', description: 'Vedic Afflictions & Remedies' },
 ]
 
 export const TABS: TabConfig[] = ALL_TABS.filter((tab) => isTabEnabled(tab.id))

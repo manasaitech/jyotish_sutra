@@ -83,6 +83,15 @@ SECTION_REGISTRY: Dict[str, Dict[str, str]] = {
             "dominant yogas, major life themes, and general cosmic outlook."
         ),
     },
+    "doshas": {
+        "sectionId": "doshas",
+        "title": "Doshas & Afflictions",
+        "focus": (
+            "Vedic astrology doshas present in the horoscope (Manglik, Kaal Sarp, Pitra, Shrapit, "
+            "Eclipse/Grahan, Guru Chandal, Kemadruma, Chandra, Daridra, and house/lord afflictions), "
+            "analyzing their severity, activation status, and practical remedies."
+        ),
+    },
 }
 
 # Tabs that are enabled for the structured JSON pipeline
@@ -186,6 +195,8 @@ spiritual: primaryFinding=spiritual activation/karmic phase. details=meditation,
 
 overview: primaryFinding=major life theme/yoga activation. details=life path summary. astrologicalReason=chart ruler, yogas, Dasha.
 
+doshas: Read the `precomputed_dosha_analysis` object provided under the `document` key in the user prompt. DO NOT invent or alter any dosha name, strength, influence, mitigation, overall impact, practical impact, timelines, or activation checks. For each detected dosha in `precomputed_dosha_analysis.doshas`, populate the `dosha_list` array. Convert why_it_exists, why_it_is_reduced, challenges, strengths, and remedies into professional, flowing English prose. Populate the `summary` block (significant_doshas, currently_active, well_mitigated, highest_priority_area, detected_doshas_summary) using the precomputed values under `precomputed_dosha_analysis.summary`.
+
 DISCLAIMER: Always include: "Astrological interpretations indicate tendencies and should not be considered medical, legal, or financial advice."
 """
 
@@ -227,6 +238,63 @@ def get_structured_system_prompt(section_ids: List[str]) -> str:
 
 def _build_scoped_schema(section_ids: List[str]) -> Dict[str, Any]:
     """Build a schema scoped to the requested sections."""
+    if "doshas" in section_ids:
+        return {
+            "report": {
+                "header": {
+                    "title": "",
+                    "reportType": "",
+                    "generatedDate": "",
+                    "birthSummary": "",
+                },
+                "summary": {
+                    "significant_doshas": 0,
+                    "currently_active": 0,
+                    "well_mitigated": 0,
+                    "highest_priority_area": "",
+                    "detected_doshas_summary": [],
+                },
+                "dosha_list": [
+                    {
+                        "dosha_name": "",
+                        "detected": True,
+                        "formation_strength": 0,
+                        "current_influence": "",
+                        "mitigation_status": "",
+                        "overall_impact": "",
+                        "practical_impact": "",
+                        "why_it_exists": [],
+                        "why_it_is_reduced": [],
+                        "confidence": "",
+                        "confidence_reason": "",
+                        "challenges": [],
+                        "strengths": [],
+                        "life_areas_affected": {
+                            "career": "",
+                            "marriage": "",
+                            "finance": "",
+                            "health": "",
+                            "children": "",
+                        },
+                        "activation_check": [],
+                        "visual_timeline": [
+                            {
+                                "year": "",
+                                "status": "",
+                                "symbol": "",
+                            }
+                        ],
+                        "recommended_remedies": {
+                            "spiritual": [],
+                            "lifestyle": [],
+                            "practical": [],
+                        }
+                    }
+                ],
+                "disclaimer": "Astrological interpretations indicate tendencies and should not be considered medical, legal, or financial advice.",
+            }
+        }
+
     section_template = {
         "sectionId": "",
         "title": "",

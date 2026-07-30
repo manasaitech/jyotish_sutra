@@ -15,6 +15,7 @@ export interface FeatureFlags {
   enableFinanceTab: boolean
   enablePersonalityTab: boolean
   enableSpiritualTab: boolean
+  enableDoshasTab: boolean
 }
 
 export const FEATURE_FLAGS: FeatureFlags = {
@@ -29,6 +30,7 @@ export const FEATURE_FLAGS: FeatureFlags = {
   enableFinanceTab: true,
   enablePersonalityTab: true, // ✅ Enabled Personality tab
   enableSpiritualTab: false,   // ❌ Disabled via feature flag per request
+  enableDoshasTab: true,       // ✅ Enabled Dosha Analysis tab
 }
 
 
@@ -57,6 +59,8 @@ export function isTabEnabled(tabId: string): boolean {
       return FEATURE_FLAGS.enablePersonalityTab
     case 'spiritual':
       return FEATURE_FLAGS.enableSpiritualTab
+    case 'doshas':
+      return FEATURE_FLAGS.enableDoshasTab
     default:
       return true
   }

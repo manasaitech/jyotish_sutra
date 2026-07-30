@@ -44,6 +44,7 @@ def handle_tab_chat(req: TabChatRequest, current_user: dict = Depends(require_cu
             req_chart_data=req.chart_data,
         )
 
+        print(f"[TabChat] Incoming request: tab={req.tab}, is_initial={req.is_initial}, message={req.message}")
         session = session_store.get_session(req.session_id)
         from services.memory.chat_store import chat_store
         history = chat_store.get_history(req.session_id)
@@ -85,6 +86,26 @@ def handle_tab_chat(req: TabChatRequest, current_user: dict = Depends(require_cu
             or req.message.startswith("Provide a detailed")
             or len(history) == 0
         )
+
+        # ── Deterministic Non-LLM Pipeline for Doshas ──
+        if is_initial and req.tab == "doshas":
+            from backend.astrology.dosha_reasoning import compute_doshas
+            dosha_data = compute_doshas(chart_data, computed)
+            structured_res = {"report": dosha_data}
+            fallback_text = _structured_to_markdown_fallback(structured_res)
+            
+            from utils.trust_note import append_trust_note
+            fallback_text = append_trust_note(fallback_text)
+
+            # Save chat turn to session history
+            chat_store.add_message(req.session_id, req.user_id, "user", req.message)
+            chat_store.add_message(req.session_id, req.user_id, "assistant", fallback_text)
+
+            return {
+                "response": fallback_text,
+                "structured": structured_res,
+                "session_count": len(chat_store.get_history(req.session_id)),
+            }
 
         # ── Structured JSON Pipeline (enterprise mode) ──
         # For structured-enabled tabs on initial reads, attempt the structured analysis pipeline.
@@ -190,6 +211,59 @@ def _structured_to_markdown_fallback(structured: dict) -> str:
     try:
         report = structured.get("report", {})
         parts = []
+
+        # Check if this is the doshas tab (has 'dosha_list' or 'doshas')
+        if "dosha_list" in report or "doshas" in report:
+            summary = report.get("summary", {})
+            parts.append(f"### 🛡️ Vedic Doshas & Afflictions Summary")
+            parts.append(
+                f"**Significant Doshas:** {summary.get('significant_doshas', 0)}\n"
+                f"**Currently Active:** {summary.get('currently_active', 0)}\n"
+                f"**Well Mitigated:** {summary.get('well_mitigated', 0)}\n"
+                f"**Highest Priority Area:** {summary.get('highest_priority_area') or summary.get('priority_area') or 'Relationships'}"
+            )
+            
+            parts.append("### Detected Doshas")
+            dosha_items = report.get("doshas") or report.get("dosha_list") or []
+            for d in dosha_items:
+                # Under the new reasoning engine, we filter detected doshas at the engine level, but if is_present/detected is false we skip.
+                if not d.get("detected", True) and not d.get("is_present", True):
+                    continue
+                stars = "★" * d.get("formation_strength", 1) + "☆" * (5 - d.get("formation_strength", 1))
+                name = d.get("name") or d.get("dosha_name") or "Dosha"
+                parts.append(f"#### ⚠️ {name} ({stars} - Impact: {d.get('overall_impact') or d.get('practical_impact') or 'Low'})")
+                
+                logic = d.get("why_exists") or d.get("why_it_exists") or []
+                parts.append(f"**Formation logic:** {', '.join(logic)}")
+                
+                mitigation = d.get("protective_factors") or d.get("why_it_is_reduced") or []
+                if mitigation:
+                    parts.append(f"**Mitigating Factors:** {', '.join(mitigation)}")
+                    
+                parts.append(f"**Practical Impact:** {d.get('practical_impact', 'Minimal')}")
+                
+                strengths = d.get("positive_traits") or d.get("strengths") or []
+                if strengths:
+                    parts.append(f"**Strengths:** {', '.join(strengths)}")
+                    
+                challenges = d.get("challenges") or []
+                if challenges:
+                    parts.append(f"**Challenges:** {', '.join(challenges)}")
+                    
+                remedies = d.get("remedies") or d.get("recommended_remedies") or {}
+                if remedies:
+                    parts.append("**Recommended Remedies:**")
+                    if remedies.get("spiritual"):
+                        parts.append(f"- *Spiritual:* {', '.join(remedies.get('spiritual'))}")
+                    if remedies.get("lifestyle"):
+                        parts.append(f"- *Lifestyle:* {', '.join(remedies.get('lifestyle'))}")
+                    if remedies.get("practical"):
+                        parts.append(f"- *Practical:* {', '.join(remedies.get('practical'))}")
+            
+            disclaimer = report.get("disclaimer", "")
+            if disclaimer:
+                parts.append(f"\n*{disclaimer}*")
+            return "\n\n".join(parts)
 
         # Executive summary
         summary = report.get("executiveSummary", "")

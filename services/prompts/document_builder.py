@@ -33,6 +33,15 @@ def build_analysis_document(
     computed = computed or {}
     chart_data = chart_data or {}
 
+    # Precompute detailed dosha analysis for the doshas tab
+    precomputed_doshas = None
+    if section_ids and "doshas" in section_ids:
+        try:
+            from backend.astrology.dosha_reasoning import compute_doshas
+            precomputed_doshas = compute_doshas(chart_data, computed)
+        except Exception as d_err:
+            print(f"[DocumentBuilder] Error precomputing doshas: {d_err}")
+
     document = {
         "birthDetails": _extract_birth_details(chart_data, profile),
         "planetaryPositions": _extract_planetary_positions(chart_data),
@@ -41,6 +50,7 @@ def build_analysis_document(
         "nakshatra": _extract_nakshatra(chart_data),
         "yogas": _extract_yogas(chart_data),
         "doshas": _extract_doshas(chart_data),
+        "precomputed_dosha_analysis": precomputed_doshas,
         "prakriti": _extract_prakriti(computed),
         "metadata": _extract_metadata(chart_data, section_ids),
     }

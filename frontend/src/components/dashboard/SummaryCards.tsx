@@ -174,6 +174,19 @@ function getCardsForTab(tab: TabType, chartData: any, computed?: any, birthData?
         { label: 'Recommended Path', value: getSpiritualPath(comp.elements?.dominant || getDominantElement(planets, meta)), icon: 'menu_book', subtext: 'Based on element' },
       ]
 
+    case 'doshas': {
+      const hasManglik = !!doshas.manglik?.is_present
+      const hasKaalSarp = !!doshas.kaal_sarp?.is_present
+      const hasSadeSati = !!doshas.sade_sati?.is_present
+      const activeCount = [hasManglik, hasKaalSarp, hasSadeSati].filter(Boolean).length
+
+      return [
+        { label: 'Significant Doshas', value: `${activeCount} Identified`, icon: 'warning', subtext: activeCount > 0 ? 'Remedies advised' : 'Chart in harmony' },
+        { label: 'Manglik Status', value: hasManglik ? 'Manglik' : 'No', icon: 'favorite', subtext: hasManglik ? 'Mars in Manglik house' : 'No Mars affliction' },
+        { label: 'Kaal Sarp Yoga', value: hasKaalSarp ? 'Present' : 'Absent', icon: 'shield', subtext: hasKaalSarp ? 'Hemmed by Rahu-Ketu' : 'No Kaal Sarp' },
+        { label: 'Sade Sati Phase', value: hasSadeSati ? 'Active' : 'Not Active', icon: 'schedule', subtext: hasSadeSati ? doshas.sade_sati?.phase || 'Active Phase' : 'No Sade Sati' },
+      ]
+    }
 
     default:
       return []
