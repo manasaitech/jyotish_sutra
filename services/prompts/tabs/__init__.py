@@ -53,7 +53,7 @@ def get_tab_system_prompt(tab: str, is_initial: bool = True, sub_tab: str = "ove
 
 
 
-def get_dasha_dosha_prompt_context(chart_data: dict, profile: dict = None) -> str:
+def get_dasha_dosha_prompt_context(chart_data: dict, session: dict = None, profile: dict = None) -> str:
     """Computes a brief, structured text summary of the user's active/upcoming dashas and doshas to guide LLM predictions."""
     try:
         from backend.astrology.dosha_reasoning import compute_doshas
@@ -66,39 +66,47 @@ def get_dasha_dosha_prompt_context(chart_data: dict, profile: dict = None) -> st
         if not planets:
             return ""
 
-        # Extract Moon longitude
-        moon_data = planets.get("moon", {})
-        moon_long = float(moon_data.get("longitude", 120.0)) if isinstance(moon_data, dict) else 120.0
+        # Try to resolve precomputed dasha package from active session first to avoid recalculation differences
+        dasha_package = None
+        if session and isinstance(session, dict) and "precomputed_dasha_package" in session:
+            dasha_package = session["precomputed_dasha_package"]
 
-        # Comprehensive birth date extraction to match timelines exactly and avoid fallbacks
-        meta = chart_data.get("metadata", {}) if isinstance(chart_data.get("metadata"), dict) else {}
-        prof = profile or {}
+        if not dasha_package:
+            # Fallback calculation if session cache is missing
+            # Extract Moon longitude
+            moon_data = planets.get("moon", {})
+            moon_long = float(moon_data.get("longitude", 120.0)) if isinstance(moon_data, dict) else 120.0
 
-        raw_dob = (
-            meta.get("date_of_birth") or
-            meta.get("birth_date") or
-            meta.get("date_str") or
-            chart_data.get("date_of_birth") or
-            chart_data.get("birth_date") or
-            chart_data.get("date_str") or
-            prof.get("date_of_birth") or
-            prof.get("dateOfBirth") or
-            prof.get("date_str") or
-            "1998-05-15"
-        )
-        
-        try:
-            if isinstance(raw_dob, datetime.date):
-                birth_dt = raw_dob
-            else:
-                birth_dt = parse_date_str(str(raw_dob))
-                if isinstance(birth_dt, datetime.datetime):
-                    birth_dt = birth_dt.date()
-        except Exception:
-            birth_dt = datetime.date(1998, 5, 15)
+            # Comprehensive birth date extraction to match timelines exactly and avoid fallbacks
+            meta = chart_data.get("metadata", {}) if isinstance(chart_data.get("metadata"), dict) else {}
+            prof = profile or {}
 
-        # Calculate Dasha Package
-        dasha_package = calculate_full_dasha_package(moon_long, birth_dt)
+            raw_dob = (
+                meta.get("date_of_birth") or
+                meta.get("birth_date") or
+                meta.get("date_str") or
+                chart_data.get("date_of_birth") or
+                chart_data.get("birth_date") or
+                chart_data.get("date_str") or
+                prof.get("date_of_birth") or
+                prof.get("dateOfBirth") or
+                prof.get("date_str") or
+                "1998-05-15"
+            )
+            
+            try:
+                if isinstance(raw_dob, datetime.date):
+                    birth_dt = raw_dob
+                else:
+                    birth_dt = parse_date_str(str(raw_dob))
+                    if isinstance(birth_dt, datetime.datetime):
+                        birth_dt = birth_dt.date()
+            except Exception:
+                birth_dt = datetime.date(1998, 5, 15)
+
+            # Calculate Dasha Package
+            dasha_package = calculate_full_dasha_package(moon_long, birth_dt)
+
         dasha_parts = []
         if dasha_package:
             curr_maha = dasha_package.get("current_mahadasha", {})
@@ -161,8 +169,9 @@ def build_tab_context(tab: str, **kwargs) -> str:
     # Append Dasha & Dosha Timeline context snippet to all tabs (except dasha/doshas themselves)
     chart_data = kwargs.get("chart_data")
     profile = kwargs.get("profile")
+    session = kwargs.get("session")
     if chart_data and tab not in ["dasha", "dasha_timeline", "doshas"]:
-        timeline_snippet = get_dasha_dosha_prompt_context(chart_data, profile)
+        timeline_snippet = get_dasha_dosha_prompt_context(chart_data, session=session, profile=profile)
         if timeline_snippet:
             base_context = f"{base_context}\n\n{timeline_snippet}"
             

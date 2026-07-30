@@ -166,6 +166,7 @@ def handle_tab_chat(req: TabChatRequest, current_user: dict = Depends(require_cu
                 query=req.message,
                 chart_data=chart_data,
                 profile=profile,
+                session=session,
                 history=history,
                 computed=computed,
                 passages=passages,
