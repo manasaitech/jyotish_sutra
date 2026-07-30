@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import ReactMarkdown from 'react-markdown'
 import AssistantMessage from '../chat/AssistantMessage'
 import SuggestionChips from '../chat/SuggestionChips'
@@ -170,6 +170,14 @@ export default function TabChat({
 
   const activeTabName = tabName || (tab.charAt(0).toUpperCase() + tab.slice(1))
 
+  const messagesEndRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    if (messagesEndRef.current) {
+      messagesEndRef.current.scrollIntoView({ behavior: 'smooth' })
+    }
+  }, [messages, loading])
+
   const handleSend = () => {
     if (!input.trim() || loading || limitReached) return
     incrementChatCount()
@@ -235,45 +243,59 @@ export default function TabChat({
         </div>
       </div>
 
-      {/* Message History */}
-      <div className="space-y-4 mb-6">
-        {messages.map((msg, idx) => {
-          const isUser = msg.sender === 'user' || msg.role === 'user'
-          const textContent = msg.text || msg.content || ''
-          const prevUserMsg = !isUser && idx > 0 ? (messages[idx - 1]?.text || messages[idx - 1]?.content || '') : ''
+      {/* Message History (Scrollable Panel) */}
+      {messages.length > 0 && (
+        <div className="space-y-4 mb-6 max-h-[450px] overflow-y-auto pr-2 custom-scrollbar border border-outline-variant/15 p-3 rounded-2xl bg-surface-variant/5">
+          {messages.map((msg, idx) => {
+            const isUser = msg.sender === 'user' || msg.role === 'user'
+            const textContent = msg.text || msg.content || ''
+            const prevUserMsg = !isUser && idx > 0 ? (messages[idx - 1]?.text || messages[idx - 1]?.content || '') : ''
 
-          return !isUser ? (
-            <AssistantMessage key={idx} icon="auto_awesome">
-              <div className="font-body text-sm leading-relaxed text-on-surface markdown-container">
-                <ReactMarkdown>{textContent}</ReactMarkdown>
+            return !isUser ? (
+              <AssistantMessage key={idx} icon="auto_awesome">
+                <div className="font-body text-sm leading-relaxed text-on-surface markdown-container">
+                  <ReactMarkdown>{textContent}</ReactMarkdown>
+                </div>
+                <PredictionFeedbackCard
+                  tab={tab || 'general'}
+                  userPrompt={prevUserMsg}
+                  aiResponse={textContent}
+                  birthData={birthData}
+                  userId={userId}
+                  sessionId={sessionId}
+                />
+              </AssistantMessage>
+            ) : (
+              <div key={idx} className="flex justify-end animate-fade-in-up">
+                <div className="max-w-[90%] sm:max-w-[85%] bg-primary-fixed border border-primary/20 text-on-primary-fixed rounded-2xl rounded-tr-none px-3 sm:px-4 py-2.5 sm:py-3 text-sm leading-relaxed shadow-xs font-medium break-words">
+                  {textContent}
+                </div>
               </div>
-              <PredictionFeedbackCard
-                tab={tab || 'general'}
-                userPrompt={prevUserMsg}
-                aiResponse={textContent}
-                birthData={birthData}
-                userId={userId}
-                sessionId={sessionId}
-              />
-            </AssistantMessage>
-          ) : (
-            <div key={idx} className="flex justify-end animate-fade-in-up">
-              <div className="max-w-[90%] sm:max-w-[85%] bg-primary-fixed border border-primary/20 text-on-primary-fixed rounded-2xl rounded-tr-none px-3 sm:px-4 py-2.5 sm:py-3 text-sm leading-relaxed shadow-xs font-medium break-words">
-                {textContent}
-              </div>
+            )
+          })}
+
+          {loading && (
+            <div className="flex gap-3 items-center pl-4 py-3 opacity-70">
+              <div className="w-2 h-2 bg-primary rounded-full animate-bounce" />
+              <div className="w-2 h-2 bg-primary rounded-full animate-bounce delay-100" />
+              <div className="w-2 h-2 bg-primary rounded-full animate-bounce delay-200" />
+              <span className="text-xs text-on-surface-variant italic ml-1">Consulting Jyotish charts...</span>
             </div>
-          )
-        })}
+          )}
+          
+          <div ref={messagesEndRef} />
+        </div>
+      )}
 
-        {loading && (
-          <div className="flex gap-3 items-center pl-4 py-3 opacity-70">
-            <div className="w-2 h-2 bg-primary rounded-full animate-bounce" />
-            <div className="w-2 h-2 bg-primary rounded-full animate-bounce delay-100" />
-            <div className="w-2 h-2 bg-primary rounded-full animate-bounce delay-200" />
-            <span className="text-xs text-on-surface-variant italic ml-1">Consulting Jyotish charts...</span>
-          </div>
-        )}
-      </div>
+      {/* Loading state when list is empty */}
+      {messages.length === 0 && loading && (
+        <div className="flex gap-3 items-center pl-4 py-3 opacity-70 mb-6">
+          <div className="w-2 h-2 bg-primary rounded-full animate-bounce" />
+          <div className="w-2 h-2 bg-primary rounded-full animate-bounce delay-100" />
+          <div className="w-2 h-2 bg-primary rounded-full animate-bounce delay-200" />
+          <span className="text-xs text-on-surface-variant italic ml-1">Consulting Jyotish charts...</span>
+        </div>
+      )}
 
       {/* Chat Limit Reached Warning Banner */}
       {limitReached ? (
