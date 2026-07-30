@@ -84,7 +84,7 @@ function PublicLayout({ children }: { children: React.ReactNode }) {
     >
       {/* ══════════════ TOP NAVIGATION BAR ══════════════ */}
       <nav className="sticky top-0 w-full z-50 backdrop-blur-md border-b border-outline-variant/60 bg-background/90">
-        <div className="flex justify-between items-center px-2.5 sm:px-6 md:px-10 py-3.5 sm:py-5 max-w-7xl mx-auto">
+        <div className="flex justify-between items-center px-2.5 sm:px-6 md:px-10 py-2.5 sm:py-3.5 max-w-7xl mx-auto">
 
           {/* Logo */}
           <Link
@@ -96,9 +96,8 @@ function PublicLayout({ children }: { children: React.ReactNode }) {
           </Link>
 
           {/* Desktop links */}
-          <div className="hidden lg:flex items-center gap-4 xl:gap-6 shrink-0">
+          <div className="hidden lg:flex items-center gap-3 xl:gap-6 shrink-0">
             {navLink('Home', '/')}
-            {user && navLink('Dashboard', '/app')}
             <a
               href="#features"
               onClick={(e) => {
@@ -111,7 +110,7 @@ function PublicLayout({ children }: { children: React.ReactNode }) {
                   )
                 }
               }}
-              className="text-on-surface-variant font-semibold hover:text-primary transition-colors text-[10px] xl:text-xs tracking-[0.12em] xl:tracking-[0.15em] uppercase"
+              className="text-on-surface-variant font-semibold hover:text-primary transition-colors text-[11px] xl:text-xs tracking-[0.12em] xl:tracking-[0.15em] uppercase"
             >
               Features
             </a>
@@ -127,7 +126,7 @@ function PublicLayout({ children }: { children: React.ReactNode }) {
                   )
                 }
               }}
-              className="text-on-surface-variant font-semibold hover:text-primary transition-colors text-[10px] xl:text-xs tracking-[0.12em] xl:tracking-[0.15em] uppercase"
+              className="text-on-surface-variant font-semibold hover:text-primary transition-colors text-[11px] xl:text-xs tracking-[0.12em] xl:tracking-[0.15em] uppercase"
             >
               Testimonials
             </a>
@@ -136,11 +135,11 @@ function PublicLayout({ children }: { children: React.ReactNode }) {
           </div>
 
           {/* CTA buttons */}
-          <div className="flex items-center gap-1.5 sm:gap-3">
+          <div className="flex items-center gap-1.5 lg:gap-2.5 shrink-0">
             {/* Talk to Expert Button */}
             <button
               onClick={() => setIsExpertModalOpen(true)}
-              className="flex items-center justify-center gap-1 px-2.5 sm:px-4 py-2 sm:py-2.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-slate-950 font-extrabold text-xs tracking-wider uppercase shadow-md transition-all cursor-pointer border border-amber-300 shrink-0"
+              className="flex items-center justify-center gap-1 px-2.5 lg:px-3.5 py-1.5 lg:py-2.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-slate-950 font-extrabold text-[11px] lg:text-xs tracking-wider uppercase shadow-md transition-all cursor-pointer border border-amber-300 shrink-0"
               title="Talk to Expert"
             >
               <span className="material-symbols-outlined text-sm sm:text-base" style={{ fontVariationSettings: "'FILL' 1" }}>
@@ -153,14 +152,14 @@ function PublicLayout({ children }: { children: React.ReactNode }) {
               <>
                 <button
                   onClick={handleGoDashboard}
-                  className="bg-primary text-white px-2.5 sm:px-5 py-2 sm:py-2.5 text-[10px] sm:text-sm font-semibold tracking-wider uppercase hover:bg-primary-container transition-all cursor-pointer shadow-md flex items-center gap-1.5 rounded-xl whitespace-nowrap"
+                  className="bg-primary text-white px-2.5 lg:px-4 py-1.5 lg:py-2.5 text-[11px] lg:text-xs font-semibold tracking-wider uppercase hover:bg-primary-container transition-all cursor-pointer shadow-md flex items-center gap-1.5 rounded-xl whitespace-nowrap"
                 >
                   <span className="material-symbols-outlined text-sm sm:text-base hidden xs:inline">dashboard</span>
                   <span>Dashboard</span>
                 </button>
                 <button
                   onClick={handleSignOut}
-                  className="text-on-surface-variant hover:text-rose-600 border border-outline-variant hover:border-rose-300 px-2 sm:px-3.5 py-2 sm:py-2.5 text-[10px] sm:text-sm font-medium tracking-wider uppercase transition-all cursor-pointer bg-transparent rounded-xl whitespace-nowrap"
+                  className="text-on-surface-variant hover:text-rose-600 border border-outline-variant hover:border-rose-300 px-2 lg:px-3 py-1.5 lg:py-2.5 text-[11px] lg:text-xs font-medium tracking-wider uppercase transition-all cursor-pointer bg-transparent rounded-xl whitespace-nowrap"
                   title="Sign Out"
                 >
                   Sign Out
@@ -170,13 +169,13 @@ function PublicLayout({ children }: { children: React.ReactNode }) {
               <>
                 <button
                   onClick={handleSignIn}
-                  className="text-primary border border-primary/45 hover:bg-primary-fixed/30 px-2.5 py-1.5 sm:px-5 sm:py-2.5 text-[10px] sm:text-sm font-semibold tracking-wider uppercase transition-all cursor-pointer bg-transparent rounded-xl whitespace-nowrap"
+                  className="text-primary border border-primary/45 hover:bg-primary-fixed/30 px-2.5 lg:px-4 py-1.5 lg:py-2.5 text-[11px] lg:text-xs font-semibold tracking-wider uppercase transition-all cursor-pointer bg-transparent rounded-xl whitespace-nowrap"
                 >
                   Sign In
                 </button>
                 <button
                   onClick={handleSignIn}
-                  className="bg-primary text-white px-3 py-1.5 sm:px-6 sm:py-2.5 text-[10px] sm:text-sm font-semibold tracking-wider uppercase hover:bg-primary-container transition-all cursor-pointer shadow-md rounded-xl whitespace-nowrap"
+                  className="bg-primary text-white px-3 lg:px-5 py-1.5 lg:py-2.5 text-[11px] lg:text-xs font-semibold tracking-wider uppercase hover:bg-primary-container transition-all cursor-pointer shadow-md rounded-xl whitespace-nowrap"
                   style={{ boxShadow: '2px 2px 0px rgba(137, 115, 101, 0.1)' }}
                 >
                   Get Started
