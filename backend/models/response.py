@@ -46,3 +46,4 @@ class ProfileResponse(BaseModel):
     exists: bool
     birth_details: Optional[Dict[str, Any]] = None
     chart_summary: Optional[Dict[str, Any]] = None
+    retail_question_balance: Optional[int] = 0

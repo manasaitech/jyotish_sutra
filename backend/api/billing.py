@@ -343,3 +343,155 @@ def verify_consultation_payment(req: VerifyConsultationRequest):
         "message": "Payment verified and appointment request emails sent successfully."
     }
 
+
+# ---------------------------------------------------------------------------
+# PAY PER QUESTION ENDPOINTS
+# ---------------------------------------------------------------------------
+
+class CreateQuestionsOrderRequest(BaseModel):
+    questions_count: int
+
+class VerifyQuestionsPaymentRequest(BaseModel):
+    razorpay_payment_id: Optional[str] = None
+    razorpay_order_id: Optional[str] = None
+    razorpay_signature: Optional[str] = None
+    questions_count: int
+    user_id: str
+
+
+@router.post("/billing/create-questions-order")
+def create_questions_order(
+    req: CreateQuestionsOrderRequest,
+    current_user: dict = Depends(require_current_user),
+    db: Session = Depends(get_db)
+):
+    """Creates a Razorpay order or mock checkout for Pay-Per-Question packs."""
+    firebase_uid = current_user.get("uid")
+    user = db.query(User).filter(User.firebase_uid == firebase_uid).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="User not synchronized in database.")
+
+    if req.questions_count < 1 or req.questions_count > 500:
+        raise HTTPException(status_code=400, detail="Question count must be between 1 and 500.")
+
+    total_price = float(req.questions_count * 5.5)
+    price_in_paise = int(total_price * 100)
+
+    try:
+        client, key_id = get_razorpay_client()
+        order_receipt = f"q_receipt_{str(user.id)[:8]}_{int(time.time())}"
+        order_data = {
+            "amount": price_in_paise,
+            "currency": "INR",
+            "receipt": order_receipt,
+            "payment_capture": 1
+        }
+        order = client.order.create(data=order_data)
+        order_id = order["id"]
+
+        # Insert pending Payment record
+        payment = Payment(
+            user_id=user.id,
+            amount=total_price,
+            currency="INR",
+            gateway="razorpay",
+            gateway_order_id=order_id,
+            status="pending"
+        )
+        db.add(payment)
+        db.commit()
+
+        return {
+            "success": True,
+            "order_id": order_id,
+            "amount": price_in_paise,
+            "currency": "INR",
+            "key_id": key_id,
+            "gateway": "razorpay"
+        }
+    except Exception as e:
+        # Fallback to Mock checkout if Razorpay is not configured or fails
+        print(f"[Questions Order] Razorpay unavailable, falling back to mock checkout: {e}")
+        mock_order_id = f"mock_order_{str(uuid.uuid4().hex[:12]).upper()}"
+        return {
+            "success": True,
+            "order_id": mock_order_id,
+            "amount": price_in_paise,
+            "currency": "INR",
+            "key_id": "mock_key_id",
+            "gateway": "mock"
+        }
+
+
+@router.post("/billing/verify-questions-payment")
+def verify_questions_payment(
+    req: VerifyQuestionsPaymentRequest,
+    current_user: dict = Depends(require_current_user),
+    db: Session = Depends(get_db)
+):
+    """Verifies questions payment, marks payment completed, and credits user's question balance."""
+    firebase_uid = current_user.get("uid")
+    user = db.query(User).filter(User.firebase_uid == firebase_uid).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="User not synchronized in database.")
+
+    if req.questions_count < 1 or req.questions_count > 500:
+        raise HTTPException(status_code=400, detail="Question count must be between 1 and 500.")
+
+    # 1. Signature check (Razorpay vs Mock)
+    is_mock = not req.razorpay_signature or req.razorpay_signature == "mock"
+    
+    if not is_mock:
+        try:
+            client, _ = get_razorpay_client()
+            client.utility.verify_payment_signature({
+                "razorpay_order_id": req.razorpay_order_id,
+                "razorpay_payment_id": req.razorpay_payment_id,
+                "razorpay_signature": req.razorpay_signature
+            })
+        except Exception as sig_err:
+            print(f"[Questions Signature Verification Failed] {sig_err}")
+            raise HTTPException(status_code=400, detail="Invalid signature. Verification failed.")
+
+    # 2. Update Payment log if exists in database
+    payment = db.query(Payment).filter(Payment.gateway_order_id == req.razorpay_order_id).first()
+    if payment:
+        payment.status = "completed"
+        payment.gateway_payment_id = req.razorpay_payment_id or "mock_payment"
+        payment.payment_method = "mock" if is_mock else "razorpay"
+        db.commit()
+
+    # 3. Credit user's questions balance in profile store
+    from services.memory.profile_store import profile_store
+    profile = profile_store.load_profile(req.user_id)
+    if not profile:
+        raise HTTPException(status_code=404, detail="Profile not found for question balance credit.")
+
+    chart_payload = profile.get("natal_chart") or {}
+    # Reconstruct nested chart structure if exists
+    is_nested = False
+    if "natal" in chart_payload:
+        chart_dict = chart_payload["natal"]
+        is_nested = True
+    else:
+        chart_dict = chart_payload
+
+    current_balance = chart_dict.get("retail_question_balance", 0)
+    new_balance = current_balance + req.questions_count
+    
+    # Write back to profile
+    if is_nested:
+        chart_payload["natal"]["retail_question_balance"] = new_balance
+    else:
+        chart_payload["retail_question_balance"] = new_balance
+
+    # Ensure profile stores updated natal_chart
+    profile_store.update_profile(req.user_id, natal_chart=chart_payload)
+
+    return {
+        "success": True,
+        "message": f"Successfully credited {req.questions_count} questions to user balance.",
+        "retail_question_balance": new_balance
+    }
+
+

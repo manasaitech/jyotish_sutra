@@ -83,6 +83,9 @@ export default function ChatPage() {
         .then((res) => (res.ok ? res.json() : null))
         .then((data) => {
           if (data && data.exists && (data.chart_summary || data.natal_chart)) {
+            if (data.retail_question_balance !== undefined) {
+              localStorage.setItem('astrosutra_retail_question_balance', String(data.retail_question_balance))
+            }
             const chart = data.chart_summary || data.natal_chart
             const nameFromBackend = data.birth_details?.fullName || data.birth_details?.name || user.displayName || 'Seeker'
             const normalizedBirthData = data.birth_details ? {
@@ -153,6 +156,9 @@ export default function ChatPage() {
             .then((res) => (res.ok ? res.json() : null))
             .then((data) => {
               if (data && data.exists && data.chart_summary) {
+                if (data.retail_question_balance !== undefined) {
+                  localStorage.setItem('astrosutra_retail_question_balance', String(data.retail_question_balance))
+                }
                 setChartData(data.chart_summary)
                 setStep('ready')
               } else if (active.birthData) {

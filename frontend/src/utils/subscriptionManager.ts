@@ -51,3 +51,26 @@ export function getRemainingChats(tier: SubscriptionTier): number {
   if (!isFinite(limit)) return Infinity
   return Math.max(0, limit - getDailyChatCount())
 }
+
+const RETAIL_BALANCE_KEY = 'astrosutra_retail_question_balance'
+
+export function getRetailQuestionBalance(): number {
+  const stored = localStorage.getItem(RETAIL_BALANCE_KEY)
+  return stored ? parseInt(stored, 10) : 0
+}
+
+export function incrementRetailQuestionBalance(amount: number): void {
+  const current = getRetailQuestionBalance()
+  localStorage.setItem(RETAIL_BALANCE_KEY, String(current + amount))
+}
+
+export function decrementRetailQuestionBalance(): void {
+  const current = getRetailQuestionBalance()
+  localStorage.setItem(RETAIL_BALANCE_KEY, String(Math.max(0, current - 1)))
+}
+
+export function isTabChatLimitReached(tier: SubscriptionTier, tabUserMessagesCount: number): boolean {
+  if (tier === 'pro' || tier === 'standard') return false
+  if (getRetailQuestionBalance() > 0) return false
+  return tabUserMessagesCount >= 1
+}

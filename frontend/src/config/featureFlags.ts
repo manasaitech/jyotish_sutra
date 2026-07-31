@@ -16,6 +16,8 @@ export interface FeatureFlags {
   enablePersonalityTab: boolean
   enableSpiritualTab: boolean
   enableDoshasTab: boolean
+  enableStrategicInsightsTab: boolean
+  enablePastEventsTab: boolean
 }
 
 export const FEATURE_FLAGS: FeatureFlags = {
@@ -31,6 +33,8 @@ export const FEATURE_FLAGS: FeatureFlags = {
   enablePersonalityTab: true, // ✅ Enabled Personality tab
   enableSpiritualTab: false,   // ❌ Disabled via feature flag per request
   enableDoshasTab: true,       // ✅ Enabled Dosha Analysis tab
+  enableStrategicInsightsTab: true, // ✅ Enabled Strategic Insights tab
+  enablePastEventsTab: true,        // ✅ Enabled Past Events Discovery tab
 }
 
 
@@ -61,6 +65,10 @@ export function isTabEnabled(tabId: string): boolean {
       return FEATURE_FLAGS.enableSpiritualTab
     case 'doshas':
       return FEATURE_FLAGS.enableDoshasTab
+    case 'strategic_insights':
+      return FEATURE_FLAGS.enableStrategicInsightsTab
+    case 'past_events':
+      return FEATURE_FLAGS.enablePastEventsTab
     default:
       return true
   }

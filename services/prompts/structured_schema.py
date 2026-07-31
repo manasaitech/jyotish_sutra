@@ -92,10 +92,34 @@ SECTION_REGISTRY: Dict[str, Dict[str, str]] = {
             "analyzing their severity, activation status, and practical remedies."
         ),
     },
+    "strategic_insights": {
+        "sectionId": "strategic_insights",
+        "title": "Strategic Insights & Decision Intelligence",
+        "focus": (
+            "Evidence-based strategic advisory for personal and business decisions. "
+            "Evaluates planetary timing, dasha activation, transit support, yoga strength, "
+            "risk vs opportunity balance, and timing windows. Provides probabilistic guidance "
+            "with supporting and contradicting factors, actionable recommendations, "
+            "and confidence assessments. Covers career changes, business launches, investments, "
+            "partnerships, relocations, education, marriage timing, and institutional planning."
+        ),
+    },
+    "past_events": {
+        "sectionId": "past_events",
+        "title": "Past Event Discovery",
+        "focus": (
+            "Investigative event discovery analyzing dasha-activated house signatures, "
+            "yoga trigger periods, and planet-house convergence patterns to identify "
+            "specific life events: career breakthroughs, marriage, property purchase, "
+            "foreign travel, education milestones, health events, financial gains/losses, "
+            "business start/close, relocation, and transformative life changes. "
+            "Each event scored by likelihood (0-100), time confidence, and evidence count."
+        ),
+    },
 }
 
 # Tabs that are enabled for the structured JSON pipeline
-STRUCTURED_ENABLED_TABS = {"health", "food", "remedies", "career", "finance", "personality", "spiritual", "overview"}
+STRUCTURED_ENABLED_TABS = {"health", "food", "remedies", "career", "finance", "personality", "spiritual", "overview", "strategic_insights", "past_events"}
 
 
 # ═══════════════════════════════════════════════════════════════
@@ -175,7 +199,7 @@ RULES:
 - Health observations = tendencies only.
 - Every section: 1 summary (2-3 sentences), 2-5 table rows, 1-4 planetaryFactors, 2-4 keyObservations.
 
-TIMELINE RULE: Every table row must include specific predictive timelines (exact year+month range, e.g. "Oct 2026 to Jun 2028") derived from Vimshottari Dasha dates. Never use generic timelines. Place timelines in 'details' or 'astrologicalReason'.
+TIMELINE RULE: Every table row must include specific predictive timelines (exact year+month range, e.g., "[Month Year] to [Month Year]") derived strictly from the Vimshottari Dasha dates provided in the user's chart context. Never use generic or hardcoded timelines. Place timelines in 'details' or 'astrologicalReason'.
 
 PER-SECTION TABLE ROW RULES:
 
@@ -194,6 +218,10 @@ personality: primaryFinding=psychological pattern/temperament shift. details=str
 spiritual: primaryFinding=spiritual activation/karmic phase. details=meditation, past-life patterns. astrologicalReason=4th/8th/12th houses, Ketu, Dasha.
 
 overview: primaryFinding=major life theme/yoga activation. details=life path summary. astrologicalReason=chart ruler, yogas, Dasha.
+
+strategic_insights: FIRST row must be "Strategic Verdict" with clear Recommended/Proceed with Caution/Delay/Avoid verdict. SECOND row="Key Supporting Factors" listing favorable astrological indicators. THIRD row="Risk Factors" listing challenges and unfavorable indicators. Subsequent rows=timing windows (Immediate/3M/6M/1Y) with specific dasha+transit evidence. astrologicalReason=planet+house+dasha+transit with natal promise vs timing comparison. recommendedActions=concrete strategic moves+precautions.
+
+past_events: Each row=one discovered life event. primaryFinding=event category (e.g. "Career Breakthrough", "Marriage", "Property Purchase", "Foreign Travel"). details=estimated time window + likelihood score (0-100) + possible real-world manifestation. astrologicalReason=activated houses + dasha lord + supporting planets + triggered yogas with specific dates. recommendedActions=empty (past events have no actions). Order rows by likelihood score descending.
 
 doshas: Read the `precomputed_dosha_analysis` object provided under the `document` key in the user prompt. DO NOT invent or alter any dosha name, strength, influence, mitigation, overall impact, practical impact, timelines, or activation checks. For each detected dosha in `precomputed_dosha_analysis.doshas`, populate the `dosha_list` array. Convert why_it_exists, why_it_is_reduced, challenges, strengths, and remedies into professional, flowing English prose. Populate the `summary` block (significant_doshas, currently_active, well_mitigated, highest_priority_area, detected_doshas_summary) using the precomputed values under `precomputed_dosha_analysis.summary`.
 

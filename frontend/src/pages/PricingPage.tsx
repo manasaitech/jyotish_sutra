@@ -3,7 +3,12 @@
  */
 import { useState, useEffect } from 'react'
 import { TIER_CONFIG, type SubscriptionTier } from '../config/subscriptionConfig'
-import { getCurrentTier, setCurrentTier } from '../utils/subscriptionManager'
+import {
+  getCurrentTier,
+  setCurrentTier,
+  getRetailQuestionBalance,
+  incrementRetailQuestionBalance
+} from '../utils/subscriptionManager'
 import { authenticatedFetch } from '../utils/apiClient'
 import { useAuth } from '../context/AuthContext'
 import { LOGO_BASE64 } from '../assets/logoBase64'
@@ -34,7 +39,134 @@ export default function PricingPage({
   const [activeTier, setActiveTier] = useState<SubscriptionTier>(getCurrentTier())
   const [loadingTier, setLoadingTier] = useState<SubscriptionTier | null>(null)
   const [successTier, setSuccessTier] = useState<SubscriptionTier | null>(null)
+  
+  const [questionsCount, setQuestionsCount] = useState<number>(10)
+  const [purchasingQuestions, setPurchasingQuestions] = useState<boolean>(false)
+  const [purchaseSuccessCount, setPurchaseSuccessCount] = useState<number | null>(null)
+  const [retailBalance, setRetailBalance] = useState<number>(0)
+
   const { user } = useAuth()
+
+  useEffect(() => {
+    setRetailBalance(getRetailQuestionBalance())
+  }, [])
+
+  const handlePurchaseQuestions = async () => {
+    if (!user) {
+      alert("Please sign in or register to purchase questions.")
+      return
+    }
+
+    setPurchasingQuestions(true)
+
+    const backendUrl =
+      import.meta.env.VITE_BACKEND_URL ||
+      (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+        ? 'http://localhost:8000'
+        : 'https://kundli-gpt-clone-back.onrender.com')
+
+    try {
+      const res = await authenticatedFetch(`${backendUrl}/api/billing/create-questions-order`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ questions_count: questionsCount }),
+      })
+
+      if (!res.ok) {
+        throw new Error('Failed to create payment order')
+      }
+
+      const orderData = await res.json()
+
+      if (orderData.gateway === 'mock') {
+        // Handle mock payment simulation
+        setTimeout(async () => {
+          try {
+            const verifyRes = await authenticatedFetch(`${backendUrl}/api/billing/verify-questions-payment`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                razorpay_order_id: orderData.order_id,
+                razorpay_payment_id: 'mock_payment_' + Math.random().toString(36).substring(7),
+                questions_count: questionsCount,
+                user_id: user.uid,
+              }),
+            })
+
+            const verifyData = await verifyRes.json()
+            if (verifyData.success) {
+              incrementRetailQuestionBalance(questionsCount)
+              setRetailBalance(getRetailQuestionBalance())
+              setPurchaseSuccessCount(questionsCount)
+              setPurchasingQuestions(false)
+            } else {
+              throw new Error('Verification failed')
+            }
+          } catch (err: any) {
+            alert("Payment verification failed: " + err.message)
+            setPurchasingQuestions(false)
+          }
+        }, 1500)
+        return
+      }
+
+      // Real Razorpay integration
+      const scriptLoaded = await loadRazorpayScript()
+      if (!scriptLoaded) {
+        alert("Failed to load Razorpay SDK. Please check your internet connection.")
+        setPurchasingQuestions(false)
+        return
+      }
+
+      const options = {
+        key: orderData.key_id,
+        amount: orderData.amount,
+        currency: orderData.currency,
+        name: "AstroSutra AI",
+        description: `Purchase ${questionsCount} Astro Questions`,
+        image: LOGO_BASE64,
+        order_id: orderData.order_id,
+        handler: async function (response: any) {
+          try {
+            const verifyRes = await authenticatedFetch(`${backendUrl}/api/billing/verify-questions-payment`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                razorpay_order_id: response.razorpay_order_id,
+                razorpay_payment_id: response.razorpay_payment_id,
+                razorpay_signature: response.razorpay_signature,
+                questions_count: questionsCount,
+                user_id: user.uid,
+              }),
+            })
+
+            const verifyData = await verifyRes.json()
+            if (verifyData.success) {
+              incrementRetailQuestionBalance(questionsCount)
+              setRetailBalance(getRetailQuestionBalance())
+              setPurchaseSuccessCount(questionsCount)
+              setPurchasingQuestions(false)
+            }
+          } catch (err) {
+            console.error(err)
+            alert("Payment verification failed.")
+            setPurchasingQuestions(false)
+          }
+        },
+        modal: {
+          ondismiss: function () {
+            setPurchasingQuestions(false)
+          }
+        }
+      }
+
+      const rzp = new (window as any).Razorpay(options)
+      rzp.open()
+    } catch (err: any) {
+      alert("Error purchasing questions: " + err.message)
+      setPurchasingQuestions(false)
+    }
+  }
 
   useEffect(() => {
     window.scrollTo(0, 0)
@@ -166,8 +298,8 @@ export default function PricingPage({
       </div>
 
       {/* Pricing Cards */}
-      <div className="max-w-5xl mx-auto px-4 pb-16">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-stretch">
+      <div className="max-w-7xl mx-auto px-4 pb-16">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 items-stretch">
           {tiers.map((tier) => {
             const isCurrent = activeTier === tier.id
             const isHighlighted = tier.highlighted
@@ -298,6 +430,135 @@ export default function PricingPage({
               </div>
             )
           })}
+
+          {/* Pay-Per-Question Cosmic Pack (4th Card) */}
+          <div
+            className="relative rounded-3xl p-[2px] transition-all duration-300 hover:scale-[1.01]"
+            style={{
+              background: '#E9DFC8',
+            }}
+          >
+            <div
+              className="h-full rounded-[22px] p-6 md:p-7 flex flex-col justify-between"
+              style={{ background: 'var(--gradient-free)' }}
+            >
+              <div>
+                {/* Tier Icon & Label */}
+                <div className="flex items-center justify-between mb-4">
+                  <div className="flex items-center gap-3">
+                    <div
+                      className="w-11 h-11 rounded-xl flex items-center justify-center shadow-sm"
+                      style={{
+                        background: '#C89B3C15',
+                        color: '#C89B3C',
+                      }}
+                    >
+                      <span className="material-symbols-outlined font-semibold">payments</span>
+                    </div>
+                    <div>
+                      <h3 className="font-display text-lg font-bold text-on-background leading-tight">
+                        Cosmic Pack
+                      </h3>
+                      <span className="text-[10px] text-on-surface-variant font-semibold tracking-wider uppercase">
+                        Retail / One-time
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Price */}
+                <div className="flex items-baseline gap-1 mb-5">
+                  <span className="text-3xl font-display font-black text-on-background">₹5.5</span>
+                  <span className="text-xs text-on-surface-variant font-medium">/question</span>
+                </div>
+
+                {/* Description / Subtitle */}
+                <p className="text-xs text-on-surface-variant mb-5 leading-relaxed">
+                  Prefer query packs instead of monthly plans? Pay-per-question bypasses the free daily limit.
+                </p>
+
+                {/* Divider */}
+                <div className="h-px bg-outline-variant/60 my-5" />
+
+                {/* Custom Input for Questions */}
+                <div className="space-y-4 mb-6">
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="text-xs font-bold text-on-surface-variant">Questions (Max 500):</span>
+                    <input
+                      type="number"
+                      min="1"
+                      max="500"
+                      value={questionsCount || ''}
+                      onChange={(e) => {
+                        const val = parseInt(e.target.value, 10)
+                        setQuestionsCount(isNaN(val) ? 0 : Math.min(500, Math.max(0, val)))
+                      }}
+                      className="w-20 px-2 py-1 border border-outline-variant rounded-lg text-xs bg-surface focus:outline-none focus:border-[#C89B3C] text-center font-bold"
+                    />
+                  </div>
+
+                  <div className="space-y-1">
+                    <div className="text-[9px] font-bold text-on-surface-variant uppercase tracking-wider">
+                      Suggestions:
+                    </div>
+                    <div className="flex flex-wrap gap-1">
+                      {[10, 20, 50, 100].map((num) => (
+                        <button
+                          key={num}
+                          type="button"
+                          onClick={() => setQuestionsCount(num)}
+                          className={`px-2.5 py-1 rounded-lg border text-[10px] font-semibold transition-all cursor-pointer ${
+                            questionsCount === num
+                              ? 'bg-[#C89B3C]/15 border-[#C89B3C] text-[#C89B3C] font-bold'
+                              : 'border-outline-variant text-on-surface-variant hover:bg-surface-variant/20'
+                          }`}
+                        >
+                          {num}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="bg-[#C89B3C]/5 border border-[#C89B3C]/10 rounded-xl p-3 text-center">
+                    <span className="text-[9px] uppercase font-bold text-on-surface-variant block tracking-wider mb-0.5">
+                      Total Investment
+                    </span>
+                    <span className="text-xl font-display font-black text-[#C89B3C]">
+                      ₹ {(questionsCount * 5.5).toFixed(1)}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Footer and Button */}
+              <div className="space-y-4 mt-auto">
+                <div className="text-[10px] text-center text-on-surface-variant font-medium">
+                  Current balance: <strong className="text-[#C89B3C]">{retailBalance} Questions</strong>
+                </div>
+
+                <button
+                  onClick={handlePurchaseQuestions}
+                  disabled={purchasingQuestions || questionsCount <= 0}
+                  className="w-full py-3 px-4 text-white font-bold text-xs rounded-2xl shadow-md transition-all hover:scale-[1.02] active:scale-[0.98] cursor-pointer flex items-center justify-center gap-1.5"
+                  style={{
+                    background: 'linear-gradient(135deg, #C89B3C, #C89B3CCC)'
+                  }}
+                >
+                  {purchasingQuestions ? (
+                    <>
+                      <div className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                      <span>Processing...</span>
+                    </>
+                  ) : (
+                    <>
+                      <span className="material-symbols-outlined text-xs">shopping_cart</span>
+                      <span>Purchase Questions</span>
+                    </>
+                  )}
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
 
         {/* Footer Note */}
@@ -347,6 +608,42 @@ export default function PricingPage({
             <button
               onClick={() => {
                 setSuccessTier(null)
+                onNavigateBack()
+                window.location.reload()
+              }}
+              className="w-full bg-primary text-white font-bold py-3.5 rounded-2xl text-sm shadow-lg shadow-primary/25 hover:scale-[1.01] active:scale-[0.99] transition-all cursor-pointer flex items-center justify-center gap-2"
+            >
+              <span>Go to Dashboard</span>
+              <span className="material-symbols-outlined text-lg">arrow_forward</span>
+            </button>
+          </div>
+        </div>
+      )}
+
+      {purchaseSuccessCount !== null && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-xs flex items-center justify-center z-[100] px-4">
+          <div className="bg-surface rounded-3xl p-8 max-w-md w-full border border-primary/30 text-center relative overflow-hidden shadow-2xl animate-scale-in">
+            {/* Background elements */}
+            <div className="absolute -right-10 -top-10 w-32 h-32 bg-primary/10 rounded-full blur-2xl" />
+            <div className="absolute -left-10 -bottom-10 w-32 h-32 bg-primary/5 rounded-full blur-2xl" />
+            
+            {/* Animated Checkmark */}
+            <div className="w-20 h-20 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-6 border-2 border-primary/20">
+              <span className="material-symbols-outlined text-4xl text-primary font-bold animate-bounce" style={{ fontVariationSettings: "'FILL' 1" }}>
+                verified
+              </span>
+            </div>
+
+            <h3 className="font-display text-2xl font-bold text-primary mb-2">
+              Purchase Successful!
+            </h3>
+            <p className="text-on-surface-variant text-sm mb-6 max-w-xs mx-auto leading-relaxed">
+              Your cosmic queries have been loaded. <strong>{purchaseSuccessCount} Questions</strong> have been successfully added to your balance!
+            </p>
+
+            <button
+              onClick={() => {
+                setPurchaseSuccessCount(null)
                 onNavigateBack()
                 window.location.reload()
               }}

@@ -4,7 +4,15 @@ import AssistantMessage from '../chat/AssistantMessage'
 import SuggestionChips from '../chat/SuggestionChips'
 import PredictionFeedbackCard from '../chat/PredictionFeedbackCard'
 import type { TabType } from './TabNavigation'
-import { getCurrentTier, isChatLimitReached, getRemainingChats, incrementChatCount } from '../../utils/subscriptionManager'
+import {
+  getCurrentTier,
+  isChatLimitReached,
+  getRemainingChats,
+  incrementChatCount,
+  getRetailQuestionBalance,
+  decrementRetailQuestionBalance,
+  isTabChatLimitReached
+} from '../../utils/subscriptionManager'
 import { getChatLimitForTier } from '../../config/subscriptionConfig'
 
 export interface Message {
@@ -164,9 +172,13 @@ export default function TabChat({
   const [input, setInput] = useState('')
 
   const currentTier = getCurrentTier()
-  const limitReached = isChatLimitReached(currentTier)
-  const remaining = getRemainingChats(currentTier)
-  const totalLimit = getChatLimitForTier(currentTier)
+  const userMessageCount = messages.filter(m => m.sender === 'user' || m.role === 'user').length
+  const tabLimitReached = isTabChatLimitReached(currentTier, userMessageCount)
+  const retailBalance = getRetailQuestionBalance()
+  const limitReached = tabLimitReached && retailBalance <= 0
+
+  const remaining = retailBalance > 0 ? retailBalance : (currentTier === 'free' ? (tabLimitReached ? 0 : 1) : getRemainingChats(currentTier))
+  const totalLimit = currentTier === 'free' ? 1 : getChatLimitForTier(currentTier)
 
   const activeTabName = tabName || (tab.charAt(0).toUpperCase() + tab.slice(1))
 
@@ -180,7 +192,13 @@ export default function TabChat({
 
   const handleSend = () => {
     if (!input.trim() || loading || limitReached) return
-    incrementChatCount()
+    
+    if (currentTier === 'free' && tabLimitReached && retailBalance > 0) {
+      decrementRetailQuestionBalance()
+    } else {
+      incrementChatCount()
+    }
+
     onSendMessage(input.trim())
     setInput('')
   }
@@ -194,7 +212,13 @@ export default function TabChat({
 
   const handleSuggestionSelect = (text: string) => {
     if (limitReached) return
-    incrementChatCount()
+    
+    if (currentTier === 'free' && tabLimitReached && retailBalance > 0) {
+      decrementRetailQuestionBalance()
+    } else {
+      incrementChatCount()
+    }
+
     onSendMessage(text)
   }
 
@@ -302,20 +326,22 @@ export default function TabChat({
         <div className="bg-amber-500/10 border border-amber-500/30 rounded-2xl p-4 text-center mb-4 animate-fade-in-up">
           <div className="flex items-center justify-center gap-2 text-amber-700 font-bold text-sm mb-1">
             <span className="material-symbols-outlined text-base">warning</span>
-            Daily Chat Limit Reached ({totalLimit}/{totalLimit} Messages)
+            {currentTier === 'free' ? 'Tab Chat Limit Reached (1/1 Question)' : `Daily Chat Limit Reached (${totalLimit}/${totalLimit} Messages)`}
           </div>
           <p className="text-xs text-on-surface-variant mb-3">
-            You've reached your free daily AI chat limit for today. Upgrade your subscription for higher or unlimited daily chat limits!
+            {currentTier === 'free'
+              ? "You've reached your free 1-question limit for this tab. To continue, you can upgrade to Standard/Pro or select a Pay-Per-Question pack at ₹5.5 per question."
+              : "You've reached your daily AI chat limit for today. Upgrade to Pro for unlimited daily chat messages!"}
           </p>
           {onOpenPricing && (
             <button
               onClick={onOpenPricing}
-              className="px-4 py-2 bg-primary text-white rounded-xl text-xs font-bold shadow-xs hover:bg-primary-container transition-all cursor-pointer inline-flex items-center gap-1.5"
+              className="px-4 py-2 bg-primary text-white rounded-xl text-xs font-bold shadow-xs hover:bg-primary-hover transition-all cursor-pointer inline-flex items-center gap-1.5"
             >
               <span className="material-symbols-outlined text-sm" style={{ fontVariationSettings: "'FILL' 1" }}>
                 workspace_premium
               </span>
-              Upgrade Subscription Plan
+              View Upgrade & Question Packs
             </button>
           )}
         </div>

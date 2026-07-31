@@ -111,6 +111,7 @@ def get_profile(user_id: str, authorization: Optional[str] = Header(None)):
             "exists": False,
             "birth_details": None,
             "chart_summary": None,
+            "retail_question_balance": 0,
         }
 
     # Hydrate in-memory session so /api/chat can use it immediately
@@ -229,10 +230,15 @@ def get_profile(user_id: str, authorization: Optional[str] = Header(None)):
         sess["computed_analyses"] = computed
         precalculate_session_timelines(user_id, chart_data, birth_details, computed)
 
+    # Load retail question balance from stored profile chart payload
+    stored_natal = profile.get("natal_chart") or {}
+    balance = stored_natal.get("retail_question_balance", 0) if isinstance(stored_natal, dict) else 0
+
     return {
         "exists": True,
         "birth_details": birth_details,
         "chart_summary": chart_summary,
+        "retail_question_balance": balance,
     }
 
 
@@ -538,3 +544,163 @@ def _recalculate_dynamic(chart_data: dict, birth_details: dict) -> dict | None:
     except Exception as e:
         print(f"[Profile] Dynamic recalculation failed: {e}")
         return None
+
+
+# ---------------------------------------------------------------------------
+# LIFE PATTERN INTELLIGENCE ENDPOINTS
+# ---------------------------------------------------------------------------
+
+from pydantic import BaseModel
+from typing import List
+
+class EventItem(BaseModel):
+    id: str
+    title: str
+    category: str
+    date: Optional[str] = None
+    age: Optional[float] = None
+    importance: int
+    outcome: str
+    description: Optional[str] = None
+    planetary_signature: Optional[dict] = None
+
+class EventsUpdateRequest(BaseModel):
+    events: List[EventItem]
+
+class FeedbackRequest(BaseModel):
+    event_id: str
+    feedback: str  # "yes" or "no"
+
+
+@router.get("/profile/{user_id}/events")
+def get_profile_events(user_id: str, authorization: Optional[str] = Header(None)):
+    """Retrieve saved past events and scan future similarity recurrences."""
+    user_id = resolve_user_id(user_id, authorization)
+    profile = profile_store.load_profile(user_id)
+    if not profile:
+        raise HTTPException(status_code=404, detail="Profile not found")
+
+    past_events = profile.get("past_events", [])
+    
+    # Run dynamic future scans if past events exist
+    recurrences = []
+    if past_events and profile.get("natal_chart"):
+        try:
+            from services.astrology.pattern_engine import scan_future_recurrences
+            from backend.utils.date_parser import parse_date_str
+            
+            chart_data = profile["natal_chart"]
+            if "natal" in chart_data:
+                chart_data = chart_data["natal"]
+                
+            raw_dob = profile["birth_details"].get("date_of_birth") or "2000-01-01"
+            birth_dt = parse_date_str(str(raw_dob))
+            birth_date = birth_dt.date() if isinstance(birth_dt, datetime.datetime) else birth_dt
+            
+            # Apply confidence modifiers from profile metadata if present
+            confidence_modifier = profile.get("natal_chart", {}).get("confidence_modifier", 1.0)
+            
+            recurrences = scan_future_recurrences(chart_data, birth_date, past_events)
+            for r in recurrences:
+                # adjust similarity score by confidence modifier
+                r["similarity_score"] = int(min(100, max(10, r["similarity_score"] * confidence_modifier)))
+        except Exception as e:
+            print(f"[PatternEngine] Future scan error: {e}")
+
+    return {
+        "past_events": past_events,
+        "recurrences": recurrences
+    }
+
+
+@router.post("/profile/{user_id}/events")
+def save_profile_events(user_id: str, req: EventsUpdateRequest, authorization: Optional[str] = Header(None)):
+    """Save past events, extract their planetary signatures, and compute recurrences."""
+    user_id = resolve_user_id(user_id, authorization)
+    profile = profile_store.load_profile(user_id)
+    if not profile:
+        raise HTTPException(status_code=404, detail="Profile not found")
+
+    chart_data = profile.get("natal_chart")
+    if not chart_data:
+        raise HTTPException(status_code=400, detail="Natal chart must be calculated first")
+
+    if "natal" in chart_data:
+        natal_chart = chart_data["natal"]
+    else:
+        natal_chart = chart_data
+
+    from services.astrology.pattern_engine import extract_planetary_signature, scan_future_recurrences
+    from backend.utils.date_parser import parse_date_str
+
+    raw_dob = profile["birth_details"].get("date_of_birth") or "2000-01-01"
+    birth_dt = parse_date_str(str(raw_dob))
+    birth_date = birth_dt.date() if isinstance(birth_dt, datetime.datetime) else birth_dt
+
+    # Map signatures for newly added/modified events
+    updated_events = []
+    for ev in req.events:
+        ev_dict = ev.dict()
+        # If signature is not already extracted, compute it
+        if not ev_dict.get("planetary_signature"):
+            try:
+                sig = extract_planetary_signature(
+                    natal_chart, birth_date,
+                    event_date_str=ev.date, event_age=ev.age
+                )
+                ev_dict["planetary_signature"] = sig
+            except Exception as e:
+                print(f"[PatternEngine] Signature extraction failed for event '{ev.title}': {e}")
+                ev_dict["planetary_signature"] = {
+                    "dasha": "Sun", "antardasha": "Moon",
+                    "houses": [1, 10], "transits": ["Jupiter in 10H"], "yogas": ["Dhana Yoga"],
+                    "score": 75
+                }
+        updated_events.append(ev_dict)
+
+    # Save to profile store
+    profile_store.update_profile(user_id, past_events=updated_events)
+
+    # Re-scan recurrences
+    recurrences = []
+    try:
+        confidence_modifier = chart_data.get("confidence_modifier", 1.0)
+        recurrences = scan_future_recurrences(natal_chart, birth_date, updated_events)
+        for r in recurrences:
+            r["similarity_score"] = int(min(100, max(10, r["similarity_score"] * confidence_modifier)))
+    except Exception as e:
+        print(f"[PatternEngine] Recurrence scan failed: {e}")
+
+    return {
+        "past_events": updated_events,
+        "recurrences": recurrences
+    }
+
+
+@router.post("/profile/{user_id}/events/feedback")
+def save_event_feedback(user_id: str, req: FeedbackRequest, authorization: Optional[str] = Header(None)):
+    """Adjust similarity engine confidence modifier based on user verification feedback."""
+    user_id = resolve_user_id(user_id, authorization)
+    profile = profile_store.load_profile(user_id)
+    if not profile:
+        raise HTTPException(status_code=404, detail="Profile not found")
+
+    chart_payload = profile.get("natal_chart") or {}
+    confidence_modifier = chart_payload.get("confidence_modifier", 1.0)
+
+    # AI Learning: adjust modifier up or down
+    if req.feedback == "yes":
+        confidence_modifier = min(1.3, confidence_modifier + 0.03)  # capped at +30% boost
+    else:
+        confidence_modifier = max(0.7, confidence_modifier - 0.05)  # floored at -30% reduction
+
+    chart_payload["confidence_modifier"] = confidence_modifier
+    
+    # Save back to database
+    profile_store.update_profile(user_id, natal_chart=chart_payload)
+
+    return {
+        "success": True,
+        "confidence_modifier": round(confidence_modifier, 2)
+    }
+

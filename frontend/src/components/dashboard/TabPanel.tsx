@@ -18,6 +18,8 @@ import PersonalityDashboard from './PersonalityDashboard'
 import RemediesDashboard from './RemediesDashboard'
 import DoshaDashboard from './DoshaDashboard'
 import LockedTabOverlay from './LockedTabOverlay'
+import LifePatternDashboard from './LifePatternDashboard'
+import PastEventsDashboard from './PastEventsDashboard'
 import KundliMatchingView from '../matching/KundliMatchingView'
 import DashaTimelineView from '../dasha/DashaTimelineView'
 import StructuredReportView from './StructuredReportView'
@@ -129,6 +131,10 @@ export default function TabPanel({
           queryMsg = `Provide a detailed ${relationshipTarget} relationship analysis for my horoscope.`
         } else if (tab === 'career' && careerSubTab === 'kala_vidya') {
           queryMsg = 'Provide a detailed 64 Kalas, Vidya & Academic Receptivity analysis for my horoscope.'
+        } else if (tab === 'strategic_insights') {
+          queryMsg = 'Provide a comprehensive strategic overview of my chart — highlight the most important decisions I should be making right now, key timing windows in the next 12 months, and the overall risk/opportunity balance for career, finance, and relationships.'
+        } else if (tab === 'past_events') {
+          queryMsg = 'Provide a comprehensive discovery of past life events from my chart — identify 5-7 concrete events across education, career, relationships, relocation, and property/wealth that are supported by dasha activations and yoga triggers.'
         }
 
         const res = await authenticatedFetch(`${apiBaseUrl}/api/tab-chat`, {
@@ -271,6 +277,12 @@ export default function TabPanel({
     if (tab === 'doshas') {
       return 'Vedic Doshas'
     }
+    if (tab === 'strategic_insights') {
+      return 'Life Pattern Intelligence'
+    }
+    if (tab === 'past_events') {
+      return 'Past Events'
+    }
     return tab.charAt(0).toUpperCase() + tab.slice(1)
   }
 
@@ -336,6 +348,24 @@ export default function TabPanel({
         {/* Remedies Tab Dashboard */}
         {tab === 'remedies' && (
           <RemediesDashboard chartData={chartData} computed={computed} birthData={birthData} />
+        )}
+
+        {/* Life Pattern Intelligence Tab Dashboard */}
+        {tab === 'strategic_insights' && (
+          <LifePatternDashboard
+            chartData={chartData}
+            userId={userId}
+            apiBaseUrl={apiBaseUrl}
+            onAskQuestion={(q) => handleSendMessage(q)}
+          />
+        )}
+
+        {/* Past Events Tab Dashboard */}
+        {tab === 'past_events' && (
+          <PastEventsDashboard
+            chartData={chartData}
+            onAskQuestion={(q) => handleSendMessage(q)}
+          />
         )}
 
         {/* Tab AI Initial Reading Card */}

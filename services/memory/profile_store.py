@@ -179,9 +179,14 @@ class ProfileStore:
             # 5. Insert or update AstroChart
             chart = db.query(AstroChart).filter(AstroChart.profile_id == profile.id, AstroChart.chart_type == "natal").first()
             
+            existing_events = []
+            if chart and chart.raw_data:
+                existing_events = chart.raw_data.get("past_events", [])
+
             raw_payload = {
                 "natal_chart": natal_chart,
-                "chart_response": chart_response
+                "chart_response": chart_response,
+                "past_events": existing_events
             }
 
             if not chart:
@@ -238,6 +243,7 @@ class ProfileStore:
                 "birth_details": birth_details,
                 "natal_chart": payload.get("natal_chart"),
                 "chart_response": payload.get("chart_response"),
+                "past_events": payload.get("past_events", []),
                 "created_at": chart.created_at.isoformat() if hasattr(chart, "created_at") and chart.created_at else datetime.now().isoformat(),
                 "updated_at": chart.updated_at.isoformat() if hasattr(chart, "updated_at") and chart.updated_at else datetime.now().isoformat()
             }
@@ -276,7 +282,10 @@ class ProfileStore:
             if not profile:
                 return False
 
-            chart = db.query(AstroChart).filter(AstroChart.profile_id == profile.id, AstroChart.chart_type == "birth").first()
+            chart = db.query(AstroChart).filter(
+                AstroChart.profile_id == profile.id,
+                AstroChart.chart_type.in_(["natal", "birth"])
+            ).first()
             if not chart:
                 return False
 
@@ -286,6 +295,8 @@ class ProfileStore:
                 raw_data["natal_chart"] = updates["natal_chart"]
             if "chart_response" in updates:
                 raw_data["chart_response"] = updates["chart_response"]
+            if "past_events" in updates:
+                raw_data["past_events"] = updates["past_events"]
                 
             chart.raw_data = raw_data
             db.commit()

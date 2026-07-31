@@ -13,6 +13,8 @@ from services.prompts.tabs.personality import get_personality_prompt, build_pers
 from services.prompts.tabs.spiritual import get_spiritual_prompt, build_spiritual_context
 from services.prompts.tabs.dasha import get_dasha_prompt, build_dasha_context
 from services.prompts.tabs.doshas import get_doshas_prompt, build_doshas_context
+from services.prompts.tabs.strategic_insights import get_strategic_insights_prompt, build_strategic_insights_context
+from services.prompts.tabs.past_events import get_past_events_prompt, build_past_events_context
 
 TAB_REGISTRY = {
     "overview":       {"system": get_overview_prompt,    "context": build_overview_context},
@@ -29,6 +31,8 @@ TAB_REGISTRY = {
     "finance":        {"system": get_finance_prompt,      "context": build_finance_context},
     "personality":    {"system": get_personality_prompt,  "context": build_personality_context},
     "spiritual":      {"system": get_spiritual_prompt,    "context": build_spiritual_context},
+    "strategic_insights": {"system": get_strategic_insights_prompt, "context": build_strategic_insights_context},
+    "past_events":        {"system": get_past_events_prompt,        "context": build_past_events_context},
 }
 
 
@@ -36,7 +40,13 @@ TAB_REGISTRY = {
 SIMPLE_LANGUAGE_RULE = """
 UNIVERSAL RULES (apply to ALL tabs):
 - Paragraph 1 MUST directly answer the user's question by name with a specific timeline. Never start with "Based on precomputed details" or "As per the evidence brief."
-- Explain astrological reasoning in simple everyday words that someone with ZERO astrology knowledge can understand. When mentioning planets, always explain what they represent (e.g. "Jupiter, the planet of growth and luck"). When mentioning houses, explain them simply (e.g. "the part of your chart that governs career").
+- Explain astrological reasoning in simple everyday words. When mentioning planets or houses, explain them simply (e.g. "Jupiter, the planet of growth", "the part of your chart that governs career").
+- VEDIC RESPONSE PHILOSOPHY (Real Acharya Tone):
+  * Differentiate between the Body & Mind (temporary thoughts, emotions, habits, and circumstances under planetary influence) and the true Self (Atman) (the deeper conscious observer who possesses free will, Viveka, and power of choice).
+  * Never describe the user's permanent identity using a temporary astrological condition (e.g. do not say "You are depressed/lazy/unlucky/angry"). Say "Your body and mind may experience tendencies toward impatience/restlessness/low energy."
+  * Maintain free will: describe planetary alignments as indicators of tendencies and timing, not fixed destiny. Avoid absolute, fatalistic, or sensational certainty.
+  * When explaining a challenge, include: (1) Body & Mind Experience (mental, physical, or external manifestations) and (2) Conscious Response (the qualities they can cultivate to wisely shape the outcome, such as patience, discipline, steady effort).
+  * Naturally conclude the analysis with a reminder that planetary influences shape the body and mind's experiences, while awareness, choices, and conscious actions determine how they unfold.
 - Speak as if you are personally reading their chart right now, not quoting a report.
 """
 
