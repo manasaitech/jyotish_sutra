@@ -18,6 +18,9 @@ export interface FeatureFlags {
   enableDoshasTab: boolean
   enableStrategicInsightsTab: boolean
   enablePastEventsTab: boolean
+  enableWoundsTraumaTab: boolean
+  enableGiftsTalentsTab: boolean
+  enableSoulGrowthTab: boolean
 }
 
 export const FEATURE_FLAGS: FeatureFlags = {
@@ -35,6 +38,9 @@ export const FEATURE_FLAGS: FeatureFlags = {
   enableDoshasTab: true,       // ✅ Enabled Dosha Analysis tab
   enableStrategicInsightsTab: true, // ✅ Enabled Strategic Insights tab
   enablePastEventsTab: true,        // ✅ Enabled Past Events Discovery tab
+  enableWoundsTraumaTab: true,      // ✅ Enabled Wounds & Trauma tab
+  enableGiftsTalentsTab: true,      // ✅ Enabled Gifts & Talents tab
+  enableSoulGrowthTab: true,        // ✅ Enabled Soul Growth tab
 }
 
 
@@ -69,6 +75,12 @@ export function isTabEnabled(tabId: string): boolean {
       return FEATURE_FLAGS.enableStrategicInsightsTab
     case 'past_events':
       return FEATURE_FLAGS.enablePastEventsTab
+    case 'wounds_trauma':
+      return FEATURE_FLAGS.enableWoundsTraumaTab
+    case 'gifts_talents':
+      return FEATURE_FLAGS.enableGiftsTalentsTab
+    case 'soul_growth':
+      return FEATURE_FLAGS.enableSoulGrowthTab
     default:
       return true
   }

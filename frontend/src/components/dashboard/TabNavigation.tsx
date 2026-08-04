@@ -17,6 +17,9 @@ export type TabType =
   | 'doshas'
   | 'strategic_insights'
   | 'past_events'
+  | 'wounds_trauma'
+  | 'gifts_talents'
+  | 'soul_growth'
 
 export interface TabConfig {
   id: TabType
@@ -40,6 +43,9 @@ export const ALL_TABS: TabConfig[] = [
   { id: 'doshas', label: 'Doshas', icon: 'shield', description: 'Vedic Afflictions & Remedies' },
   { id: 'strategic_insights', label: 'Life Pattern Intelligence', icon: 'insights', description: 'AI Astrological Signature Matcher & Recurrence Scan' },
   { id: 'past_events', label: 'Past Events', icon: 'history', description: 'AI Event Discovery & Life Timeline Analysis' },
+  { id: 'wounds_trauma', label: 'Wounds & Trauma', icon: 'healing', description: 'Past-Life Wounds & Family Karma' },
+  { id: 'gifts_talents', label: 'Gifts & Talents', icon: 'diamond', description: 'Innate Abilities & Past-Life Gifts' },
+  { id: 'soul_growth', label: 'Soul Growth', icon: 'route', description: 'Karmic Lessons & Dharmic Purpose' },
 ]
 
 export const TABS: TabConfig[] = ALL_TABS.filter((tab) => isTabEnabled(tab.id))

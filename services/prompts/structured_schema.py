@@ -124,10 +124,34 @@ SECTION_REGISTRY: Dict[str, Dict[str, str]] = {
             "Each event scored by likelihood (0-100), time confidence, and evidence count."
         ),
     },
+    "wounds_trauma": {
+        "sectionId": "wounds_trauma",
+        "title": "Wounds & Trauma",
+        "focus": (
+            "Past-life karmic wounds (Ketu, 12th house, 8th house), family trauma patterns "
+            "(4th house, Moon afflictions), and life challenges from Saturn/Rahu aspects and Dasha triggers."
+        ),
+    },
+    "gifts_talents": {
+        "sectionId": "gifts_talents",
+        "title": "Gifts & Talents",
+        "focus": (
+            "Innate talents from birth (5th house, Jupiter, Venus), new skills that can be developed "
+            "(10th/11th house activations), and past-life gifts reactivated through Ketu/Rahu nodal axis and current Dasha."
+        ),
+    },
+    "soul_growth": {
+        "sectionId": "soul_growth",
+        "title": "Soul Growth Journey",
+        "focus": (
+            "Karmic lessons of this lifetime from Rahu-Ketu axis, Atmakaraka planet, "
+            "9th house dharma path, and Dasha-driven spiritual evolution phases."
+        ),
+    },
 }
 
 # Tabs that are enabled for the structured JSON pipeline
-STRUCTURED_ENABLED_TABS = {"health", "food", "remedies", "career", "finance", "personality", "spiritual", "overview", "strategic_insights", "past_events"}
+STRUCTURED_ENABLED_TABS = {"health", "food", "remedies", "career", "finance", "personality", "spiritual", "overview", "strategic_insights", "past_events", "wounds_trauma", "gifts_talents", "soul_growth"}
 
 
 # ═══════════════════════════════════════════════════════════════
@@ -220,7 +244,10 @@ SECTION_RULES: Dict[str, str] = {
     "overview": "overview: Exactly 1 row: \"Major Life Theme\" detailing current yoga activations and overall life path summary. astrologicalReason=chart ruler, yogas, Dasha. recommendedActions=exactly 1 strategic recommendation.",
     "strategic_insights": "strategic_insights: FIRST row must be \"Strategic Verdict\" with clear Recommended/Proceed with Caution/Delay/Avoid verdict. SECOND row=\"Key Supporting Factors\" listing favorable astrological indicators. THIRD row=\"Risk Factors\" listing challenges and unfavorable indicators. Subsequent rows=timing windows (Immediate/3M/6M/1Y) with specific dasha+transit evidence. astrologicalReason=planet+house+dasha+transit with natal promise vs timing comparison. recommendedActions=concrete strategic moves+precautions.",
     "past_events": "past_events: Each row=one discovered life event. primaryFinding=event category (e.g. \"Career Breakthrough\", \"Marriage\", \"Property Purchase\", \"Foreign Travel\"). details=estimated time window + likelihood score (0-100) + possible real-world manifestation. astrologicalReason=activated houses + dasha lord + supporting planets + triggered yogas with specific dates. recommendedActions=empty (past events have no actions). Order rows by likelihood score descending.",
-    "doshas": "doshas: Read the `precomputed_dosha_analysis` object provided under the `document` key in the user prompt. DO NOT invent or alter any dosha name, strength, influence, mitigation, overall impact, practical impact, timelines, or activation checks. For each detected dosha in `precomputed_dosha_analysis.doshas`, populate the `dosha_list` array. Convert why_it_exists, why_it_is_reduced, challenges, strengths, and remedies into professional, flowing English prose. Populate the `summary` block (significant_doshas, currently_active, well_mitigated, highest_priority_area, detected_doshas_summary) using the precomputed values under `precomputed_dosha_analysis.summary`."
+    "doshas": "doshas: Read the `precomputed_dosha_analysis` object provided under the `document` key in the user prompt. DO NOT invent or alter any dosha name, strength, influence, mitigation, overall impact, practical impact, timelines, or activation checks. For each detected dosha in `precomputed_dosha_analysis.doshas`, populate the `dosha_list` array. Convert why_it_exists, why_it_is_reduced, challenges, strengths, and remedies into professional, flowing English prose. Populate the `summary` block (significant_doshas, currently_active, well_mitigated, highest_priority_area, detected_doshas_summary) using the precomputed values under `precomputed_dosha_analysis.summary`.",
+    "wounds_trauma": "wounds_trauma: Exactly 1 row: \"Core Wound Pattern\" detailing the primary karmic wound or family trauma pattern visible in the chart. details=past-life carry-over wounds, family inherited patterns, and life challenges this person may face. astrologicalReason=Ketu, 8th/12th houses, Moon afflictions, Saturn aspects, Dasha. recommendedActions=exactly 1 healing practice.",
+    "gifts_talents": "gifts_talents: Exactly 1 row: \"Primary Gift & Talent\" detailing the strongest innate ability already present at birth, new skills that can be developed, and any past-life talent getting reactivated. astrologicalReason=5th house, Jupiter, Venus, Rahu-Ketu nodal axis, Dasha. recommendedActions=exactly 1 development action.",
+    "soul_growth": "soul_growth: Exactly 1 row: \"Soul Lesson of This Lifetime\" detailing the core karmic lesson and dharmic purpose according to the chart. astrologicalReason=Rahu-Ketu axis, Atmakaraka, 9th house, Dasha phases. recommendedActions=exactly 1 growth practice."
 }
 
 

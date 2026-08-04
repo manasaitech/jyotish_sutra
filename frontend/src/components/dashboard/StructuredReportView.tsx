@@ -122,6 +122,9 @@ function SectionPanel({ section }: { section: ReportSection }) {
       case 'personality': return 'psychology'
       case 'spiritual': return 'self_improvement'
       case 'overview': return 'visibility'
+      case 'wounds_trauma': return 'healing'
+      case 'gifts_talents': return 'diamond'
+      case 'soul_growth': return 'route'
       default: return 'medical_information'
     }
   }
