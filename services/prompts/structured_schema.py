@@ -196,6 +196,8 @@ RULES:
 - Populate only schema properties. Use null when unavailable.
 - Keep all values ultra-concise (all summary, details, and executiveSummary text must be exactly 1 short sentence).
 - Lessen all horoscopic explanations: keep the 'astrologicalReason' to a brief fragment citing only the planets, houses, and active dasha (e.g. 'Venus in 11th Virgo, Sun-Venus Dasha') without elaborate prose.
+- Use simple, general language (avoid high vocabulary, complex jargon, or flowery academic words).
+- DYNAMIC LANGUAGE MATCHING: Analyze the user's message and chat history. You MUST respond in the EXACT same language and script used by the user. If the user writes in Hindi (Devanagari script), respond in Hindi. If the user writes in Hinglish (transliterated Hindi in English letters), respond in Hinglish. If the user writes in English, respond in English. Keep the language natural and consistent throughout the entire JSON response (including summary, findings, details, reasons, and actions).
 - Limit overallRecommendations, importantYogas, doshas, and upcomingPeriods to exactly 1 key item each.
 - Never mention confidence percentages or diagnose diseases.
 - Health observations = tendencies only.
