@@ -2,7 +2,7 @@ import os
 
 class AnthropicClient:
     def __init__(self, api_key: str = None):
-        self.api_key = api_key or os.environ.get("ANTHROPIC_API_KEY")
+        self.api_key = api_key or os.environ.get("Claude_API") or os.environ.get("ANTHROPIC_API_KEY")
         self.client = None
         
         if self.api_key:
@@ -12,15 +12,18 @@ class AnthropicClient:
             except Exception as e:
                 print(f"Failed to initialize Anthropic client: {e}")
                 
-    def generate(self, system_prompt: str, user_prompt: str) -> str:
+    def generate(self, system_prompt: str, user_prompt: str, max_tokens: int = 4000, model: str = None, raise_on_error: bool = False, **kwargs) -> str:
         """Call Claude to generate response, with a smart offline Vedic fallback if API key is missing."""
         if not self.api_key or not self.client:
+            if raise_on_error:
+                raise ValueError("Claude API key or client is not initialized.")
             return self._offline_vedic_interpretation(user_prompt)
             
+        model_name = model or os.environ.get("CLAUDE_MODEL") or "claude-sonnet-4-5-20250929"
         try:
             message = self.client.messages.create(
-                model="claude-3-5-sonnet-20241022",
-                max_tokens=4000,
+                model=model_name,
+                max_tokens=max_tokens,
                 temperature=0.7,
                 system=system_prompt,
                 messages=[
@@ -29,7 +32,29 @@ class AnthropicClient:
             )
             return message.content[0].text
         except Exception as e:
-            print(f"Anthropic generation error: {e}")
+            print(f"Anthropic generation error with model {model_name}: {e}")
+            
+            # If the primary model failed and it wasn't the 3.5 fallback, attempt the fallback
+            if model_name != "claude-3-5-sonnet-20241022":
+                try:
+                    print("Attempting fallback to Claude 3.5 Sonnet (claude-3-5-sonnet-20241022)...")
+                    message = self.client.messages.create(
+                        model="claude-3-5-sonnet-20241022",
+                        max_tokens=max_tokens,
+                        temperature=0.7,
+                        system=system_prompt,
+                        messages=[
+                            {"role": "user", "content": user_prompt}
+                        ]
+                    )
+                    return message.content[0].text
+                except Exception as e35:
+                    print(f"Anthropic fallback generation error with model claude-3-5-sonnet-20241022: {e35}")
+                    if raise_on_error:
+                        raise e35
+            
+            if raise_on_error:
+                raise e
             return f"Blessings. The cosmos is currently clouded by connection issues: {str(e)} \n\n{self._offline_vedic_interpretation(user_prompt)}"
             
     def _offline_vedic_interpretation(self, user_prompt: str) -> str:
