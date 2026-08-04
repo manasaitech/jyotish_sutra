@@ -75,6 +75,14 @@ SECTION_REGISTRY: Dict[str, Dict[str, str]] = {
             "meal timing, digestive fire (Agni) strength, and seasonal dietary adjustments."
         ),
     },
+    "remedies": {
+        "sectionId": "remedies",
+        "title": "Remedies & Mitigations",
+        "focus": (
+            "Vedic remedies for afflicted planets, active Dasha corrections, "
+            "gemstone recommendations, mantras, charity (Daana), and daily rituals."
+        ),
+    },
     "overview": {
         "sectionId": "overview",
         "title": "Horoscope Overview",
@@ -148,14 +156,6 @@ MASTER_OUTPUT_SCHEMA: Dict[str, Any] = {
                         "recommendedActions": [],
                     }
                 ],
-                "planetaryFactors": [
-                    {
-                        "planet": "",
-                        "impact": "",
-                        "reason": "",
-                    }
-                ],
-                "keyObservations": [],
             }
         ],
         "overallRecommendations": [],
@@ -194,30 +194,33 @@ _BASE_SYSTEM_PROMPT = """You are Astro Sutra's Structured Analysis Engine. Retur
 
 RULES:
 - Populate only schema properties. Use null when unavailable.
-- Keep all values concise (no paragraphs in table cells).
+- Keep all values ultra-concise (all summary, details, and executiveSummary text must be exactly 1 short sentence).
+- Lessen all horoscopic explanations: keep the 'astrologicalReason' to a brief fragment citing only the planets, houses, and active dasha (e.g. 'Venus in 11th Virgo, Sun-Venus Dasha') without elaborate prose.
+- Limit overallRecommendations, importantYogas, doshas, and upcomingPeriods to exactly 1 key item each.
 - Never mention confidence percentages or diagnose diseases.
 - Health observations = tendencies only.
-- Every section: 1 summary (2-3 sentences), 2-5 table rows, 1-4 planetaryFactors, 2-4 keyObservations.
+- Every section: 1 summary (1 short sentence), exactly 1 table row.
+- CRITICAL: Keep all text descriptions, details, and astrological reasons brief, concise, and direct. The entire JSON response must be under 200 tokens total to minimize generation latency and prevent truncation.
 
 TIMELINE RULE: Every table row must include specific predictive timelines (exact year+month range, e.g., "[Month Year] to [Month Year]") derived strictly from the Vimshottari Dasha dates provided in the user's chart context. Never use generic or hardcoded timelines. Place timelines in 'details' or 'astrologicalReason'.
 
 PER-SECTION TABLE ROW RULES:
 
-health: primaryFinding=specific body system/condition (NOT raw placements). details=physiological tendencies. astrologicalReason=cite planet, house (1/6/8/12), aspects, Dasha. recommendedActions=1-3 restorative items.
+health: Exactly 1 row: "Primary Health Vulnerability" detailing physiological tendencies. astrologicalReason=cite planet, house (1/6/8/12), aspects, Dasha. recommendedActions=exactly 1 restorative action.
 
-food: primaryFinding=Prakriti diet type or therapeutic diet (e.g. "Pitta-Cooling Lunch"). details=specific foods/herbs to favor/avoid based on Prakriti+chart vulnerabilities. astrologicalReason=Prakriti score+planetary afflictions. recommendedActions=specific food items with timing.
+food: Exactly 1 row: "Prakriti Dietary Plan" detailing specific foods/herbs to favor/avoid based on Prakriti. astrologicalReason=Prakriti score+planetary afflictions. recommendedActions=exactly 1 specific food recommendation with timing.
 
-remedies: primaryFinding=remedy category (Mantra/Gemstone/Daana/Puja). details=exact mantra text+count, gemstone weight/metal/finger/day, or donation items/day. astrologicalReason=affliction+Dasha timeline. recommendedActions=actionable steps with timing.
+remedies: Exactly 1 row: "Core Remedial Practice" detailing exact mantra and gemstone recommendation. astrologicalReason=affliction+Dasha timeline. recommendedActions=exactly 1 actionable step with timing.
 
-career: FIRST row must be "Top Career Domains" with top 3 domains from 10th house/lord/Amatyakaraka. Subsequent rows=career phases/job-vs-business/timeline growth. astrologicalReason=10th house dynamics+Dasha timeline.
+career: Exactly 1 row: "Top Career Domains" detailing top 3 domains from 10th house/lord/Amatyakaraka. astrologicalReason=10th house dynamics+Dasha timeline. recommendedActions=exactly 1 professional recommendation.
 
-finance: FIRST row="Primary Wealth Sources" from 2nd/11th houses. SECOND row="Favourable Wealth Period" with exact timeline. Subsequent rows=savings/risk. astrologicalReason=2nd/11th lords+Dasha.
+finance: Exactly 1 row: "Primary Wealth Sources & Favourable Period" combining 2nd/11th houses with active Dasha timeline. astrologicalReason=2nd/11th lords+Dasha. recommendedActions=exactly 1 financial recommendation.
 
-personality: primaryFinding=psychological pattern/temperament shift. details=strengths, emotional tendencies. astrologicalReason=Lagna, Moon sign, Dasha transitions.
+personality: Exactly 1 row: "Core Personality Pattern" detailing psychological temperament and strengths. astrologicalReason=Lagna, Moon sign, Dasha transitions. recommendedActions=exactly 1 development action.
 
-spiritual: primaryFinding=spiritual activation/karmic phase. details=meditation, past-life patterns. astrologicalReason=4th/8th/12th houses, Ketu, Dasha.
+spiritual: Exactly 1 row: "Spiritual Activation & Path" detailing meditation compatibility and karmic phase. astrologicalReason=4th/8th/12th houses, Ketu, Dasha. recommendedActions=exactly 1 spiritual action.
 
-overview: primaryFinding=major life theme/yoga activation. details=life path summary. astrologicalReason=chart ruler, yogas, Dasha.
+overview: Exactly 1 row: "Major Life Theme" detailing current yoga activations and overall life path summary. astrologicalReason=chart ruler, yogas, Dasha. recommendedActions=exactly 1 strategic recommendation.
 
 strategic_insights: FIRST row must be "Strategic Verdict" with clear Recommended/Proceed with Caution/Delay/Avoid verdict. SECOND row="Key Supporting Factors" listing favorable astrological indicators. THIRD row="Risk Factors" listing challenges and unfavorable indicators. Subsequent rows=timing windows (Immediate/3M/6M/1Y) with specific dasha+transit evidence. astrologicalReason=planet+house+dasha+transit with natal promise vs timing comparison. recommendedActions=concrete strategic moves+precautions.
 
@@ -335,10 +338,6 @@ def _build_scoped_schema(section_ids: List[str]) -> Dict[str, Any]:
                 "recommendedActions": [],
             }
         ],
-        "planetaryFactors": [
-            {"planet": "", "impact": "", "reason": ""}
-        ],
-        "keyObservations": [],
     }
 
     sections = []
@@ -364,6 +363,18 @@ def _build_scoped_schema(section_ids: List[str]) -> Dict[str, Any]:
             "importantYogas": [{"name": "", "effect": "", "reason": ""}],
             "doshas": [{"name": "", "severity": "", "reason": "", "recommendedRemedy": ""}],
             "upcomingPeriods": [{"period": "", "effect": "", "suggestion": ""}],
+            "disclaimer": "Astrological interpretations indicate tendencies and should not be considered medical, legal, or financial advice.",
+        }
+    } if not (len(section_ids) == 1 and section_ids[0] not in ["doshas", "strategic_insights", "past_events"]) else {
+        "report": {
+            "header": {
+                "title": "",
+                "reportType": "",
+                "generatedDate": "",
+                "birthSummary": "",
+            },
+            "executiveSummary": "",
+            "sections": sections,
             "disclaimer": "Astrological interpretations indicate tendencies and should not be considered medical, legal, or financial advice.",
         }
     }

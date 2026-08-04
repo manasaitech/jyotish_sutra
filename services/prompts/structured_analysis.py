@@ -70,7 +70,7 @@ def run_structured_analysis(
         raw_response = client.generate(
             system_prompt=system_prompt,
             user_prompt=user_prompt,
-            max_tokens=2000,
+            max_tokens=4000,
         )
 
         if not raw_response:
@@ -123,8 +123,8 @@ def _extract_json(raw: str) -> Optional[Dict[str, Any]]:
     # Strategy 1: Direct parse (ideal case — LLM returned clean JSON)
     try:
         return json.loads(text)
-    except json.JSONDecodeError:
-        pass
+    except json.JSONDecodeError as e:
+        print(f"[_extract_json] Strategy 1 (direct) failed: {e}")
 
     # Strategy 2: Extract from markdown code fences
     code_fence_pattern = r'```(?:json)?\s*\n?(.*?)\n?```'
@@ -132,7 +132,8 @@ def _extract_json(raw: str) -> Optional[Dict[str, Any]]:
     for match in matches:
         try:
             return json.loads(match.strip())
-        except json.JSONDecodeError:
+        except json.JSONDecodeError as e:
+            print(f"[_extract_json] Strategy 2 (code fence) failed: {e}")
             continue
 
     # Strategy 3: Find the outermost { ... } block
@@ -142,8 +143,8 @@ def _extract_json(raw: str) -> Optional[Dict[str, Any]]:
         candidate = text[first_brace:last_brace + 1]
         try:
             return json.loads(candidate)
-        except json.JSONDecodeError:
-            pass
+        except json.JSONDecodeError as e:
+            print(f"[_extract_json] Strategy 3 (outermost braces) failed: {e}")
 
     # Strategy 4: Try fixing common issues (trailing commas, etc.)
     if first_brace != -1 and last_brace != -1:
@@ -152,8 +153,8 @@ def _extract_json(raw: str) -> Optional[Dict[str, Any]]:
         fixed = re.sub(r',\s*([}\]])', r'\1', candidate)
         try:
             return json.loads(fixed)
-        except json.JSONDecodeError:
-            pass
+        except json.JSONDecodeError as e:
+            print(f"[_extract_json] Strategy 4 (trailing comma fix) failed: {e}")
 
     # Strategy 5: Repair truncated JSON (LLM ran out of tokens mid-response)
     if first_brace != -1:
@@ -174,8 +175,8 @@ def _extract_json(raw: str) -> Optional[Dict[str, Any]]:
             result = json.loads(candidate)
             print("[StructuredAnalysis] Repaired truncated JSON successfully")
             return result
-        except json.JSONDecodeError:
-            pass
+        except json.JSONDecodeError as e:
+            print(f"[_extract_json] Strategy 5 (truncated repair) failed: {e}")
 
     return None
 

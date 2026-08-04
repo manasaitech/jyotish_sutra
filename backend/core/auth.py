@@ -185,12 +185,22 @@ def verify_firebase_token(id_token: str) -> Dict[str, Any]:
             "user_id": decoded.get("user_id"),
         }
     except Exception as e:
-        print(f"[Firebase Admin] verify_id_token failed: {e}. Attempting manual fallback verification...")
-        try:
-            return verify_firebase_token_manually(id_token)
-        except Exception as fallback_err:
-            print(f"[Auth Error] Fallback token verification failed: {fallback_err}")
-            raise HTTPException(status_code=401, detail=f"Unauthorized: Invalid or expired Firebase Token ({str(fallback_err)})")
+        err_msg = str(e).lower()
+        if "token used too early" in err_msg or "issued in the future" in err_msg:
+            # Quietly fallback to manual verification (which supports leeway)
+            print("[Firebase Admin] Token clock drift detected, falling back to manual validation.")
+            try:
+                return verify_firebase_token_manually(id_token)
+            except Exception as fallback_err:
+                print(f"[Auth Error] Fallback token verification failed during clock drift: {fallback_err}")
+                raise HTTPException(status_code=401, detail=f"Unauthorized: Invalid or expired Firebase Token ({str(fallback_err)})")
+        else:
+            print(f"[Firebase Admin] verify_id_token failed: {e}. Attempting manual fallback verification...")
+            try:
+                return verify_firebase_token_manually(id_token)
+            except Exception as fallback_err:
+                print(f"[Auth Error] Fallback token verification failed: {fallback_err}")
+                raise HTTPException(status_code=401, detail=f"Unauthorized: Invalid or expired Firebase Token ({str(fallback_err)})")
 
 
 def get_current_user(authorization: Optional[str] = Header(None)) -> Optional[Dict[str, Any]]:
