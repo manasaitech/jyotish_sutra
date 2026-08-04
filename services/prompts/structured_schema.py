@@ -204,32 +204,22 @@ RULES:
 
 TIMELINE RULE: Every table row must include specific predictive timelines (exact year+month range, e.g., "[Month Year] to [Month Year]") derived strictly from the Vimshottari Dasha dates provided in the user's chart context. Never use generic or hardcoded timelines. Place timelines in 'details' or 'astrologicalReason'.
 
-PER-SECTION TABLE ROW RULES:
-
-health: Exactly 1 row: "Primary Health Vulnerability" detailing physiological tendencies. astrologicalReason=cite planet, house (1/6/8/12), aspects, Dasha. recommendedActions=exactly 1 restorative action.
-
-food: Exactly 1 row: "Prakriti Dietary Plan" detailing specific foods/herbs to favor/avoid based on Prakriti. astrologicalReason=Prakriti score+planetary afflictions. recommendedActions=exactly 1 specific food recommendation with timing.
-
-remedies: Exactly 1 row: "Core Remedial Practice" detailing exact mantra and gemstone recommendation. astrologicalReason=affliction+Dasha timeline. recommendedActions=exactly 1 actionable step with timing.
-
-career: Exactly 1 row: "Top Career Domains" detailing top 3 domains from 10th house/lord/Amatyakaraka. astrologicalReason=10th house dynamics+Dasha timeline. recommendedActions=exactly 1 professional recommendation.
-
-finance: Exactly 1 row: "Primary Wealth Sources & Favourable Period" combining 2nd/11th houses with active Dasha timeline. astrologicalReason=2nd/11th lords+Dasha. recommendedActions=exactly 1 financial recommendation.
-
-personality: Exactly 1 row: "Core Personality Pattern" detailing psychological temperament and strengths. astrologicalReason=Lagna, Moon sign, Dasha transitions. recommendedActions=exactly 1 development action.
-
-spiritual: Exactly 1 row: "Spiritual Activation & Path" detailing meditation compatibility and karmic phase. astrologicalReason=4th/8th/12th houses, Ketu, Dasha. recommendedActions=exactly 1 spiritual action.
-
-overview: Exactly 1 row: "Major Life Theme" detailing current yoga activations and overall life path summary. astrologicalReason=chart ruler, yogas, Dasha. recommendedActions=exactly 1 strategic recommendation.
-
-strategic_insights: FIRST row must be "Strategic Verdict" with clear Recommended/Proceed with Caution/Delay/Avoid verdict. SECOND row="Key Supporting Factors" listing favorable astrological indicators. THIRD row="Risk Factors" listing challenges and unfavorable indicators. Subsequent rows=timing windows (Immediate/3M/6M/1Y) with specific dasha+transit evidence. astrologicalReason=planet+house+dasha+transit with natal promise vs timing comparison. recommendedActions=concrete strategic moves+precautions.
-
-past_events: Each row=one discovered life event. primaryFinding=event category (e.g. "Career Breakthrough", "Marriage", "Property Purchase", "Foreign Travel"). details=estimated time window + likelihood score (0-100) + possible real-world manifestation. astrologicalReason=activated houses + dasha lord + supporting planets + triggered yogas with specific dates. recommendedActions=empty (past events have no actions). Order rows by likelihood score descending.
-
-doshas: Read the `precomputed_dosha_analysis` object provided under the `document` key in the user prompt. DO NOT invent or alter any dosha name, strength, influence, mitigation, overall impact, practical impact, timelines, or activation checks. For each detected dosha in `precomputed_dosha_analysis.doshas`, populate the `dosha_list` array. Convert why_it_exists, why_it_is_reduced, challenges, strengths, and remedies into professional, flowing English prose. Populate the `summary` block (significant_doshas, currently_active, well_mitigated, highest_priority_area, detected_doshas_summary) using the precomputed values under `precomputed_dosha_analysis.summary`.
-
 DISCLAIMER: Always include: "Astrological interpretations indicate tendencies and should not be considered medical, legal, or financial advice."
 """
+
+SECTION_RULES: Dict[str, str] = {
+    "health": "health: Exactly 1 row: \"Primary Health Vulnerability\" detailing physiological tendencies. astrologicalReason=cite planet, house (1/6/8/12), aspects, Dasha. recommendedActions=exactly 1 restorative action.",
+    "food": "food: Exactly 1 row: \"Prakriti Dietary Plan\" detailing specific foods/herbs to favor/avoid based on Prakriti. astrologicalReason=Prakriti score+planetary afflictions. recommendedActions=exactly 1 specific food recommendation with timing.",
+    "remedies": "remedies: Exactly 1 row: \"Core Remedial Practice\" detailing exact mantra and gemstone recommendation. astrologicalReason=affliction+Dasha timeline. recommendedActions=exactly 1 actionable step with timing.",
+    "career": "career: Exactly 1 row: \"Top Career Domains\" detailing top 3 domains from 10th house/lord/Amatyakaraka. astrologicalReason=10th house dynamics+Dasha timeline. recommendedActions=exactly 1 professional recommendation.",
+    "finance": "finance: Exactly 1 row: \"Primary Wealth Sources & Favourable Period\" combining 2nd/11th houses with active Dasha timeline. astrologicalReason=2nd/11th lords+Dasha. recommendedActions=exactly 1 financial recommendation.",
+    "personality": "personality: Exactly 1 row: \"Core Personality Pattern\" detailing psychological temperament and strengths. astrologicalReason=Lagna, Moon sign, Dasha transitions. recommendedActions=exactly 1 development action.",
+    "spiritual": "spiritual: Exactly 1 row: \"Spiritual Activation & Path\" detailing meditation compatibility and karmic phase. astrologicalReason=4th/8th/12th houses, Ketu, Dasha. recommendedActions=exactly 1 spiritual action.",
+    "overview": "overview: Exactly 1 row: \"Major Life Theme\" detailing current yoga activations and overall life path summary. astrologicalReason=chart ruler, yogas, Dasha. recommendedActions=exactly 1 strategic recommendation.",
+    "strategic_insights": "strategic_insights: FIRST row must be \"Strategic Verdict\" with clear Recommended/Proceed with Caution/Delay/Avoid verdict. SECOND row=\"Key Supporting Factors\" listing favorable astrological indicators. THIRD row=\"Risk Factors\" listing challenges and unfavorable indicators. Subsequent rows=timing windows (Immediate/3M/6M/1Y) with specific dasha+transit evidence. astrologicalReason=planet+house+dasha+transit with natal promise vs timing comparison. recommendedActions=concrete strategic moves+precautions.",
+    "past_events": "past_events: Each row=one discovered life event. primaryFinding=event category (e.g. \"Career Breakthrough\", \"Marriage\", \"Property Purchase\", \"Foreign Travel\"). details=estimated time window + likelihood score (0-100) + possible real-world manifestation. astrologicalReason=activated houses + dasha lord + supporting planets + triggered yogas with specific dates. recommendedActions=empty (past events have no actions). Order rows by likelihood score descending.",
+    "doshas": "doshas: Read the `precomputed_dosha_analysis` object provided under the `document` key in the user prompt. DO NOT invent or alter any dosha name, strength, influence, mitigation, overall impact, practical impact, timelines, or activation checks. For each detected dosha in `precomputed_dosha_analysis.doshas`, populate the `dosha_list` array. Convert why_it_exists, why_it_is_reduced, challenges, strengths, and remedies into professional, flowing English prose. Populate the `summary` block (significant_doshas, currently_active, well_mitigated, highest_priority_area, detected_doshas_summary) using the precomputed values under `precomputed_dosha_analysis.summary`."
+}
 
 
 def get_structured_system_prompt(section_ids: List[str]) -> str:
@@ -244,6 +234,7 @@ def get_structured_system_prompt(section_ids: List[str]) -> str:
     """
     # Build section focus instructions
     section_focus_lines = []
+    rule_lines = []
     for sid in section_ids:
         config = SECTION_REGISTRY.get(sid)
         if config:
@@ -251,14 +242,20 @@ def get_structured_system_prompt(section_ids: List[str]) -> str:
                 f"- Section '{config['sectionId']}' (Title: \"{config['title']}\"): "
                 f"Focus on: {config['focus']}"
             )
+        rule = SECTION_RULES.get(sid)
+        if rule:
+            rule_lines.append(rule)
 
     section_focus_block = "\n".join(section_focus_lines) if section_focus_lines else "- Analyze all available domains."
+    rules_block = "\n\n".join(rule_lines) if rule_lines else "- No specific domain rules."
 
     # Build scoped schema (only include requested section IDs)
     scoped_schema = _build_scoped_schema(section_ids)
 
     return (
         f"{_BASE_SYSTEM_PROMPT}\n\n"
+        f"PER-SECTION TABLE ROW RULES:\n\n"
+        f"{rules_block}\n\n"
         f"REQUESTED SECTIONS\n\n"
         f"You must produce analysis for exactly these sections:\n"
         f"{section_focus_block}\n\n"
