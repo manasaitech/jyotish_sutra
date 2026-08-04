@@ -65,10 +65,8 @@ const CATEGORIES = [
 ]
 
 export default function LifePatternDashboard({
-  chartData,
   userId,
   apiBaseUrl,
-  onAskQuestion,
 }: LifePatternDashboardProps) {
   const [events, setEvents] = useState<PastEvent[]>([])
   const [recurrences, setRecurrences] = useState<Recurrence[]>([])

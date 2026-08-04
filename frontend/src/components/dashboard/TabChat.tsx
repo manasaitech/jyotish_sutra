@@ -6,7 +6,6 @@ import PredictionFeedbackCard from '../chat/PredictionFeedbackCard'
 import type { TabType } from './TabNavigation'
 import {
   getCurrentTier,
-  isChatLimitReached,
   getRemainingChats,
   incrementChatCount,
   getRetailQuestionBalance,
