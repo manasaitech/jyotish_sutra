@@ -20,12 +20,13 @@ def get_error_dashboard(
     try:
         result = db.execute(text("""
             SELECT
-                COALESCE(error_type, 'Unknown') AS error_type,
+                'API Connection Error' AS error_type,
                 COUNT(*) AS error_count
-            FROM analytics.ai_analytics
-            WHERE is_success = false
-            AND created_at >= CURRENT_DATE - CAST(:days AS INTEGER)
-            GROUP BY error_type
+            FROM ai.chat_messages
+            WHERE role = 'assistant'
+              AND created_at >= CURRENT_DATE - CAST(:days AS INTEGER) * INTERVAL '1 day'
+              AND (content LIKE '%cosmos is currently clouded%' OR content LIKE '%connection issues%')
+            GROUP BY 1
             ORDER BY error_count DESC
         """), {"days": days})
         errors = [{"type": r[0], "count": int(r[1])} for r in result]
@@ -37,10 +38,15 @@ def get_error_dashboard(
     # Recent error messages
     try:
         result = db.execute(text("""
-            SELECT error_type, error_message, prompt_category, created_at
-            FROM analytics.ai_analytics
-            WHERE is_success = false
-            AND created_at >= CURRENT_DATE - CAST(:days AS INTEGER)
+            SELECT 
+                'API Connection Error' AS error_type, 
+                content AS error_message, 
+                'astrology' AS prompt_category, 
+                created_at
+            FROM ai.chat_messages
+            WHERE role = 'assistant'
+              AND created_at >= CURRENT_DATE - CAST(:days AS INTEGER) * INTERVAL '1 day'
+              AND (content LIKE '%cosmos is currently clouded%' OR content LIKE '%connection issues%')
             ORDER BY created_at DESC
             LIMIT 10
         """), {"days": days})

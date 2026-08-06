@@ -8,7 +8,7 @@ class HybridClient:
         self.claude_client = AnthropicClient(api_key=api_key)
         self.groq_client = GroqClient(api_key=api_key)
 
-    def generate(self, system_prompt: str, user_prompt: str, max_tokens: int = 700, **kwargs) -> str:
+    def generate(self, system_prompt: str, user_prompt: str, max_tokens: int = 4000, **kwargs) -> str:
         # First request should always come to Claude API
         claude_key = self.api_key or os.environ.get("Claude_API") or os.environ.get("ANTHROPIC_API_KEY")
         if claude_key:

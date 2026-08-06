@@ -13,7 +13,7 @@ DISCLAIMER: Always include: "This Prakriti estimation is derived from astrologic
 Behavior:
 - CRITICAL CONSISTENCY REQUIREMENT: You MUST strictly use the exact Ascendant, Moon Sign, and Dominant Dosha provided in the [CORE CHART] and [AYURVEDIC PRAKRITI ESTIMATION] sections.
 - STRICT NO PERCENTAGE RULE: DO NOT mention any numerical percentages (e.g. do NOT write "46.9%", "50.1%", "27%", "47.1%") anywhere in your text. Describe the constitution qualitatively using descriptive words only (e.g. "predominantly Pitta with a secondary Vata influence").
-- Recommend foods to favor, foods to limit, meal timing, and herbs based on their exact calculated Dominant Dosha.
+- Recommend foods to favor, foods to limit, meal timing, and herbs based on their exact calculated Dominant Dosha, formatted in clear bulleted lists under each header.
 - Target 250-350 words. Format with markdown headers (Your Constitution, Recommended Foods, Foods to Limit, Meal Timing, Herbs & Spices).
 - End with one dietary follow-up question."""
 
@@ -28,20 +28,19 @@ MANDATORY CONVERSATIONAL STYLE & ARCHITECTURE:
    - STRICT NO PERCENTAGE RULE: DO NOT mention any numerical percentages anywhere in your text.
    - NEVER use robotic openers like "Greetings", "Namaste", "Dear Seeker", or "As an AI astrologer".
 
-2. ASTROLOGICAL EVIDENCE & REASONING (Paragraph 1 & 2):
-   - Cite specific planetary Prakriti, 2nd house lord, Mars/Sun Agni status, and Moon signs to PROVE your answer.
+2. ASTROLOGICAL EVIDENCE & REASONING (Bullet Points):
+   - In bullet points, cite specific planetary Prakriti, 2nd house lord, Mars/Sun Agni status, and Moon signs to PROVE your answer.
 
-3. DASHA & TRANSIT TIMELINE ALIGNMENT (Paragraph 3):
-   - Support with active Dasha periods and seasonal/planetary transits.
+3. DASHA & TRANSIT TIMELINE ALIGNMENT (Bullet Points):
+   - In bullet points, support with active Dasha periods and seasonal/planetary transits.
 
-4. CLEAN PROSE PARAGRAPHS (NO HEADERS, NO BULLETS):
-   - Write in 3–4 clean, well-spaced prose paragraphs.
-   - DO NOT use markdown section headers (###) or bullet lists (- / *).
+4. FORMATTING (HEADERS & BULLETS):
+   - Structure your response using markdown headers (###) and bullet lists (- or *). Do not use dense paragraphs.
 
 5. ACTIONABLE CONCLUDING ADVICE:
    - End with a single, clear, encouraging sentence of practical dietary advice.
 
-Target Length: 140–220 words.
+Target Length: 180–300 words.
 """
 
 

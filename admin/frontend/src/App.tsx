@@ -18,10 +18,10 @@ export default function App() {
       if (currentUser) {
         try {
           const idToken = await currentUser.getIdToken();
-          
+
           // Verify admin rights by hitting the backend test route
           await fetchAdminApi('/overview', idToken);
-          
+
           setToken(idToken);
           setUser(currentUser);
           setIsAdmin(true);
@@ -44,9 +44,9 @@ export default function App() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-bg-primary text-text-primary flex items-center justify-center flex-col gap-4">
-        <div className="w-10 h-10 border-4 border-accent-indigo border-t-transparent rounded-full animate-spin"></div>
-        <p className="text-xs text-text-secondary tracking-wider uppercase font-semibold">Synchronizing Portal...</p>
+      <div className="min-h-screen bg-sandalwood-bg flex items-center justify-center flex-col gap-4 font-sans">
+        <div className="w-10 h-10 border-4 border-kesari-primary border-t-transparent rounded-full animate-spin"></div>
+        <p className="text-xs text-on-surface-variant tracking-wider uppercase font-semibold">Synchronizing Portal...</p>
       </div>
     );
   }
@@ -56,7 +56,7 @@ export default function App() {
     return (
       <>
         {isAdmin === false && (
-          <div className="bg-accent-rose text-white text-xs py-2 px-4 text-center font-semibold">
+          <div className="bg-red-600 text-white text-xs py-3 px-4 text-center font-semibold tracking-wide shadow-md relative z-50">
             Access denied. You do not have the 'admin' permission role.
           </div>
         )}
@@ -67,15 +67,15 @@ export default function App() {
 
   // Authenticated admin users see the layout + requested panel section
   return (
-    <AdminLayout 
-      user={user} 
-      activeSection={activeSection} 
+    <AdminLayout
+      user={user}
+      activeSection={activeSection}
       setActiveSection={setActiveSection}
     >
-      <DashboardPage 
-        user={user} 
-        token={token} 
-        activeSection={activeSection} 
+      <DashboardPage
+        user={user}
+        token={token}
+        activeSection={activeSection}
       />
     </AdminLayout>
   );

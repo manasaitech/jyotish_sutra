@@ -42,7 +42,7 @@ class SubscriptionScreen extends StatelessWidget {
                   const Text('For focused Vedic seekers', style: TextStyle(fontSize: 12, color: AstroColors.lightTextSecondary)),
                   const SizedBox(height: 12),
                   const Text(
-                    '₹1',
+                    '₹399',
                     style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold, color: AstroColors.primary),
                   ),
                   const Text('/month (Sandbox Trial)', style: TextStyle(fontSize: 12, color: AstroColors.lightTextSecondary)),

@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
-import { 
-  loginWithGoogle, 
-  signInWithEmailAndPassword, 
-  auth 
+import {
+  loginWithGoogle,
+  signInWithEmailAndPassword,
+  auth
 } from '../auth';
 
 export default function LoginPage() {
@@ -10,6 +10,7 @@ export default function LoginPage() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [mode, setMode] = useState<'login' | 'register'>('login');
 
   const handleGoogleLogin = async () => {
     setError('');
@@ -26,8 +27,9 @@ export default function LoginPage() {
 
   const handleEmailLogin = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (mode === 'register') return;
     if (!email || !password) {
-      setError('Please fill in all credentials.');
+      setError('Please enter both email and password.');
       return;
     }
     setError('');
@@ -42,77 +44,163 @@ export default function LoginPage() {
     }
   };
 
-  return (
-    <div className="min-h-screen bg-bg-primary text-text-primary flex items-center justify-center p-4 overflow-hidden relative">
-      {/* Background radial glow */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-accent-indigo/10 rounded-full filter blur-3xl opacity-50 pointer-events-none"></div>
+  const handleClose = () => {
+    // Redirect to the main user-facing portal
+    window.location.href = 'http://localhost:5173';
+  };
 
-      <div className="w-full max-w-md bg-bg-secondary border border-border-primary rounded-card p-8 shadow-card relative z-10 animate-fade-in backdrop-blur-md">
-        <div className="text-center mb-8">
-          <div className="w-12 h-12 bg-accent-indigo/10 border border-accent-indigo/25 text-accent-indigo rounded-xl flex items-center justify-center mx-auto mb-4">
-            <span className="material-symbols-rounded text-2xl font-bold">auto_awesome</span>
+  return (
+    <div className="min-h-screen bg-background flex items-center justify-center p-4 sm:p-8 relative overflow-x-hidden font-sans w-screen">
+      {/* BACKGROUND CELESTIAL BLURS */}
+      <div className="absolute top-10 left-1/4 w-72 sm:w-96 h-72 sm:h-96 bg-amber-500/10 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute bottom-10 right-1/4 w-72 sm:w-96 h-72 sm:h-96 bg-primary/10 rounded-full blur-3xl pointer-events-none" />
+
+      {/* LOGIN CARD */}
+      <div className="w-full max-w-[440px] bg-surface/95 sm:backdrop-blur-xl border border-outline-variant/60 rounded-3xl p-8 sm:p-11 shadow-2xl relative z-10 mx-auto my-auto">
+
+        {/* CLOSE BUTTON */}
+        <button
+          onClick={handleClose}
+          aria-label="Close"
+          className="absolute top-4 right-4 text-on-surface-variant hover:text-on-surface p-2 rounded-full hover:bg-surface-variant/40 transition-colors cursor-pointer"
+        >
+          <span className="material-symbols-outlined text-xl">close</span>
+        </button>
+
+        {/* LOGO & HEADER */}
+        <div className="text-center">
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-800 text-[11px] font-bold uppercase tracking-wider">
+            <span className="material-symbols-outlined text-[14px]">auto_awesome</span>
+            AstroSutra AI Auth
           </div>
-          <h2 className="text-xl font-bold tracking-tight text-text-primary">AstroSutra AI</h2>
-          <p className="text-xs text-text-secondary mt-1">Admin Analytics Portal</p>
+          <h2 className="mt-4 text-2xl sm:text-3xl font-bold text-on-surface font-serif leading-tight">
+            Welcome back
+          </h2>
+          <p className="mt-2 text-xs text-on-surface-variant max-w-[280px] mx-auto leading-relaxed">
+            Access secure platform diagnostics, LLM token metrics, and real-time usage feeds.
+          </p>
         </div>
 
+        {/* ERROR ALERT */}
         {error && (
-          <div className="bg-accent-rose/10 border border-accent-rose/25 text-accent-rose text-xs p-3 rounded-lg mb-5 flex items-center gap-2">
-            <span className="material-symbols-rounded text-sm">error</span>
-            <span>{error}</span>
+          <div className="mt-6 p-3.5 bg-error-container/20 border border-error/30 text-error rounded-2xl text-xs flex items-center gap-2.5">
+            <span className="material-symbols-outlined text-base shrink-0">error</span>
+            <span className="leading-snug">{error}</span>
           </div>
         )}
 
-        <form onSubmit={handleEmailLogin} className="space-y-4">
-          <div>
-            <label className="text-[10px] uppercase tracking-wider text-text-secondary font-semibold block mb-1">
-              Email Address
-            </label>
-            <input 
-              type="email" 
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="admin@astrosutra.ai"
-              className="w-full bg-bg-input border border-border-primary focus:border-accent-indigo focus:ring-1 focus:ring-accent-indigo text-sm rounded-btn px-4 py-2.5 outline-none transition-all placeholder:text-text-muted"
-            />
-          </div>
-
-          <div>
-            <label className="text-[10px] uppercase tracking-wider text-text-secondary font-semibold block mb-1">
-              Password
-            </label>
-            <input 
-              type="password" 
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="••••••••"
-              className="w-full bg-bg-input border border-border-primary focus:border-accent-indigo focus:ring-1 focus:ring-accent-indigo text-sm rounded-btn px-4 py-2.5 outline-none transition-all placeholder:text-text-muted"
-            />
-          </div>
-
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full bg-accent-indigo hover:bg-accent-indigo-light disabled:opacity-50 text-white font-semibold text-sm py-2.5 rounded-btn shadow-glow transition-all mt-6 cursor-pointer flex items-center justify-center gap-2"
-          >
-            {loading ? 'Authenticating...' : 'Sign In with Password'}
-          </button>
-        </form>
-
-        <div className="flex items-center my-6">
-          <div className="flex-1 border-t border-border-primary"></div>
-          <span className="text-[10px] text-text-muted px-3 uppercase tracking-wider">or</span>
-          <div className="flex-1 border-t border-border-primary"></div>
-        </div>
-
+        {/* GOOGLE LOGIN BUTTON */}
         <button
+          type="button"
           onClick={handleGoogleLogin}
           disabled={loading}
-          className="w-full bg-bg-input hover:bg-bg-card-hover border border-border-primary text-text-primary text-sm font-semibold py-2.5 rounded-btn transition-colors cursor-pointer flex items-center justify-center gap-2"
+          className="mt-8 w-full py-3.5 px-4 min-h-[48px] bg-surface border border-outline-variant/80 hover:border-primary/50 text-on-surface font-semibold text-sm rounded-2xl transition-all shadow-2xs hover:shadow-md flex items-center justify-center gap-3 cursor-pointer disabled:opacity-50 active:scale-[0.99]"
         >
-          <span className="material-symbols-rounded text-lg text-text-accent">login</span>
+          <svg className="w-5 h-5 shrink-0" viewBox="0 0 24 24">
+            <path
+              fill="#4285F4"
+              d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
+            />
+            <path
+              fill="#34A853"
+              d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
+            />
+            <path
+              fill="#FBBC05"
+              d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"
+            />
+            <path
+              fill="#EA4335"
+              d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"
+            />
+          </svg>
           <span>Continue with Google</span>
         </button>
+
+        {/* DIVIDER */}
+        <div className="flex items-center gap-3 my-6">
+          <div className="h-px bg-outline-variant/60 flex-1" />
+          <span className="text-[11px] text-on-surface-variant/70 uppercase tracking-wider font-semibold">
+            Or with email
+          </span>
+          <div className="h-px bg-outline-variant/60 flex-1" />
+        </div>
+
+        {/* TAB SELECTOR: LOGIN / REGISTER */}
+        <div className="flex bg-surface-variant/30 p-1 rounded-2xl border border-outline-variant/40">
+          <button
+            type="button"
+            onClick={() => {
+              setMode('login');
+              setError('');
+            }}
+            className={`flex-1 py-2.5 text-xs font-bold rounded-xl transition-all cursor-pointer ${mode === 'login' ? 'bg-surface text-primary shadow-xs' : 'text-on-surface-variant hover:text-on-surface'
+              }`}
+          >
+            Sign in
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              setMode('register');
+              setError('');
+            }}
+            className={`flex-1 py-2.5 text-xs font-bold rounded-xl transition-all cursor-pointer ${mode === 'register' ? 'bg-surface text-primary shadow-xs' : 'text-on-surface-variant hover:text-on-surface'
+              }`}
+          >
+            Create account
+          </button>
+        </div>
+
+        {/* FORM */}
+        <form onSubmit={handleEmailLogin} className="mt-6">
+          {mode === 'register' ? (
+            <div className="flex flex-col items-center gap-2 py-6 px-4 text-center bg-surface-variant/20 border border-outline-variant/40 rounded-2xl">
+              <span className="material-symbols-outlined text-on-surface-variant/70 text-xl">
+                admin_panel_settings
+              </span>
+              <p className="text-xs text-on-surface-variant leading-relaxed max-w-[260px]">
+                Admin registration is disabled. Contact the system database administrator to provision your user.
+              </p>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              <div>
+                <label className="block text-xs font-semibold text-on-surface mb-1.5">Email address</label>
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="your.email@example.com"
+                  className="w-full px-4 py-3 bg-surface-variant/20 border border-outline-variant/60 rounded-xl text-sm text-on-surface focus:outline-none focus:border-primary transition-all placeholder:text-on-surface-variant/40"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-on-surface mb-1.5">Password</label>
+                <input
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="••••••••"
+                  className="w-full px-4 py-3 bg-surface-variant/20 border border-outline-variant/60 rounded-xl text-sm text-on-surface focus:outline-none focus:border-primary transition-all placeholder:text-on-surface-variant/40"
+                />
+              </div>
+
+              <button
+                type="submit"
+                disabled={loading}
+                className="w-full mt-2 py-3.5 min-h-[48px] bg-primary text-white font-bold text-sm rounded-2xl hover:bg-primary/90 transition-all shadow-md cursor-pointer flex items-center justify-center gap-2 disabled:opacity-50 active:scale-[0.99]"
+              >
+                {loading ? (
+                  <span className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                ) : (
+                  <span>Sign in to account</span>
+                )}
+              </button>
+            </div>
+          )}
+        </form>
       </div>
     </div>
   );

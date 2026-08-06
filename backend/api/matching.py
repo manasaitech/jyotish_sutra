@@ -74,7 +74,7 @@ def match_kundli(req: KundliMatchRequest):
         from utils.trust_note import append_trust_note
 
         try:
-            ai_report = client.generate(MATCHING_SYSTEM_PROMPT, user_prompt, max_tokens=850)
+            ai_report = client.generate(MATCHING_SYSTEM_PROMPT, user_prompt, max_tokens=4000)
             ai_report = append_trust_note(ai_report)
         except Exception as llm_err:
             print(f"[Matching API] LLM Generation warning: {llm_err}")

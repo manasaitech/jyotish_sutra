@@ -135,7 +135,7 @@ def handle_chat(req: ChatRequest, current_user: dict = Depends(require_current_u
             
         from utils.trust_note import append_trust_note
 
-        response_text = client.generate(system_prompt, user_prompt, max_tokens=420)
+        response_text = client.generate(system_prompt, user_prompt, max_tokens=4000)
         response_text = append_trust_note(response_text)
         
         # 7. Save chat turn to session history

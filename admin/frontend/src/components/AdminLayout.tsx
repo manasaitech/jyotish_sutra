@@ -125,31 +125,31 @@ export default function AdminLayout({ user, activeSection, setActiveSection, chi
   const activeLabel = MENU_ITEMS.find(m => m.id === activeSection)?.label || 'Dashboard';
 
   return (
-    <div className="flex min-h-screen">
-      {/* Background nebula */}
-      <div className="nebula"></div>
-
+    <div className="bg-sandalwood-bg min-h-screen flex w-screen text-charcoal-text font-sans">
       {/* Sidebar */}
-      <aside className="w-64 flex flex-col glass-panel border-r-0 py-8 px-4" data-purpose="sidebar">
-        {/* Sidebar Brand Logo */}
-        <div className="flex items-center gap-2 mb-10 px-4">
-          <h1 className="text-2xl font-bold tracking-tight">
-            <span className="text-white">AstroSutra</span>
-            <span className="text-indigo-400 ml-1">Admin</span>
-          </h1>
+      <aside 
+        className="w-64 bg-sandalwood-bg h-screen fixed left-0 top-0 hidden lg:flex flex-col border-r border-parchment-border z-40 p-4" 
+        data-purpose="sidebar"
+      >
+        {/* Header Brand */}
+        <div className="flex items-center space-x-3 px-2 py-4 mb-6">
+          <div className="w-10 h-10 rounded-full bg-gradient-to-br from-kesari-primary to-celestial-gold flex items-center justify-center shadow-sm">
+            <span className="material-symbols-outlined text-white" style={{ fontVariationSettings: "'FILL' 1" }}>auto_awesome</span>
+          </div>
+          <div>
+            <h1 className="font-display font-semibold text-xl text-charcoal-text leading-tight">AstroSutra</h1>
+            <p className="text-xs text-on-surface-variant">AI Analytics</p>
+          </div>
         </div>
 
-        {/* Sidebar Navigation */}
+        {/* Navigation Links */}
         <nav className="flex-1 space-y-1">
           {MENU_ITEMS.map((item) => {
             const isActive = activeSection === item.id;
-            const isErrorTab = item.id === 'errors';
             
-            let colorClasses = 'text-slate-400 hover:text-white hover:bg-white/5';
+            let colorClasses = 'text-on-surface-variant hover:bg-surface-container-high hover:translate-x-1 duration-200';
             if (isActive) {
-              colorClasses = 'sidebar-item-active text-white';
-            } else if (isErrorTab) {
-              colorClasses = 'text-red-400 hover:text-red-300 hover:bg-red-400/10';
+              colorClasses = 'bg-primary-container text-white font-semibold';
             }
 
             return (
@@ -160,74 +160,82 @@ export default function AdminLayout({ user, activeSection, setActiveSection, chi
                   e.preventDefault();
                   setActiveSection(item.id);
                 }}
-                className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-all ${colorClasses}`}
+                className={`flex items-center px-3 py-2.5 rounded-lg transition-all ${colorClasses}`}
               >
-                <span className={isActive ? 'text-indigo-400' : ''}>
+                <span className="mr-3">
                   {item.icon}
                 </span>
-                <span className="font-medium text-sm">{item.label}</span>
+                <span className="text-sm font-medium">{item.label}</span>
               </a>
             );
           })}
         </nav>
 
-        {/* Sidebar Footer User Profile */}
-        <div className="mt-auto px-2">
+        {/* Footer Section */}
+        <div className="mt-auto pt-4 border-t border-parchment-border space-y-1">
           <div 
             onClick={handleLogout}
-            className="flex items-center gap-3 p-3 glass-card rounded-2xl cursor-pointer"
+            className="flex items-center gap-3 p-3 glass-card rounded-2xl cursor-pointer hover:bg-surface-container-high transition-colors"
             title="Click to sign out"
           >
             <img 
               alt="User Profile" 
-              className="w-10 h-10 rounded-full object-cover border border-white/10" 
+              className="w-10 h-10 rounded-full object-cover border border-parchment-border" 
               src="https://lh3.googleusercontent.com/aida/AP1WRLsmjYNr41pajetbRgGVqALvdDWmKBzRO-5zu1gjGvWNrxo_K4YPLdfUyL6Jgjhn77CedlQJsjTDkiayW4TGOkiGH8RskUkxSKdfGKU0UMMyCv-9G3Hn326XztjJTuWffXAH7tyjdOZQYaCXGkrJPCHk6z9ol8UGKO645Jt36v0kOzCTPxU0-dtvSUYdac_Q8pbsSC7IOocs3RsHEtEw0qrzkeBWa_j0_3hmSPzMeXGaZpt1agzIRW2yBiq9" 
               style={{ objectPosition: 'center', width: '40px', height: '40px' }}
             />
             <div className="overflow-hidden">
-              <p className="text-sm font-semibold text-white truncate">Anmol Dixit</p>
-              <p className="text-xs text-slate-400 truncate">anmoldixit091@gmail.com</p>
+              <p className="text-sm font-semibold text-charcoal-text truncate">Anmol Dixit</p>
+              <p className="text-xs text-on-surface-variant truncate">anmoldixit091@gmail.com</p>
             </div>
           </div>
         </div>
       </aside>
 
       {/* Main Content Area */}
-      <main className="flex-1 p-8" data-purpose="main-content">
-        <div className="h-full glass-panel rounded-3xl p-8 flex flex-col gap-8 shadow-2xl">
-          {/* Main Header */}
-          <header className="flex justify-between items-center" data-purpose="content-header">
-            <h2 className="font-bold text-white tracking-tight text-5xl">{activeLabel}</h2>
+      <main className="flex-1 lg:ml-64 flex flex-col min-h-screen">
+        {/* Mobile Header (Only visible on small screens) */}
+        <header className="lg:hidden bg-glass-overlay backdrop-blur-md border-b border-parchment-border sticky top-0 z-30 px-6 py-3 flex justify-between items-center shadow-sm">
+          <h1 className="font-display font-bold text-lg text-kesari-primary">AstroSutra AI</h1>
+          <button className="text-charcoal-text">
+            <span className="material-symbols-outlined">menu</span>
+          </button>
+        </header>
+
+        {/* Dashboard Content Container */}
+        <div className="flex-1 p-6 md:p-10 max-w-[1440px] mx-auto w-full space-y-8 overflow-y-auto pb-24">
+          {/* Main Top Header */}
+          <header className="flex justify-between items-center mb-2" data-purpose="content-header">
+            <div>
+              <h2 className="font-display text-4xl font-semibold text-charcoal-text">{activeLabel}</h2>
+              <p className="text-sm text-on-surface-variant mt-1">Platform Intelligence Dashboard</p>
+            </div>
             
             <div className="flex items-center gap-4">
               {/* Search Bar */}
               <div className="relative">
-                <span className="absolute inset-y-0 left-0 pl-3 flex items-center text-slate-400">
-                  <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"></path>
-                  </svg>
+                <span className="absolute inset-y-0 left-0 pl-3 flex items-center text-on-surface-variant">
+                  <span className="material-symbols-outlined text-sm">search</span>
                 </span>
                 <input 
                   type="text" 
-                  placeholder="Search"
+                  placeholder="Search..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="bg-slate-800/40 border border-slate-700/50 text-white rounded-xl pl-10 pr-4 py-2 w-64 focus:ring-indigo-500 focus:border-indigo-500 text-sm outline-none"
+                  className="bg-surface border border-parchment-border text-charcoal-text rounded-xl pl-9 pr-4 py-2 w-64 focus:ring-2 focus:ring-kesari-primary focus:border-kesari-primary text-sm outline-none transition-all shadow-sm"
                 />
               </div>
 
               {/* Notification Bell */}
-              <button className="p-2 glass-card rounded-xl text-slate-400 hover:text-white relative">
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"></path>
-                </svg>
-                <span className="absolute top-2 right-2.5 w-2 h-2 bg-red-500 rounded-full border border-slate-900"></span>
+              <button className="p-2 border border-parchment-border bg-surface hover:bg-surface-container rounded-xl text-on-surface-variant relative shadow-sm transition-colors">
+                <span className="material-symbols-outlined text-lg">notifications</span>
+                <span className="absolute top-1.5 right-2 w-1.5 h-1.5 bg-error rounded-full border border-surface"></span>
               </button>
             </div>
           </header>
 
           {/* Dynamic Content Panel */}
-          <div className="flex-1 overflow-y-auto">
+          <div className="flex-1">
             {children}
           </div>
         </div>

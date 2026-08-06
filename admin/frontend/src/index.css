@@ -5,72 +5,82 @@
    ============================================= */
 
 @theme {
-  /* Dark color palette matching user html design */
-  --color-astro-dark: #0a0a14;
-  --color-astro-card: rgba(25, 25, 45, 0.4);
-  --color-astro-sidebar: #0d0d1e;
+  /* Custom colors matching the user HTML template & real user login page */
+  --color-sandalwood-bg: #FAF8F3;
+  --color-charcoal-text: #2D2A26;
+  --color-kesari-primary: #E67E22;
+  --color-celestial-gold: #C89B3C;
+  --color-parchment-border: #E9DFC8;
+  --color-glass-overlay: rgba(255, 248, 243, 0.8);
+  --color-primary-container: #E67E22;
+  --color-on-primary-container: #ffffff;
   
-  --color-accent-green: #4ade80;
-  --color-accent-blue: #3b82f6;
-  --color-accent-purple: #a855f7;
-  --color-accent-teal: #2dd4bf;
-  --color-accent-yellow: #facc15;
-  --color-accent-pink: #ec4899;
-  --color-accent-red: #ef4444;
-  --color-accent-orange: #f97316;
+  --color-background: #FAF8F3;
+  --color-surface: #ffffff;
+  --color-on-surface: #2D2A26;
+  --color-on-surface-variant: #564337;
+  --color-surface-variant: #f0eee9;
+  --color-outline-variant: #E9DFC8;
+  --color-primary: #E67E22;
+  --color-error: #ba1a1a;
+  --color-error-container: #ffdad6;
+  --color-outline: #897365;
 
-  /* Typography */
-  --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+  /* Fonts */
+  --font-display: "EB Garamond", serif;
+  --font-sans: "Inter", sans-serif;
 }
 
-/* Background gradient from the HTML */
+:root {
+  color-scheme: light;
+}
+
 body {
-  background: radial-gradient(circle at 20% 30%, #1e1b4b 0%, #0a0a14 100%);
+  background-color: #FAF8F3;
+  color: #2D2A26;
   min-height: 100vh;
-  color: #e2e8f0;
   overflow-x: hidden;
-}
-
-/* Fixed background nebula design from HTML */
-.nebula {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: radial-gradient(circle at 80% 20%, rgba(88, 28, 135, 0.15) 0%, transparent 50%),
-              radial-gradient(circle at 10% 80%, rgba(30, 58, 138, 0.15) 0%, transparent 50%);
-  pointer-events: none;
-  z-index: -1;
 }
 
 /* Glassmorphism from HTML */
 .glass-panel {
-  background: rgba(15, 15, 30, 0.6);
+  background: rgba(255, 255, 255, 0.7);
   backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid #E9DFC8;
+  box-shadow: 0 4px 20px rgba(230, 126, 34, 0.03);
 }
 
 .glass-card {
-  background: rgba(30, 30, 50, 0.4);
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid #E9DFC8;
+  box-shadow: 0 4px 20px rgba(230, 126, 34, 0.03);
   transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 .glass-card:hover {
-  background: rgba(40, 40, 65, 0.5);
+  background: rgba(255, 255, 255, 0.85);
   transform: translateY(-2px);
 }
 
-/* Glow path for line sparkline */
-.glow-path {
-  filter: drop-shadow(0 0 6px currentColor);
+.glass-card::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 100px;
+  height: 100px;
+  background: radial-gradient(circle at top right, rgba(230, 126, 34, 0.08), transparent 70%);
+  pointer-events: none;
+  border-radius: inherit;
 }
 
 /* Active sidebar link from HTML */
 .sidebar-item-active {
-  background: rgba(139, 92, 246, 0.2);
-  border-right: 3px solid #8b5cf6;
+  background: #E67E22 !important;
+  color: #ffffff !important;
 }
 
 /* Base styles */

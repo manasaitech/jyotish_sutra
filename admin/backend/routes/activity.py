@@ -19,16 +19,55 @@ def get_activity_feed(
     """Returns recent audit log entries as an activity feed."""
     try:
         result = db.execute(text("""
-            SELECT
-                al.action,
-                al.resource_type,
-                al.status,
-                al.created_at,
-                u.display_name,
-                u.email
-            FROM audit.audit_logs al
-            LEFT JOIN platform.users u ON u.id = al.user_id
-            ORDER BY al.created_at DESC
+            SELECT action, resource_type, status, created_at, display_name, email FROM (
+                SELECT 
+                    'User Signup' AS action,
+                    'platform.users' AS resource_type,
+                    'success' AS status,
+                    created_at,
+                    display_name,
+                    email
+                FROM platform.users
+                WHERE deleted_at IS NULL
+                
+                UNION ALL
+                
+                SELECT 
+                    'Chat Started' AS action,
+                    'ai.chat_sessions' AS resource_type,
+                    'success' AS status,
+                    s.created_at,
+                    u.display_name,
+                    u.email
+                FROM ai.chat_sessions s
+                JOIN platform.users u ON u.id = s.user_id
+                WHERE s.deleted_at IS NULL
+                
+                UNION ALL
+                
+                SELECT 
+                    'Payment Received' AS action,
+                    'billing.payments' AS resource_type,
+                    status,
+                    p.created_at,
+                    u.display_name,
+                    u.email
+                FROM billing.payments p
+                JOIN platform.users u ON u.id = p.user_id
+                
+                UNION ALL
+                
+                SELECT 
+                    'Subscription Activated' AS action,
+                    'billing.subscriptions' AS resource_type,
+                    status,
+                    s.created_at,
+                    u.display_name,
+                    u.email
+                FROM billing.subscriptions s
+                JOIN platform.users u ON u.id = s.user_id
+            ) q
+            ORDER BY created_at DESC
             LIMIT :limit
         """), {"limit": limit})
         activities = [
@@ -37,7 +76,7 @@ def get_activity_feed(
                 "resource": r[1] or "",
                 "status": r[2],
                 "time": str(r[3]),
-                "user_name": r[4] or "System",
+                "user_name": r[4] or "System Seeker",
                 "user_email": r[5] or "",
             }
             for r in result

@@ -47,7 +47,7 @@ class GroqClient:
                 unique_keys.append(k)
         return unique_keys
 
-    def generate(self, system_prompt: str, user_prompt: str, max_tokens: int = 700) -> str:
+    def generate(self, system_prompt: str, user_prompt: str, max_tokens: int = 4000) -> str:
         """Call Groq API using thread-safe round-robin across all available API keys with model fallback."""
         keys = self._get_all_keys()
         if not keys:
