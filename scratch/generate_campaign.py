@@ -1,0 +1,101 @@
+import os
+import sys
+import uuid
+import secrets
+from datetime import datetime, timedelta
+
+# Add backend to path
+project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+backend_dir = os.path.join(project_root, "backend")
+sys.path.insert(0, backend_dir)
+
+# Load environment variables
+from dotenv import load_dotenv
+load_dotenv(os.path.join(project_root, ".env"))
+
+from db import SessionLocal
+from db.models.billing import AccessCampaign, SubscriptionPlan
+from db.models.identity import User
+import qrcode
+import qrcode.image.svg
+
+def create_and_save_campaign(name, plan_tier, duration_hours, max_redemptions):
+    db = SessionLocal()
+    try:
+        # Resolve admin user
+        admin_email = os.environ.get("ADMIN_EMAIL", "anmol dixit091@gmail.com")
+        admin_user = db.query(User).filter(User.email == admin_email).first()
+        admin_id = admin_user.id if admin_user else None
+        
+        # Verify plan exists
+        plan = db.query(SubscriptionPlan).filter(SubscriptionPlan.slug == plan_tier).first()
+        if not plan:
+            from api.billing import seed_subscription_plans_if_needed
+            try:
+                seed_subscription_plans_if_needed(db)
+                plan = db.query(SubscriptionPlan).filter(SubscriptionPlan.slug == plan_tier).first()
+            except Exception as e:
+                print(f"Warning: Could not seed plan: {e}")
+                
+        token = secrets.token_urlsafe(32)
+        
+        campaign = AccessCampaign(
+            campaign_name=name,
+            token=token,
+            plan=plan_tier,
+            duration_hours=duration_hours,
+            max_redemptions=max_redemptions,
+            starts_at=None,
+            expires_at=None, # Active forever until limit reached
+            is_active=True,
+            created_by=admin_id
+        )
+        db.add(campaign)
+        db.commit()
+        db.refresh(campaign)
+        
+        # Generate SVG QR Code
+        frontend_url = os.environ.get("FRONTEND_URL", "https://astrosutraai.manasai.tech").rstrip("/")
+        redeem_url = f"{frontend_url}/redeem/{token}"
+        
+        factory = qrcode.image.svg.SvgPathImage
+        qr = qrcode.QRCode(
+            version=1,
+            error_correction=qrcode.constants.ERROR_CORRECT_L,
+            box_size=10,
+            border=4,
+            image_factory=factory
+        )
+        qr.add_data(redeem_url)
+        qr.make(fit=True)
+        img = qr.make_image()
+        
+        # Save SVG file
+        output_dir = os.path.join(project_root, "scratch")
+        os.makedirs(output_dir, exist_ok=True)
+        file_path = os.path.join(output_dir, f"{name.replace(' ', '_').lower()}_qr.svg")
+        
+        with open(file_path, "wb") as f:
+            img.save(f)
+            
+        print(f"=== CAMPAIGN CREATION SUCCESS ===")
+        print(f"Campaign Name : {campaign.campaign_name}")
+        print(f"Plan Tier     : {campaign.plan.upper()}")
+        print(f"Duration      : {campaign.duration_hours} Hours")
+        print(f"Max Limit     : {campaign.max_redemptions} Users")
+        print(f"Token         : {campaign.token}")
+        print(f"Redemption URL: {redeem_url}")
+        print(f"QR Code Saved : {file_path}")
+        print(f"=================================")
+        
+    finally:
+        db.close()
+
+if __name__ == "__main__":
+    # Create the ITM Workshop Pro 10 hours campaign
+    create_and_save_campaign(
+        name="ITM Workshop",
+        plan_tier="pro",
+        duration_hours=10,
+        max_redemptions=100
+    )
