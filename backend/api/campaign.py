@@ -582,7 +582,7 @@ def redeem_campaign(
         "user_id": str(user.id),
         "plan": campaign.plan,
         "duration_hours": campaign.duration_hours,
-        "expires_at": current_period_end.isoformat()
+        "expires_at": current_period_end.isoformat() + "Z"
     }
     log_event(db, user.id, "campaign_activation_success", success_data)
     
@@ -592,7 +592,7 @@ def redeem_campaign(
         "campaign_name": campaign.campaign_name,
         "plan": campaign.plan,
         "duration_hours": campaign.duration_hours,
-        "access_expires_at": current_period_end.isoformat()
+        "access_expires_at": current_period_end.isoformat() + "Z"
     }
 
 

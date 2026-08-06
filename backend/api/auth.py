@@ -120,7 +120,7 @@ def get_user_subscription_expiry(db: Session, user_id) -> Optional[str]:
         (Subscription.current_period_end == None) | (Subscription.current_period_end > datetime.utcnow())
     ).first()
     if sub and sub.current_period_end:
-        return sub.current_period_end.isoformat()
+        return sub.current_period_end.isoformat() + "Z"
     return None
 
 @router.get("/auth/me")
