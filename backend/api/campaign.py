@@ -540,7 +540,9 @@ def redeem_campaign(
         sub.cancelled_at = now
         sub.cancel_reason = "Overridden by access campaign promotion."
         
-    current_period_end = now + timedelta(hours=campaign.duration_hours)
+    # TESTING: 1 minute time limit. To restore to 10 hours/custom duration, change this back to:
+    # current_period_end = now + timedelta(hours=campaign.duration_hours)
+    current_period_end = now + timedelta(minutes=1)
     
     new_sub = Subscription(
         user_id=user.id,
