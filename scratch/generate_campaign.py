@@ -54,30 +54,50 @@ def create_and_save_campaign(name, plan_tier, duration_hours, max_redemptions):
         db.commit()
         db.refresh(campaign)
         
-        # Generate SVG QR Code
-        frontend_url = os.environ.get("FRONTEND_URL", "https://astrosutraai.onrender.com").rstrip("/")
-        redeem_url = f"{frontend_url}/redeem/{token}"
+        # Generate URLs
+        custom_url = f"https://astrosutra.manasai.tech/redeem/{token}"
+        render_url = f"https://astrosutraai.onrender.com/redeem/{token}"
         local_url = f"http://localhost:5173/redeem/{token}"
         
         factory = qrcode.image.svg.SvgPathImage
-        qr = qrcode.QRCode(
+        
+        # 1. Generate QR Code for Custom Domain
+        qr_custom = qrcode.QRCode(
             version=1,
             error_correction=qrcode.constants.ERROR_CORRECT_L,
             box_size=10,
             border=4,
             image_factory=factory
         )
-        qr.add_data(redeem_url)
-        qr.make(fit=True)
-        img = qr.make_image()
+        qr_custom.add_data(custom_url)
+        qr_custom.make(fit=True)
+        img_custom = qr_custom.make_image()
         
-        # Save SVG file
+        # 2. Generate QR Code for Render Domain
+        qr_render = qrcode.QRCode(
+            version=1,
+            error_correction=qrcode.constants.ERROR_CORRECT_L,
+            box_size=10,
+            border=4,
+            image_factory=factory
+        )
+        qr_render.add_data(render_url)
+        qr_render.make(fit=True)
+        img_render = qr_render.make_image()
+        
+        # Save SVG files
         output_dir = os.path.join(project_root, "scratch")
         os.makedirs(output_dir, exist_ok=True)
-        file_path = os.path.join(output_dir, f"{name.replace(' ', '_').lower()}_qr.svg")
         
-        with open(file_path, "wb") as f:
-            img.save(f)
+        campaign_slug = name.replace(' ', '_').lower()
+        file_path_custom = os.path.join(output_dir, f"{campaign_slug}_custom_domain_qr.svg")
+        file_path_render = os.path.join(output_dir, f"{campaign_slug}_render_domain_qr.svg")
+        
+        with open(file_path_custom, "wb") as f:
+            img_custom.save(f)
+            
+        with open(file_path_render, "wb") as f:
+            img_render.save(f)
             
         print(f"=== CAMPAIGN CREATION SUCCESS ===")
         print(f"Campaign Name   : {campaign.campaign_name}")
@@ -85,9 +105,11 @@ def create_and_save_campaign(name, plan_tier, duration_hours, max_redemptions):
         print(f"Duration        : {campaign.duration_hours} Hours")
         print(f"Max Limit       : {campaign.max_redemptions} Users")
         print(f"Token           : {campaign.token}")
-        print(f"Live Production : {redeem_url}")
+        print(f"Custom Domain   : {custom_url}")
+        print(f"Render Domain   : {render_url}")
         print(f"Local Testing   : {local_url}")
-        print(f"QR Code Saved   : {file_path}")
+        print(f"QR Custom Saved : {file_path_custom}")
+        print(f"QR Render Saved : {file_path_render}")
         print(f"=================================")
         
     finally:
