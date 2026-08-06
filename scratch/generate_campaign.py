@@ -55,8 +55,9 @@ def create_and_save_campaign(name, plan_tier, duration_hours, max_redemptions):
         db.refresh(campaign)
         
         # Generate SVG QR Code
-        frontend_url = os.environ.get("FRONTEND_URL", "https://astrosutraai.manasai.tech").rstrip("/")
+        frontend_url = os.environ.get("FRONTEND_URL", "https://astrosutraai.onrender.com").rstrip("/")
         redeem_url = f"{frontend_url}/redeem/{token}"
+        local_url = f"http://localhost:5173/redeem/{token}"
         
         factory = qrcode.image.svg.SvgPathImage
         qr = qrcode.QRCode(
@@ -79,13 +80,14 @@ def create_and_save_campaign(name, plan_tier, duration_hours, max_redemptions):
             img.save(f)
             
         print(f"=== CAMPAIGN CREATION SUCCESS ===")
-        print(f"Campaign Name : {campaign.campaign_name}")
-        print(f"Plan Tier     : {campaign.plan.upper()}")
-        print(f"Duration      : {campaign.duration_hours} Hours")
-        print(f"Max Limit     : {campaign.max_redemptions} Users")
-        print(f"Token         : {campaign.token}")
-        print(f"Redemption URL: {redeem_url}")
-        print(f"QR Code Saved : {file_path}")
+        print(f"Campaign Name   : {campaign.campaign_name}")
+        print(f"Plan Tier       : {campaign.plan.upper()}")
+        print(f"Duration        : {campaign.duration_hours} Hours")
+        print(f"Max Limit       : {campaign.max_redemptions} Users")
+        print(f"Token           : {campaign.token}")
+        print(f"Live Production : {redeem_url}")
+        print(f"Local Testing   : {local_url}")
+        print(f"QR Code Saved   : {file_path}")
         print(f"=================================")
         
     finally:
