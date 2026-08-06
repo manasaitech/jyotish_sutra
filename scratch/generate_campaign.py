@@ -116,9 +116,9 @@ def create_and_save_campaign(name, plan_tier, duration_hours, max_redemptions):
         db.close()
 
 if __name__ == "__main__":
-    # Create the ITM Workshop Pro 10 hours campaign
+    # Create the Pro Access 10 hours campaign
     create_and_save_campaign(
-        name="ITM Workshop",
+        name="Pro Access",
         plan_tier="pro",
         duration_hours=10,
         max_redemptions=100
