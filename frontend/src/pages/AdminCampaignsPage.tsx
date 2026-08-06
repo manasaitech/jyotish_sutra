@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 
 const API_BASE_URL =
@@ -50,7 +49,6 @@ interface AggregatedAnalytics {
 }
 
 export default function AdminCampaignsPage() {
-  const navigate = useNavigate()
   const { user } = useAuth()
   
   const [campaigns, setCampaigns] = useState<Campaign[]>([])
