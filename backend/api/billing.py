@@ -200,7 +200,8 @@ def verify_payment(
     # Check if they have an existing subscription to update or extend
     subscription = db.query(Subscription).filter(
         Subscription.user_id == user.id,
-        Subscription.status == "active"
+        Subscription.status == "active",
+        (Subscription.current_period_end == None) | (Subscription.current_period_end > datetime.utcnow())
     ).first()
 
     now = datetime.utcnow()

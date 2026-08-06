@@ -12,7 +12,7 @@ from db.models.astrology import (
 )
 from db.models.ai_chat import ChatSession, ChatMessage, ChatFeedback
 from db.models.reports import AIReport
-from db.models.billing import SubscriptionPlan, Subscription, Payment
+from db.models.billing import SubscriptionPlan, Subscription, Payment, AccessCampaign, CampaignRedemption
 from db.models.storage import FileAsset
 from db.models.notifications import Notification
 from db.models.analytics import UserAnalyticsEvent, AIAnalytics
@@ -47,6 +47,8 @@ __all__ = [
     "SubscriptionPlan",
     "Subscription",
     "Payment",
+    "AccessCampaign",
+    "CampaignRedemption",
     "FileAsset",
     "Notification",
     "UserAnalyticsEvent",

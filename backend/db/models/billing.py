@@ -10,7 +10,7 @@ from datetime import datetime
 
 from sqlalchemy import (
     Boolean, CheckConstraint, ForeignKey, Index, Integer, Numeric,
-    SmallInteger, String, Text,
+    SmallInteger, String, Text, DateTime, UniqueConstraint,
 )
 from sqlalchemy.dialects.postgresql import JSONB, UUID as PG_UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
@@ -132,3 +132,60 @@ class Payment(Base):
     created_at: Mapped[datetime] = mapped_column(default=datetime.utcnow)
 
     subscription = relationship("Subscription", back_populates="payments")
+
+
+# ---------------------------------------------------------------------------
+# 34. ACCESS CAMPAIGNS
+# ---------------------------------------------------------------------------
+class AccessCampaign(Base, TimestampMixin):
+    __tablename__ = "access_campaigns"
+    __table_args__ = (
+        Index("idx_campaigns_token", "token", unique=True),
+        {"schema": "billing"},
+    )
+
+    id: Mapped[uuid.UUID] = mapped_column(PG_UUID(as_uuid=True), primary_key=True, default=new_uuid)
+    campaign_name: Mapped[str] = mapped_column(String(100), nullable=False)
+    token: Mapped[str] = mapped_column(String(64), unique=True, nullable=False)
+    plan: Mapped[str] = mapped_column(String(20), nullable=False, default="pro")
+    duration_hours: Mapped[int] = mapped_column(Integer, nullable=False)
+    max_redemptions: Mapped[int] = mapped_column(Integer, nullable=False, default=100)
+    redeemed_count: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    starts_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    expires_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    is_active: Mapped[bool] = mapped_column(Boolean, default=True)
+    created_by: Mapped[uuid.UUID | None] = mapped_column(
+        PG_UUID(as_uuid=True), ForeignKey("platform.users.id", ondelete="SET NULL"), nullable=True
+    )
+
+    redemptions = relationship("CampaignRedemption", back_populates="campaign", cascade="all, delete-orphan")
+
+
+# ---------------------------------------------------------------------------
+# 35. CAMPAIGN REDEMPTIONS
+# ---------------------------------------------------------------------------
+class CampaignRedemption(Base):
+    __tablename__ = "campaign_redemptions"
+    __table_args__ = (
+        UniqueConstraint("campaign_id", "user_id", name="uq_campaign_user_redemption"),
+        Index("idx_redemptions_user", "user_id"),
+        Index("idx_redemptions_campaign", "campaign_id"),
+        {"schema": "billing"},
+    )
+
+    id: Mapped[uuid.UUID] = mapped_column(PG_UUID(as_uuid=True), primary_key=True, default=new_uuid)
+    campaign_id: Mapped[uuid.UUID] = mapped_column(
+        PG_UUID(as_uuid=True), ForeignKey("billing.access_campaigns.id", ondelete="CASCADE"), nullable=False
+    )
+    user_id: Mapped[uuid.UUID] = mapped_column(
+        PG_UUID(as_uuid=True), ForeignKey("platform.users.id", ondelete="CASCADE"), nullable=False
+    )
+    redeemed_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=datetime.utcnow, nullable=False)
+    access_expires_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    ip_address: Mapped[str | None] = mapped_column(String(45), nullable=True)
+    user_agent: Mapped[str | None] = mapped_column(Text, nullable=True)
+    device_type: Mapped[str | None] = mapped_column(String(50), nullable=True)
+    status: Mapped[str] = mapped_column(String(20), default="active", nullable=False)
+
+    campaign = relationship("AccessCampaign", back_populates="redemptions")
+

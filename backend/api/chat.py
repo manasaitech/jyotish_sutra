@@ -138,6 +138,9 @@ def handle_chat(req: ChatRequest, current_user: dict = Depends(require_current_u
         response_text = client.generate(system_prompt, user_prompt, max_tokens=4000)
         response_text = append_trust_note(response_text)
         
+        # Log to AI Analytics
+        log_ai_request_to_db(req.user_id, req.session_id, user_prompt, response_text)
+        
         # 7. Save chat turn to session history
         chat_store.add_message(req.session_id, req.user_id, "user", req.message)
         chat_store.add_message(req.session_id, req.user_id, "assistant", response_text)
@@ -149,3 +152,36 @@ def handle_chat(req: ChatRequest, current_user: dict = Depends(require_current_u
         
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+
+def log_ai_request_to_db(user_id_str: str, session_id_str: str, prompt: str, response: str):
+    """Asynchronously logs LLM prompt and completion token statistics to the database."""
+    try:
+        import uuid
+        from db import SessionLocal
+        from db.models.analytics import AIAnalytics
+        
+        db = SessionLocal()
+        try:
+            p_tokens = len(prompt) // 4
+            c_tokens = len(response) // 4
+            user_uuid = uuid.UUID(user_id_str) if user_id_str else None
+            session_uuid = uuid.UUID(session_id_str) if session_id_str else None
+            
+            log_entry = AIAnalytics(
+                user_id=user_uuid,
+                session_id=session_uuid,
+                prompt_text=prompt[:1000],
+                response_text=response[:1000],
+                model_used="hybrid",
+                prompt_tokens=p_tokens,
+                completion_tokens=c_tokens,
+                total_tokens=p_tokens + c_tokens
+            )
+            db.add(log_entry)
+            db.commit()
+        finally:
+            db.close()
+    except Exception as e:
+        print(f"[Analytics] Failed to log AI request: {e}")
+

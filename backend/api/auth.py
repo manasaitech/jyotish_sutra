@@ -1,6 +1,6 @@
 import os
 from fastapi import APIRouter, Depends, HTTPException
-from typing import Dict, Any
+from typing import Dict, Any, Optional
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
 from sqlalchemy import text
@@ -88,7 +88,8 @@ def verify_token_endpoint(req: TokenVerifyRequest, db: Session = Depends(get_db)
             "display_name": user.display_name,
             "status": user.status,
             "last_login_at": user.last_login_at.isoformat() if user.last_login_at else None,
-            "subscription_tier": get_user_subscription_tier(db, user.id)
+            "subscription_tier": get_user_subscription_tier(db, user.id),
+            "subscription_expires_at": get_user_subscription_expiry(db, user.id)
         }
     }
 
@@ -102,13 +103,25 @@ def get_user_subscription_tier(db: Session, user_id) -> str:
         
     sub = db.query(Subscription).filter(
         Subscription.user_id == user_id,
-        Subscription.status == "active"
+        Subscription.status == "active",
+        (Subscription.current_period_end == None) | (Subscription.current_period_end > datetime.utcnow())
     ).first()
     if sub:
         plan = db.query(SubscriptionPlan).filter(SubscriptionPlan.id == sub.plan_id).first()
         if plan:
             return plan.tier
     return "free"
+
+def get_user_subscription_expiry(db: Session, user_id) -> Optional[str]:
+    from db.models.billing import Subscription
+    sub = db.query(Subscription).filter(
+        Subscription.user_id == user_id,
+        Subscription.status == "active",
+        (Subscription.current_period_end == None) | (Subscription.current_period_end > datetime.utcnow())
+    ).first()
+    if sub and sub.current_period_end:
+        return sub.current_period_end.isoformat()
+    return None
 
 @router.get("/auth/me")
 def get_me(
@@ -131,7 +144,8 @@ def get_me(
             "display_name": user.display_name,
             "status": user.status,
             "last_login_at": user.last_login_at.isoformat() if user.last_login_at else None,
-            "subscription_tier": get_user_subscription_tier(db, user.id)
+            "subscription_tier": get_user_subscription_tier(db, user.id),
+            "subscription_expires_at": get_user_subscription_expiry(db, user.id)
         }
     }
 

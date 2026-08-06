@@ -4,6 +4,7 @@ import { getCurrentTier } from '../../utils/subscriptionManager'
 import { TIER_CONFIG } from '../../config/subscriptionConfig'
 import { Link } from 'react-router-dom'
 import ExpertConsultationModal from '../expert/ExpertConsultationModal'
+import { useAuth } from '../../context/AuthContext'
 
 interface NavbarProps {
   profiles?: UserProfile[]
@@ -18,6 +19,7 @@ export default function Navbar({
   onOpenProfile,
   onOpenPricing,
 }: NavbarProps) {
+  const { user } = useAuth()
   const [isExpertModalOpen, setIsExpertModalOpen] = useState(false)
   const currentTier = getCurrentTier()
   const tierConfig = TIER_CONFIG[currentTier]
@@ -53,6 +55,20 @@ export default function Navbar({
 
         {/* Navigation & Profile Section Trigger */}
         <div className="flex items-center gap-1.5 sm:gap-3 shrink-0">
+          {/* Admin Panel Button */}
+          {user && user.email === 'anmol dixit091@gmail.com' && (
+            <Link
+              to="/admin/campaigns"
+              className="flex items-center gap-1 px-2.5 py-1.5 sm:px-3 rounded-xl sm:rounded-2xl border border-amber-500/40 text-amber-500 hover:bg-amber-500/10 font-bold text-[11px] sm:text-xs shadow-xs transition-all cursor-pointer shrink-0 no-underline"
+            >
+              <span className="material-symbols-outlined text-sm sm:text-base">
+                settings_suggest
+              </span>
+              <span className="hidden sm:inline">Admin Panel</span>
+              <span className="sm:hidden">Admin</span>
+            </Link>
+          )}
+
           {/* Talk to Expert Button */}
           <button
             onClick={() => setIsExpertModalOpen(true)}

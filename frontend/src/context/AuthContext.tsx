@@ -43,6 +43,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [authUser, setAuthUser] = useState<AuthUser | null>(null)
   const [token, setToken] = useState<string | null>(null)
   const [loading, setLoading] = useState<boolean>(true)
+  const [showDowngradeModal, setShowDowngradeModal] = useState<boolean>(false)
+  const [expiresAtStr, setExpiresAtStr] = useState<string | null>(null)
 
   const syncWithPostgreSQL = async (idToken: string): Promise<any> => {
     if (syncCache[idToken]) {
@@ -89,7 +91,21 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       const syncResult = await syncWithPostgreSQL(idToken)
       if (syncResult && syncResult.db_user && syncResult.db_user.subscription_tier) {
-        setCurrentTier(syncResult.db_user.subscription_tier)
+        const dbUser = syncResult.db_user
+        setCurrentTier(dbUser.subscription_tier)
+        
+        // Handle Downgrade Detection on Load / Refresh
+        const hadProTrial = localStorage.getItem('astro_had_pro_trial')
+        if (dbUser.subscription_tier === 'free' && hadProTrial === 'true') {
+          localStorage.setItem('astro_had_pro_trial', 'shown')
+          setShowDowngradeModal(true)
+        }
+        
+        if (dbUser.subscription_expires_at) {
+          setExpiresAtStr(dbUser.subscription_expires_at)
+        } else {
+          setExpiresAtStr(null)
+        }
       }
       localStorage.setItem('astro_is_logged_in', 'true')
     } catch (err: any) {
@@ -108,6 +124,30 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       token: idToken,
     }
   }
+
+  useEffect(() => {
+    if (!expiresAtStr) return
+
+    const expiryTime = new Date(expiresAtStr).getTime()
+    const checkExpiry = () => {
+      const now = new Date().getTime()
+      if (now >= expiryTime) {
+        // Expiration reached! Downgrade to Free.
+        setCurrentTier('free')
+        setExpiresAtStr(null)
+        
+        const hadProTrial = localStorage.getItem('astro_had_pro_trial')
+        if (hadProTrial === 'true') {
+          localStorage.setItem('astro_had_pro_trial', 'shown')
+          setShowDowngradeModal(true)
+        }
+      }
+    }
+
+    checkExpiry()
+    const intervalId = setInterval(checkExpiry, 5000)
+    return () => clearInterval(intervalId)
+  }, [expiresAtStr])
 
   useEffect(() => {
     let unsubscribed = false
@@ -251,6 +291,41 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }}
     >
       {children}
+      
+      {showDowngradeModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs">
+          <div className="w-full max-w-md bg-surface border border-outline-variant rounded-3xl p-6 sm:p-8 shadow-2xl relative text-center space-y-5 animate-fade-in">
+            <div className="w-16 h-16 rounded-full bg-amber-500/10 border border-amber-500/20 mx-auto flex items-center justify-center text-amber-500">
+              <span className="material-symbols-outlined text-3xl">info</span>
+            </div>
+            <div className="space-y-2">
+              <h3 className="text-xl font-bold font-serif text-on-surface">Your Pro trial has ended</h3>
+              <p className="text-xs sm:text-sm text-on-surface-variant leading-relaxed">
+                Thank you for exploring AstroSutra AI. Upgrade anytime to continue using Premium features.
+              </p>
+            </div>
+            <div className="flex gap-3">
+              <button
+                onClick={() => {
+                  setShowDowngradeModal(false)
+                }}
+                className="flex-1 py-3 border border-outline-variant hover:bg-surface-variant/30 text-on-surface rounded-xl font-semibold text-xs transition-all cursor-pointer"
+              >
+                Dismiss
+              </button>
+              <button
+                onClick={() => {
+                  setShowDowngradeModal(false)
+                  window.location.href = '/pricing'
+                }}
+                className="flex-1 py-3 bg-primary hover:bg-primary-container text-white rounded-xl font-bold text-xs transition-all cursor-pointer shadow-md"
+              >
+                Upgrade Plan
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </AuthContext.Provider>
   )
 }

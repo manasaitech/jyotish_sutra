@@ -24,6 +24,7 @@ from api.auth import router as auth_router
 from api.billing import router as billing_router
 from api.contact import router as contact_router
 from api.feedback import router as feedback_router
+from api.campaign import router as campaign_router
 
 IS_PRODUCTION = os.getenv("ENV") == "production"
 
@@ -79,6 +80,7 @@ app.include_router(auth_router, prefix="/api", tags=["Firebase Authentication"])
 app.include_router(billing_router, prefix="/api", tags=["Billing & Payments"])
 app.include_router(contact_router, prefix="/api", tags=["Contact Us"])
 app.include_router(feedback_router, prefix="/api", tags=["Prediction Feedback"])
+app.include_router(campaign_router, prefix="/api", tags=["Campaigns & Promotions"])
 
 @app.on_event("startup")
 def on_startup():

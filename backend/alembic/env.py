@@ -51,9 +51,13 @@ SCHEMAS = [
 
 def include_object(object, name, type_, reflected, compare_to):
     """Filter out non-platform schemas if necessary, but keep it open to our list."""
+    schema = getattr(object, "schema", None)
+    if schema is not None and schema not in SCHEMAS:
+        return False
     if type_ == "schema":
         return name in SCHEMAS or name is None
     return True
+
 
 
 def run_migrations_offline() -> None:

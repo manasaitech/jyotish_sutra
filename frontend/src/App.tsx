@@ -8,6 +8,8 @@ import ContactPage from './pages/ContactPage'
 import PrivacyPage from './pages/PrivacyPage'
 import TermsPage from './pages/TermsPage'
 import { AuthProvider, useAuth } from './context/AuthContext'
+import RedeemPage from './pages/RedeemPage'
+import AdminCampaignsPage from './pages/AdminCampaignsPage'
 
 const API_BASE_URL =
   import.meta.env.VITE_API_BASE_URL ||
@@ -150,6 +152,15 @@ function PublicLayout({ children }: { children: React.ReactNode }) {
 
             {user ? (
               <>
+                {user.email === 'anmol dixit091@gmail.com' && (
+                  <button
+                    onClick={() => navigate('/admin/campaigns')}
+                    className="text-amber-600 border border-amber-500/40 hover:bg-amber-500/10 px-2.5 lg:px-4 py-1.5 lg:py-2.5 text-[11px] lg:text-xs font-extrabold tracking-wider uppercase transition-all cursor-pointer rounded-xl whitespace-nowrap flex items-center gap-1.5"
+                  >
+                    <span className="material-symbols-outlined text-sm sm:text-base">settings_suggest</span>
+                    <span>Admin</span>
+                  </button>
+                )}
                 <button
                   onClick={handleGoDashboard}
                   className="bg-primary text-white px-2.5 lg:px-4 py-1.5 lg:py-2.5 text-[11px] lg:text-xs font-semibold tracking-wider uppercase hover:bg-primary-container transition-all cursor-pointer shadow-md flex items-center gap-1.5 rounded-xl whitespace-nowrap"
@@ -209,12 +220,14 @@ function AppRoutes() {
   const navigate = useNavigate()
   const location = useLocation()
 
-  // After login, if on /login page, redirect to /app
+  // After login, if on /login page, redirect to /app or custom redirect
   useEffect(() => {
     if (!loading && user && location.pathname === '/login') {
-      navigate('/app', { replace: true })
+      const searchParams = new URLSearchParams(location.search)
+      const redirect = searchParams.get('redirect') || '/app'
+      navigate(redirect, { replace: true })
     }
-  }, [user, loading, location.pathname, navigate])
+  }, [user, loading, location.pathname, navigate, location.search])
 
   // Auth loading spinner for /app and /login
   if (loading && (location.pathname === '/app' || location.pathname === '/login')) {
@@ -239,8 +252,23 @@ function AppRoutes() {
         element={
           <LoginPage
             onClose={() => navigate('/')}
-            onSuccess={() => navigate('/app')}
+            onSuccess={() => {
+              const searchParams = new URLSearchParams(location.search)
+              const redirect = searchParams.get('redirect') || '/app'
+              navigate(redirect, { replace: true })
+            }}
           />
+        }
+      />
+
+      {/* Campaign Access & Administration */}
+      <Route path="/redeem/:token" element={<RedeemPage />} />
+      <Route
+        path="/admin/campaigns"
+        element={
+          <ProtectedRoute>
+            <AdminCampaignsPage />
+          </ProtectedRoute>
         }
       />
 

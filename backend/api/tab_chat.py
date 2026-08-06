@@ -134,6 +134,13 @@ def handle_tab_chat(req: TabChatRequest, current_user: dict = Depends(require_cu
                 chat_store.add_message(req.session_id, req.user_id, "user", req.message)
                 chat_store.add_message(req.session_id, req.user_id, "assistant", fallback_text, metadata={"structured": structured_result})
 
+                # Log to AI Analytics
+                try:
+                    from api.chat import log_ai_request_to_db
+                    log_ai_request_to_db(req.user_id, req.session_id, req.message, fallback_text)
+                except Exception as e:
+                    print(f"[TabChat] Failed to log structured analytics: {e}")
+
                 return {
                     "response": fallback_text,
                     "structured": structured_result,
@@ -185,6 +192,13 @@ def handle_tab_chat(req: TabChatRequest, current_user: dict = Depends(require_cu
         target_tokens = 4000
         response_text = client.generate(system_prompt, user_prompt, max_tokens=target_tokens)
         response_text = append_trust_note(response_text)
+
+        # Log to AI Analytics
+        try:
+            from api.chat import log_ai_request_to_db
+            log_ai_request_to_db(req.user_id, req.session_id, user_prompt, response_text)
+        except Exception as e:
+            print(f"[TabChat] Failed to log prose analytics: {e}")
 
         # Save chat turn to session history
         chat_store.add_message(req.session_id, req.user_id, "user", req.message)
