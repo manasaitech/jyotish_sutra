@@ -37,7 +37,11 @@ interface UserRequestDetail {
   last_request_at: string | null;
 }
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8050';
+const API_BASE_URL =
+  import.meta.env.VITE_API_BASE_URL ||
+  (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+    ? 'http://localhost:8050'
+    : 'https://kundli-gpt-clone-1.onrender.com');
 
 export default function App() {
   const [minutes, setMinutes] = useState<number>(120);

@@ -17,7 +17,7 @@ const API_BASE_URL =
   import.meta.env.VITE_API_BASE_URL ||
   (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
     ? 'http://localhost:8000'
-    : 'https://kundli-gpt-clone-back.onrender.com');
+    : 'https://kundli-gpt-clone-1.onrender.com');
 
 interface KPIStats {
   active_users: number;
