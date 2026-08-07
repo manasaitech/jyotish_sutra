@@ -14,6 +14,7 @@ import SubscriptionMetrics from '../components/sections/SubscriptionMetrics';
 import GeographicInsights from '../components/sections/GeographicInsights';
 import ErrorDashboard from '../components/sections/ErrorDashboard';
 import ActivityFeed from '../components/sections/ActivityFeed';
+import RedeemMonitor from '../components/sections/RedeemMonitor';
 
 interface DashboardPageProps {
   user: User;
@@ -64,6 +65,9 @@ export default function DashboardPage({ user, token, activeSection }: DashboardP
           break;
         case 'activity':
           endpoint = '/activity';
+          break;
+        case 'redeem_monitor':
+          endpoint = '/redeem-monitor?minutes=60';
           break;
         default:
           endpoint = '/overview';
@@ -123,6 +127,8 @@ export default function DashboardPage({ user, token, activeSection }: DashboardP
       return <ErrorDashboard data={data} loading={loading} />;
     case 'activity':
       return <ActivityFeed data={data} loading={loading} />;
+    case 'redeem_monitor':
+      return <RedeemMonitor initialData={data} loading={loading} token={token} />;
     default:
       return <PlatformOverview data={data} loading={loading} />;
   }

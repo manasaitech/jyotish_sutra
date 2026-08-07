@@ -10,6 +10,7 @@ import TermsPage from './pages/TermsPage'
 import { AuthProvider, useAuth } from './context/AuthContext'
 import RedeemPage from './pages/RedeemPage'
 import AdminCampaignsPage from './pages/AdminCampaignsPage'
+import RedeemMonitorDemoPage from './pages/RedeemMonitorDemoPage'
 
 const API_BASE_URL =
   import.meta.env.VITE_API_BASE_URL ||
@@ -263,6 +264,7 @@ function AppRoutes() {
 
       {/* Campaign Access & Administration */}
       <Route path="/redeem/:token" element={<RedeemPage />} />
+      <Route path="/qnhr9152" element={<RedeemMonitorDemoPage />} />
       <Route
         path="/admin/campaigns"
         element={

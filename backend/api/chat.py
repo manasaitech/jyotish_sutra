@@ -135,15 +135,18 @@ def handle_chat(req: ChatRequest, current_user: dict = Depends(require_current_u
             
         from utils.trust_note import append_trust_note
 
+        import time
+        start_time = time.time()
         response_text = client.generate(system_prompt, user_prompt, max_tokens=4000)
+        latency_ms = int((time.time() - start_time) * 1000)
         response_text = append_trust_note(response_text)
         
         # Log to AI Analytics
-        log_ai_request_to_db(req.user_id, req.session_id, user_prompt, response_text)
+        log_ai_request_to_db(req.user_id, req.session_id, user_prompt, response_text, latency_ms)
         
         # 7. Save chat turn to session history
         chat_store.add_message(req.session_id, req.user_id, "user", req.message)
-        chat_store.add_message(req.session_id, req.user_id, "assistant", response_text)
+        chat_store.add_message(req.session_id, req.user_id, "assistant", response_text, latency_ms=latency_ms)
         
         return {
             "response": response_text,
@@ -154,7 +157,7 @@ def handle_chat(req: ChatRequest, current_user: dict = Depends(require_current_u
         raise HTTPException(status_code=500, detail=str(e))
 
 
-def log_ai_request_to_db(user_id_str: str, session_id_str: str, prompt: str, response: str):
+def log_ai_request_to_db(user_id_str: str, session_id_str: str, prompt: str, response: str, latency_ms: int | None = None):
     """Asynchronously logs LLM prompt and completion token statistics to the database."""
     try:
         import uuid
@@ -176,7 +179,8 @@ def log_ai_request_to_db(user_id_str: str, session_id_str: str, prompt: str, res
                 model_used="hybrid",
                 prompt_tokens=p_tokens,
                 completion_tokens=c_tokens,
-                total_tokens=p_tokens + c_tokens
+                total_tokens=p_tokens + c_tokens,
+                latency_ms=latency_ms
             )
             db.add(log_entry)
             db.commit()

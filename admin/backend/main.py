@@ -32,6 +32,7 @@ from routes.subscriptions import router as subscriptions_router
 from routes.geography import router as geography_router
 from routes.errors import router as errors_router
 from routes.activity import router as activity_router
+from routes.redeem_monitor import router as redeem_monitor_router
 
 app = FastAPI(
     title="AstroSutra Admin Analytics API",
@@ -63,6 +64,7 @@ app.include_router(subscriptions_router, prefix="/api/admin", tags=["Subscriptio
 app.include_router(geography_router, prefix="/api/admin", tags=["Geography"])
 app.include_router(errors_router, prefix="/api/admin", tags=["Errors"])
 app.include_router(activity_router, prefix="/api/admin", tags=["Activity Feed"])
+app.include_router(redeem_monitor_router, prefix="/api/admin", tags=["Redeem Monitor"])
 
 
 @app.get("/")
