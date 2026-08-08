@@ -795,6 +795,18 @@ def get_redeem_monitor_stats(
     except Exception as e:
         print(f"Error in campaign_distribution query: {e}")
 
+    # Total Active paid subscriptions (excluding campaign trials)
+    total_paid_subscriptions = scalar("""
+        SELECT COUNT(*) FROM billing.subscriptions
+        WHERE status = 'active' AND (gateway IS NULL OR gateway != 'campaign')
+    """)
+
+    # Total revenue / payments completed (ever)
+    total_payments_sum = scalar("""
+        SELECT COALESCE(SUM(amount), 0) FROM billing.payments
+        WHERE status = 'completed'
+    """)
+
     return {
         "minutes": minutes,
         "kpis": {
@@ -806,7 +818,9 @@ def get_redeem_monitor_stats(
             "avg_requests_per_user": avg_requests_per_user,
             "failed_llm_requests": int(failed_llm_requests),
             "failed_db_queries": int(failed_db_queries),
-            "avg_latency_ms": round(float(avg_latency), 1)
+            "avg_latency_ms": round(float(avg_latency), 1),
+            "total_paid_subscriptions": int(total_paid_subscriptions),
+            "total_payments_sum": float(total_payments_sum)
         },
         "time_series": time_series,
         "requests_per_user": requests_per_user,

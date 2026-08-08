@@ -29,6 +29,8 @@ interface KPIStats {
   failed_llm_requests: number;
   failed_db_queries: number;
   avg_latency_ms: number;
+  total_paid_subscriptions?: number;
+  total_payments_sum?: number;
 }
 
 interface UserRequestDetail {
@@ -294,6 +296,46 @@ export default function RedeemMonitorDemoPage() {
               <div>
                 <p className="text-xs font-semibold text-slate-400 mb-1 uppercase tracking-wider">Avg Requests / User</p>
                 <h3 className="text-3xl font-bold text-slate-800">{loading ? '...' : (kpis?.avg_requests_per_user ?? 0)}</h3>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        {/* Paid Subscription & Financial Metrics Row */}
+        <div>
+          <h2 className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-3">Subscription & Financial Metrics</h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+
+            {/* Subscriptions Taken */}
+            <div className="bg-white border border-orange-100/50 p-5 rounded-2xl shadow-sm relative overflow-hidden group">
+              <div className="flex justify-between items-start mb-4">
+                <div className="p-2 bg-amber-50 rounded-lg text-amber-600">
+                  <span className="material-symbols-outlined text-lg">workspace_premium</span>
+                </div>
+                <span className="text-xs font-semibold px-2 py-1 rounded-full bg-amber-50 text-amber-600">Standard / Pro</span>
+              </div>
+              <div>
+                <p className="text-xs font-semibold text-slate-400 mb-1 uppercase tracking-wider">Active Paid Subscriptions</p>
+                <h3 className="text-3xl font-bold text-slate-800">
+                  {loading ? '...' : (kpis?.total_paid_subscriptions ?? 0)}
+                </h3>
+              </div>
+            </div>
+
+            {/* Total Payments Sum */}
+            <div className="bg-white border border-orange-100/50 p-5 rounded-2xl shadow-sm relative overflow-hidden group">
+              <div className="flex justify-between items-start mb-4">
+                <div className="p-2 bg-emerald-50 rounded-lg text-emerald-600">
+                  <span className="material-symbols-outlined text-lg">payments</span>
+                </div>
+                <span className="text-xs font-semibold px-2 py-1 rounded-full bg-emerald-50 text-emerald-600">Total Payments Done</span>
+              </div>
+              <div>
+                <p className="text-xs font-semibold text-slate-400 mb-1 uppercase tracking-wider">Total Payments (INR)</p>
+                <h3 className="text-3xl font-bold text-emerald-600">
+                  {loading ? '...' : `₹ ${(kpis?.total_payments_sum ?? 0).toLocaleString('en-IN')}`}
+                </h3>
               </div>
             </div>
 
