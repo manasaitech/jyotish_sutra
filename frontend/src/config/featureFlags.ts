@@ -37,7 +37,7 @@ export const FEATURE_FLAGS: FeatureFlags = {
   enableSpiritualTab: false,   // ❌ Disabled via feature flag per request
   enableDoshasTab: true,       // ✅ Enabled Dosha Analysis tab
   enableStrategicInsightsTab: true, // ✅ Enabled Strategic Insights tab
-  enablePastEventsTab: true,        // ✅ Enabled Past Events Discovery tab
+  enablePastEventsTab: false,        // ❌ Disabled Past Events Discovery tab
   enableWoundsTraumaTab: true,      // ✅ Enabled Wounds & Trauma tab
   enableGiftsTalentsTab: true,      // ✅ Enabled Gifts & Talents tab
   enableSoulGrowthTab: true,        // ✅ Enabled Soul Growth tab
