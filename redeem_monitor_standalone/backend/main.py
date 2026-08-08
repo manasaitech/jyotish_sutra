@@ -162,6 +162,17 @@ def get_redeem_monitor_stats(minutes: int = Query(default=120)):
             # Calculate derived KPI stats
             avg_reqs_per_user = round(llm_requests / active_users, 1) if active_users > 0 else 0.0
 
+            # 4. Subscription & Financial Metrics (All-time)
+            total_paid_subscriptions = scalar("""
+                SELECT COUNT(*) FROM billing.subscriptions
+                WHERE status = 'active' AND (gateway IS NULL OR gateway != 'campaign')
+            """, params)
+
+            total_payments_sum = scalar_float("""
+                SELECT COALESCE(SUM(amount), 0) FROM billing.payments
+                WHERE status = 'completed'
+            """, params)
+
             return {
                 "success": True,
                 "kpis": {
@@ -172,7 +183,9 @@ def get_redeem_monitor_stats(minutes: int = Query(default=120)):
                     "avg_requests_per_user": avg_reqs_per_user,
                     "failed_llm_requests": failed_llm_requests,
                     "failed_db_queries": failed_db_queries,
-                    "avg_latency_ms": round(avg_latency, 1)
+                    "avg_latency_ms": round(avg_latency, 1),
+                    "total_paid_subscriptions": total_paid_subscriptions,
+                    "total_payments_sum": total_payments_sum
                 },
                 "time_series": time_series,
                 "requests_per_user": requests_per_user
