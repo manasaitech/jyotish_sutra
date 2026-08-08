@@ -110,7 +110,8 @@ def send_subscription_email(user_email: str, user_name: str, tier: str, amount: 
     <body>
         <div class="container">
             <div class="header">
-                <h1>🌌 ASTROSUTRA AI</h1>
+                <img src="https://astrosutraai.onrender.com/logo.png" alt="AstroSutra AI Logo" style="width: 60px; height: 60px; border-radius: 12px; margin-bottom: 12px; object-fit: contain;">
+                <h1>ASTROSUTRA AI</h1>
                 <p style="margin: 8px 0 0 0; color: #6E6558; font-weight: 500;"> Cosmic Upgrade Successful</p>
             </div>
             <div class="content">
@@ -250,7 +251,8 @@ def send_consultation_emails(
     <body style="font-family: Arial, sans-serif; background-color: #FAF8F3; padding: 20px; color: #2D2721;">
         <div style="max-width: 600px; margin: 0 auto; background: #FFFDF9; border: 2px solid #E9DFC8; border-radius: 20px; overflow: hidden;">
             <div style="background: linear-gradient(135deg, #7C4D32, #897365); color: #FFF; padding: 25px; text-align: center;">
-                <h1 style="margin: 0; font-size: 24px;">🌌 AstroSutra AI</h1>
+                <img src="https://astrosutraai.onrender.com/logo.png" alt="AstroSutra AI Logo" style="width: 48px; height: 48px; border-radius: 10px; margin-bottom: 10px; object-fit: contain;">
+                <h1 style="margin: 0; font-size: 24px;">AstroSutra AI</h1>
                 <p style="margin: 5px 0 0 0; color: #F5E6C8; font-weight: bold;">Appointment Request Confirmed</p>
             </div>
             <div style="padding: 25px; line-height: 1.6;">
