@@ -375,7 +375,7 @@ def create_questions_order(
     if req.questions_count < 1 or req.questions_count > 500:
         raise HTTPException(status_code=400, detail="Question count must be between 1 and 500.")
 
-    total_price = float(req.questions_count * 5.5)
+    total_price = float(req.questions_count * 9.9)
     price_in_paise = int(total_price * 100)
 
     try:

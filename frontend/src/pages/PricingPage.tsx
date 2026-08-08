@@ -467,7 +467,7 @@ export default function PricingPage({
 
                 {/* Price */}
                 <div className="flex items-baseline gap-1 mb-5">
-                  <span className="text-3xl font-display font-black text-on-background">₹5.5</span>
+                  <span className="text-3xl font-display font-black text-on-background">₹9.9</span>
                   <span className="text-xs text-on-surface-variant font-medium">/question</span>
                 </div>
 
@@ -526,7 +526,7 @@ export default function PricingPage({
                       Total Investment
                     </span>
                     <span className="text-xl font-display font-black text-[#C89B3C]">
-                      ₹ {(questionsCount * 5.5).toFixed(1)}
+                      ₹ {(questionsCount * 9.9).toFixed(1)}
                     </span>
                   </div>
                 </div>
