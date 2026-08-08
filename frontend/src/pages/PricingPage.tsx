@@ -473,8 +473,12 @@ export default function PricingPage({
                 </div>
 
                 {/* Description / Subtitle */}
-                <p className="text-xs text-on-surface-variant mb-5 leading-relaxed">
+                <p className="text-xs text-on-surface-variant mb-3 leading-relaxed">
                   Prefer query packs instead of monthly plans? Pay-per-question bypasses the free daily limit.
+                </p>
+
+                <p className="text-[10px] text-amber-600 bg-amber-500/5 border border-amber-500/20 rounded-xl p-2.5 mb-4 leading-relaxed text-left">
+                  ⚠️ <strong>Note:</strong> This pack adds questions <strong>only to your current subscription tier</strong> (e.g. if you are on Standard, they apply to Standard tabs; if on Free, they apply to Free tabs). It does not unlock higher tiers.
                 </p>
 
                 {/* Divider */}
