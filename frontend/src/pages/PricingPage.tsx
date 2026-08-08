@@ -39,7 +39,7 @@ export default function PricingPage({
   const [activeTier, setActiveTier] = useState<SubscriptionTier>(getCurrentTier())
   const [loadingTier, setLoadingTier] = useState<SubscriptionTier | null>(null)
   const [successTier, setSuccessTier] = useState<SubscriptionTier | null>(null)
-  
+
   const [questionsCount, setQuestionsCount] = useState<number>(10)
   const [purchasingQuestions, setPurchasingQuestions] = useState<boolean>(false)
   const [purchaseSuccessCount, setPurchaseSuccessCount] = useState<number | null>(null)
@@ -213,7 +213,7 @@ export default function PricingPage({
       }
 
       const orderData = await res.json()
-      
+
       const options = {
         key: orderData.key_id,
         amount: orderData.amount,
@@ -265,10 +265,10 @@ export default function PricingPage({
           color: tier === 'pro' ? '#C89B3C' : '#E67E22',
         },
       }
-      
+
       const rzp = new (window as any).Razorpay(options)
       rzp.open()
-      
+
     } catch (err: any) {
       console.error("Order creation error:", err)
       alert(`Order creation failed: ${err.message}`)
@@ -307,11 +307,10 @@ export default function PricingPage({
             return (
               <div
                 key={tier.id}
-                className={`relative rounded-3xl p-[2px] transition-all duration-300 ${
-                  isHighlighted
+                className={`relative rounded-3xl p-[2px] transition-all duration-300 ${isHighlighted
                     ? 'scale-[1.03] md:scale-105 z-10'
                     : 'hover:scale-[1.01]'
-                }`}
+                  }`}
                 style={{
                   background: isHighlighted
                     ? `linear-gradient(135deg, ${tier.color}, ${tier.color}80, ${tier.color})`
@@ -478,7 +477,7 @@ export default function PricingPage({
                 </p>
 
                 <p className="text-[10px] text-amber-600 bg-amber-500/5 border border-amber-500/20 rounded-xl p-2.5 mb-4 leading-relaxed text-left">
-                  ⚠️ <strong>Note:</strong> This pack adds questions <strong>only to your current subscription tier</strong> (e.g. if you are on Standard, they apply to Standard tabs; if on Free, they apply to Free tabs). It does not unlock higher tiers.
+                  <strong>Note:</strong> This pack adds questions <strong>only to your current subscription tier</strong> (e.g. if you are on Standard, they apply to Standard tabs; if on Free, they apply to Free tabs). It does not unlock higher tiers.
                 </p>
 
                 {/* Divider */}
@@ -511,11 +510,10 @@ export default function PricingPage({
                           key={num}
                           type="button"
                           onClick={() => setQuestionsCount(num)}
-                          className={`px-2.5 py-1 rounded-lg border text-[10px] font-semibold transition-all cursor-pointer ${
-                            questionsCount === num
+                          className={`px-2.5 py-1 rounded-lg border text-[10px] font-semibold transition-all cursor-pointer ${questionsCount === num
                               ? 'bg-[#C89B3C]/15 border-[#C89B3C] text-[#C89B3C] font-bold'
                               : 'border-outline-variant text-on-surface-variant hover:bg-surface-variant/20'
-                          }`}
+                            }`}
                         >
                           {num}
                         </button>
@@ -578,7 +576,7 @@ export default function PricingPage({
             {/* Background elements */}
             <div className="absolute -right-10 -top-10 w-32 h-32 bg-primary/10 rounded-full blur-2xl" />
             <div className="absolute -left-10 -bottom-10 w-32 h-32 bg-primary/5 rounded-full blur-2xl" />
-            
+
             {/* Animated Checkmark */}
             <div className="w-20 h-20 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-6 border-2 border-primary/20">
               <span className="material-symbols-outlined text-4xl text-primary font-bold animate-bounce" style={{ fontVariationSettings: "'FILL' 1" }}>
@@ -630,7 +628,7 @@ export default function PricingPage({
             {/* Background elements */}
             <div className="absolute -right-10 -top-10 w-32 h-32 bg-primary/10 rounded-full blur-2xl" />
             <div className="absolute -left-10 -bottom-10 w-32 h-32 bg-primary/5 rounded-full blur-2xl" />
-            
+
             {/* Animated Checkmark */}
             <div className="w-20 h-20 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-6 border-2 border-primary/20">
               <span className="material-symbols-outlined text-4xl text-primary font-bold animate-bounce" style={{ fontVariationSettings: "'FILL' 1" }}>
