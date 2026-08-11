@@ -42,6 +42,10 @@ frontend_url_env = os.environ.get("FRONTEND_URL")
 origins = [
     "https://jyotishasutraai.onrender.com",
     "https://jyotishasutraai.onrender.com/",
+    "https://astrosutraai.onrender.com",
+    "https://astrosutraai.onrender.com/",
+    "https://kundli-gpt-clone.onrender.com",
+    "https://kundli-gpt-clone.onrender.com/",
     "http://localhost:5173",
     "http://127.0.0.1:5173",
     "http://localhost:3000",
@@ -58,11 +62,11 @@ if frontend_url_env:
     if (clean_env + "/") not in origins:
         origins.append(clean_env + "/")
 
-# Enable CORS for React + Vite frontend server & JyotishaSutra domain
+# Enable CORS for React + Vite frontend server & JyotishaSutra/AstroSutra domains
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
-    allow_origin_regex=r"https://.*jyotishasutra.*",
+    allow_origin_regex=r"https://.*(jyotishasutra|astrosutra|kundli-gpt-clone).*",
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
