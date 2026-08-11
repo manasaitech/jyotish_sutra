@@ -15,13 +15,13 @@ import {
 
 // Firebase Client SDK Configuration matching the main application
 const firebaseConfig = {
-  apiKey: "AIzaSyBngPVS1uH69_QbIUVZr_Dpu7jNcngUe7U",
-  authDomain: "astrosutraai-b524e.firebaseapp.com",
-  projectId: "astrosutraai-b524e",
-  storageBucket: "astrosutraai-b524e.firebasestorage.app",
-  messagingSenderId: "29791277131",
-  appId: "1:29791277131:web:641a2e6b6216b959d43dce",
-  measurementId: "G-59WZT4JJQY"
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY || "",
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN || "",
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID || "",
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET || "",
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID || "",
+  appId: import.meta.env.VITE_FIREBASE_APP_ID || "",
+  measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID || ""
 };
 
 const app = getApps().length > 0 ? getApp() : initializeApp(firebaseConfig);
