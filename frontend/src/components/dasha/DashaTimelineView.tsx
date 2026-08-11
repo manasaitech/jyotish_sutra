@@ -374,7 +374,7 @@ export default function DashaTimelineView({ sessionId, userId, birthData, chartD
       </div>
 
       {/* SECTION 3: INTERACTIVE HORIZONTAL TIMELINE BAR */}
-      <div className="bg-surface rounded-3xl border border-outline-variant/60 p-6 shadow-xs space-y-4">
+      <div className="bg-surface rounded-3xl border border-outline-variant/60 p-6 shadow-xs space-y-4" data-tour="dasha-timeline">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <span className="material-symbols-outlined text-primary text-xl">timeline</span>

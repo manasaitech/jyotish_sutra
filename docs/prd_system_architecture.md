@@ -1,10 +1,10 @@
-# AstroSutra AI (KundliGPT Clone) — Technical System Architecture & Product Requirement Document (PRD)
+# JyotishaSutra AI (KundliGPT Clone) — Technical System Architecture & Product Requirement Document (PRD)
 
 ---
 
 ## 1. Executive Summary & Objective
 
-**AstroSutra AI** is an advanced, high-precision Vedic Astrological, Psychological, and Relational Guidance Platform. Built as a high-performance replica and enhancement of KundliGPT, the platform combines raw astronomical computation (arc-second precision), domain-scoped AI reasoning engines, multi-modal psychological/Ayurvedic profiling, and interactive multi-profile relationship matching.
+**JyotishaSutra AI** is an advanced, high-precision Vedic Astrological, Psychological, and Relational Guidance Platform. Built as a high-performance replica and enhancement of KundliGPT, the platform combines raw astronomical computation (arc-second precision), domain-scoped AI reasoning engines, multi-modal psychological/Ayurvedic profiling, and interactive multi-profile relationship matching.
 
 ### Primary Objectives
 1. **Precision Computation**: Eliminate reliance on third-party API dependencies by owning the underlying astronomical compute engine via Swiss Ephemeris (`pyswisseph`).
@@ -16,7 +16,7 @@
 
 ## 2. System Architecture: The Four Core Layers
 
-AstroSutra AI is architected into four decoupled, highly specialized layers:
+JyotishaSutra AI is architected into four decoupled, highly specialized layers:
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────┐
@@ -197,4 +197,4 @@ sequenceDiagram
 - **Strict Type Safety**: Full Pydantic validation schemas on Python backend and TypeScript interfaces across React frontend.
 
 ---
-*Documentation compiled for repository `Kundli_GPT_Clone` (AstroSutra AI).*
+*Documentation compiled for repository `Kundli_GPT_Clone` (JyotishaSutra AI).*

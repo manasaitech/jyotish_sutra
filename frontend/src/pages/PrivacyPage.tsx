@@ -102,7 +102,7 @@ This policy applies to all users of Astro Sutra, including users accessing the S
   {
     num: '13',
     title: 'Contact Us',
-    content: `If you have questions, concerns, or requests regarding this Privacy Policy or your personal data, please contact us at:\n\nEmail: contact@issdelhi.org\nAlternate: astrosutraai@gmail.com\nAddress: 386, Sant Nagar, New Delhi – 110065`,
+    content: `If you have questions, concerns, or requests regarding this Privacy Policy or your personal data, please contact us at:\n\nEmail: contact@issdelhi.org\nAlternate: jyotishasutraai@gmail.com\nAddress: 386, Sant Nagar, New Delhi – 110065`,
   },
 ]
 

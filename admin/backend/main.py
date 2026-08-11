@@ -1,5 +1,5 @@
 """
-AstroSutra Admin Analytics Dashboard — FastAPI Backend.
+JyotishaSutra Admin Analytics Dashboard — FastAPI Backend.
 
 Runs on port 8001, completely isolated from the main backend (port 8000).
 Connects to the same Supabase PostgreSQL database via shared DATABASE_URL.
@@ -35,7 +35,7 @@ from routes.activity import router as activity_router
 from routes.redeem_monitor import router as redeem_monitor_router
 
 app = FastAPI(
-    title="AstroSutra Admin Analytics API",
+    title="JyotishaSutra Admin Analytics API",
     description="Secure admin-only analytics dashboard backend.",
     version="1.0.0",
 )
@@ -71,7 +71,7 @@ app.include_router(redeem_monitor_router, prefix="/api/admin", tags=["Redeem Mon
 def root():
     return {
         "status": "healthy",
-        "service": "AstroSutra Admin Analytics API",
+        "service": "JyotishaSutra Admin Analytics API",
         "version": "1.0.0",
     }
 

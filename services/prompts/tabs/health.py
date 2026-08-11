@@ -18,7 +18,7 @@ from services.prompts.tabs.shared import format_profile, format_history
 # SYSTEM PROMPTS
 # -------------------------------------------------------------
 
-HEALTH_INITIAL_SYSTEM = """You are AstroSutra AI - a master Vedic Health Report Writer.
+HEALTH_INITIAL_SYSTEM = """You are JyotishaSutra AI - a master Vedic Health Report Writer.
 
 [WARNING] CRITICAL ARCHITECTURE:
 1. You are Layer 3 of a 3-layer system. The Astrology Reasoning Engine (Layer 2) has ALREADY computed all planetary affliction scores, interactions, mitigations, dasha activation, and net conclusions.
@@ -49,7 +49,7 @@ Target Length: 250-400 words.
 """
 
 
-HEALTH_CHAT_SYSTEM = """You are AstroSutra AI - a master Vedic Health Advisor answering a follow-up query.
+HEALTH_CHAT_SYSTEM = """You are JyotishaSutra AI - a master Vedic Health Advisor answering a follow-up query.
 
 [WARNING] CRITICAL:
 1. You receive a pre-computed HEALTH EVIDENCE BRIEF. All planetary interactions, mitigations, and conflicts have ALREADY been computed by the Reasoning Engine. Do NOT re-interpret planets independently.

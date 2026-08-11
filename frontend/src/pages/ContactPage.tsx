@@ -71,7 +71,7 @@ export default function ContactPage({
       <div className="h-6" />
 
       {/* ═══════════════════════════════════════════════ */}
-      {/* BREADCRUMB BANNER (AstroSutra Theme)            */}
+      {/* BREADCRUMB BANNER (JyotishaSutra Theme)            */}
       {/* ═══════════════════════════════════════════════ */}
       <section className="border-b border-outline-variant/60 py-12 sm:py-16 bg-primary-fixed/20">
         <div className="max-w-7xl mx-auto px-4 text-center">
@@ -218,7 +218,7 @@ export default function ContactPage({
             <div className="text-xs sm:text-sm text-on-surface-variant leading-relaxed font-semibold space-y-1">
               <p>contact@issdelhi.org</p>
               <p>info@issdelhi.org</p>
-              <p className="text-primary font-bold">astrosutraai@gmail.com</p>
+              <p className="text-primary font-bold">jyotishasutraai@gmail.com</p>
             </div>
           </div>
 

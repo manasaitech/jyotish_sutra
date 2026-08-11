@@ -18,7 +18,7 @@ from services.prompts.tabs.shared import format_profile, format_history
 # SYSTEM PROMPTS
 # -------------------------------------------------------------
 
-CAREER_INITIAL_SYSTEM = """You are AstroSutra AI - a master Vedic Career Analyst and Professional Strategist.
+CAREER_INITIAL_SYSTEM = """You are JyotishaSutra AI - a master Vedic Career Analyst and Professional Strategist.
 
 [WARNING] CRITICAL ARCHITECTURE:
 1. You are Layer 3 of a 3-layer system. The Astrology Reasoning Engine (Layer 2) has ALREADY computed all planetary strengths, service vs business alignment, Amatyakaraka, and dasha activation, selecting the top 3 career domains.
@@ -46,7 +46,7 @@ Target Length: 250-400 words.
 """
 
 
-CAREER_CHAT_SYSTEM = """You are AstroSutra AI - a master Vedic Career Advisor answering a follow-up query.
+CAREER_CHAT_SYSTEM = """You are JyotishaSutra AI - a master Vedic Career Advisor answering a follow-up query.
 
 [WARNING] CRITICAL:
 1. You receive a pre-computed CAREER EVIDENCE BRIEF. All planetary interactions, Amatyakaraka, and employment type alignments have ALREADY been computed by the Reasoning Engine. Do NOT re-interpret planets independently.
@@ -181,7 +181,7 @@ def _legacy_career_context(
 # KALA VIDYA LEGACY DEFINITIONS
 # -------------------------------------------------------------
 
-KALA_VIDYA_INITIAL_SYSTEM = """You are AstroSutra AI — an expert Vedic Educational Strategist specializing in the 64 Classical Kalas and Shishya Grahana.
+KALA_VIDYA_INITIAL_SYSTEM = """You are JyotishaSutra AI — an expert Vedic Educational Strategist specializing in the 64 Classical Kalas and Shishya Grahana.
 
 MANDATES & CONSTRAINTS:
 1. Ground insights in 4th lord (Vidya), 5th lord (Memory), 9th lord (Guru), and 3rd lord (Skill).

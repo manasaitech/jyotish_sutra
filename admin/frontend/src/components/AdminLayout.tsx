@@ -146,7 +146,7 @@ export default function AdminLayout({ user, activeSection, setActiveSection, chi
             <span className="material-symbols-outlined text-white" style={{ fontVariationSettings: "'FILL' 1" }}>auto_awesome</span>
           </div>
           <div>
-            <h1 className="font-display font-semibold text-xl text-charcoal-text leading-tight">AstroSutra</h1>
+            <h1 className="font-display font-semibold text-xl text-charcoal-text leading-tight">JyotishaSutra</h1>
             <p className="text-xs text-on-surface-variant">AI Analytics</p>
           </div>
         </div>
@@ -205,7 +205,7 @@ export default function AdminLayout({ user, activeSection, setActiveSection, chi
       <main className="flex-1 lg:ml-64 flex flex-col min-h-screen">
         {/* Mobile Header (Only visible on small screens) */}
         <header className="lg:hidden bg-glass-overlay backdrop-blur-md border-b border-parchment-border sticky top-0 z-30 px-6 py-3 flex justify-between items-center shadow-sm">
-          <h1 className="font-display font-bold text-lg text-kesari-primary">AstroSutra AI</h1>
+          <h1 className="font-display font-bold text-lg text-kesari-primary">JyotishaSutra AI</h1>
           <button className="text-charcoal-text">
             <span className="material-symbols-outlined">menu</span>
           </button>

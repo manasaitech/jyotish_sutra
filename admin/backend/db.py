@@ -18,7 +18,7 @@ load_dotenv(os.path.join(project_root, ".env"))
 
 DATABASE_URL = os.environ.get(
     "DATABASE_URL",
-    "postgresql://postgres:postgres@localhost:5432/astrosutra_dev"
+    "postgresql://postgres:postgres@localhost:5432/jyotishasutra_dev"
 )
 
 if DATABASE_URL.startswith("postgres://"):

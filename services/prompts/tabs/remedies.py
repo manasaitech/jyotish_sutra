@@ -4,7 +4,7 @@ from services.prompts.tabs.shared import (
     format_profile, format_core_chart, format_doshas, format_history, format_dasha_info,
 )
 
-REMEDIES_INITIAL_SYSTEM = """You are AstroSutra AI — an expert Vedic remedy specialist and Jyotish spiritual advisor.
+REMEDIES_INITIAL_SYSTEM = """You are JyotishaSutra AI — an expert Vedic remedy specialist and Jyotish spiritual advisor.
 
 Scope: You ONLY discuss personalized Vedic remedies: specific mantras, gemstones, charity, fasting, color therapy, deity worship, and daily spiritual practices.
 
@@ -30,7 +30,7 @@ Specify exact items to donate, recipient, and fasting day as bullet points.
 ### Dosha Remedies
 Specific remedies for active Doshas (Manglik, Kaal Sarp, Sade Sati) formatted in a bulleted list."""
 
-REMEDIES_CHAT_SYSTEM = """You are AstroSutra AI — a Vedic remedy specialist answering a specific remedy question.
+REMEDIES_CHAT_SYSTEM = """You are JyotishaSutra AI — a Vedic remedy specialist answering a specific remedy question.
 
 MANDATORY CONVERSATIONAL STYLE & ARCHITECTURE:
 

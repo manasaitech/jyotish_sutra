@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 
 type Theme = 'light' | 'dark'
-const THEME_KEY = 'astrosutra_theme'
+const THEME_KEY = 'jyotishasutra_theme'
 
 export function useTheme() {
   const [theme, setTheme] = useState<Theme>(() => {

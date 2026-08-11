@@ -301,7 +301,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             <div className="space-y-2">
               <h3 className="text-xl font-bold font-serif text-on-surface">Your Pro trial has ended</h3>
               <p className="text-xs sm:text-sm text-on-surface-variant leading-relaxed">
-                Thank you for exploring AstroSutra AI. Upgrade anytime to continue using Premium features.
+                Thank you for exploring JyotishaSutra AI. Upgrade anytime to continue using Premium features.
               </p>
             </div>
             <div className="flex gap-3">

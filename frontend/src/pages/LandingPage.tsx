@@ -11,7 +11,7 @@ export default function LandingPage({ onGetStarted }: LandingPageProps) {
 
   const testimonials = [
     {
-      quote: "AstroSutra AI didn't just give me predictions; it gave me clarity on my purpose. It was like speaking to a guide who knew my soul's map before I even asked the first question.",
+      quote: "JyotishaSutra AI didn't just give me predictions; it gave me clarity on my purpose. It was like speaking to a guide who knew my soul's map before I even asked the first question.",
       name: "Ananya Sharma",
       role: "Creative Director & Yoga Practitioner",
       initial: "A"

@@ -156,7 +156,7 @@ def verify_firebase_token(id_token: str) -> Dict[str, Any]:
         suffix = id_token.split("_")[-1] if "_" in id_token else "seeker"
         return {
             "uid": f"mock_user_{suffix}",
-            "email": f"mock_{suffix}@astrosutra.ai",
+            "email": f"mock_{suffix}@jyotishasutra.ai",
             "name": "Vedic Seeker",
             "picture": None,
             "auth_time": 0,
@@ -167,7 +167,7 @@ def verify_firebase_token(id_token: str) -> Dict[str, Any]:
         print("[Auth Warning] firebase_admin package is not installed.")
         return {
             "uid": "dev_user_uid",
-            "email": "dev@astrosutra.ai",
+            "email": "dev@jyotishasutra.ai",
             "name": "Dev Seeker",
             "picture": None,
             "auth_time": 0,

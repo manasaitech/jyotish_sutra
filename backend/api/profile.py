@@ -5,7 +5,9 @@ Endpoints for looking up, deleting, and recalculating stored user profiles.
 """
 
 import datetime
-from fastapi import APIRouter, HTTPException, Header
+from fastapi import APIRouter, HTTPException, Header, Depends
+from sqlalchemy.orm import Session
+from db import get_db
 from pydantic import BaseModel
 from typing import Optional
 from models.response import ProfileResponse
@@ -703,4 +705,142 @@ def save_event_feedback(user_id: str, req: FeedbackRequest, authorization: Optio
         "success": True,
         "confidence_modifier": round(confidence_modifier, 2)
     }
+
+
+@router.get("/profile/astrology-data/pdf")
+def download_astrology_data_pdf(
+    profile_id: Optional[str] = None,
+    authorization: Optional[str] = Header(None),
+    db: Session = Depends(get_db)
+):
+    """
+    Generate and download a professional PDF containing complete deterministic astrology data.
+    Only available to premium (standard or pro) users.
+    """
+    # 1. Authenticate user
+    from core.auth import require_current_user
+    try:
+        user = require_current_user(authorization)
+    except Exception as e:
+        raise HTTPException(status_code=401, detail="Authentication required to download astrology data.")
+
+    user_id = user["uid"]
+
+    # 2. Resolve user in database
+    from services.memory.profile_store import resolve_db_user, get_valid_uuid
+    db_user = resolve_db_user(db, user_id)
+    if not db_user:
+        raise HTTPException(status_code=404, detail="User account not found in database.")
+        
+    owner_uuid = db_user.id
+
+    # 3. Verify subscription tier using database User UUID
+    from api.auth import get_user_subscription_tier
+    tier = get_user_subscription_tier(db, owner_uuid)
+    if tier not in ("standard", "pro"):
+        raise HTTPException(
+            status_code=403,
+            detail="Download Astrology Data is a premium feature. Please upgrade to a Standard or Pro plan to download."
+        )
+
+    # 4. Resolve user profile in database
+    from db.models.astrology import AstroProfile, AstroBirthDetails, AstroChart
+    import uuid
+
+    if profile_id:
+        try:
+            profile_uuid = uuid.UUID(profile_id)
+        except ValueError:
+            profile_uuid = get_valid_uuid(profile_id)
+            
+        astro_profile = db.query(AstroProfile).filter(
+            AstroProfile.id == profile_uuid,
+            AstroProfile.user_id == owner_uuid
+        ).first()
+    else:
+        # Default to first profile found for the owner
+        astro_profile = db.query(AstroProfile).filter(
+            AstroProfile.user_id == owner_uuid
+        ).first()
+
+    if not astro_profile:
+        raise HTTPException(status_code=404, detail="Astrology profile not found.")
+
+    # 4. Fetch birth details and chart
+    details = db.query(AstroBirthDetails).filter(AstroBirthDetails.profile_id == astro_profile.id).first()
+    chart = db.query(AstroChart).filter(AstroChart.profile_id == astro_profile.id, AstroChart.chart_type == "natal").first()
+
+    if not details or not chart:
+        raise HTTPException(status_code=404, detail="Calculated birth chart data not found for this profile.")
+
+    chart_payload = chart.raw_data or {}
+    if "natal_chart" in chart_payload:
+        chart_data = chart_payload["natal_chart"]
+    elif "natal" in chart_payload:
+        chart_data = chart_payload["natal"]
+    else:
+        chart_data = chart_payload
+        
+    if isinstance(chart_data, dict) and "natal" in chart_data:
+        chart_data = chart_data["natal"]
+
+    # Self-healing on the fly calculations if missing
+    chart_response = chart.raw_data.get("chart_response") or {}
+    computed = chart_data.get("computed") or chart_response.get("computed") or {}
+    if not computed:
+        try:
+            prakriti = estimate_prakriti(chart_data)
+            elements = calculate_element_distribution(chart_data)
+            lucky = calculate_lucky_attributes(chart_data)
+            from services.astrology.planet_ranking import rank_planets
+            from services.astrology.remedies_calc import generate_remedy_data
+            rankings = rank_planets(chart_data)
+            remedies = generate_remedy_data(chart_data, rankings)
+            computed = {
+                "prakriti": prakriti,
+                "elements": elements,
+                "lucky": lucky,
+                "planet_rankings": rankings,
+                "remedy_data": remedies,
+            }
+        except Exception as e:
+            print(f"[PDF Endpoint] Warning: failed to compute extra parameters on the fly: {e}")
+
+    # Reconstruct birth_details dict
+    birth_details_dict = {
+        "name": astro_profile.name,
+        "date_of_birth": details.date_of_birth.isoformat() if details.date_of_birth else None,
+        "time_of_birth": details.time_of_birth.isoformat() if details.time_of_birth else None,
+        "latitude": float(details.latitude) if details.latitude is not None else None,
+        "longitude": float(details.longitude) if details.longitude is not None else None,
+        "timezone_offset": float(details.timezone_offset) if details.timezone_offset is not None else None,
+        "place_name": details.place_name or ""
+    }
+
+    # 5. Generate PDF
+    try:
+        from fastapi.responses import StreamingResponse
+        try:
+            from backend.utils.pdf_generator import generate_astrology_pdf
+        except ImportError:
+            from utils.pdf_generator import generate_astrology_pdf
+            
+        pdf_buffer = generate_astrology_pdf(birth_details_dict, chart_data, computed)
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        raise HTTPException(status_code=500, detail=f"Failed to generate astrology report PDF: {str(e)}")
+
+    import urllib.parse
+    safe_name = urllib.parse.quote(astro_profile.name.replace(" ", "-"))
+    filename = f"JyotishaSutra-Astrology-Data-{safe_name}.pdf"
+
+    return StreamingResponse(
+        pdf_buffer,
+        media_type="application/pdf",
+        headers={
+            "Content-Disposition": f"attachment; filename={filename}",
+            "Access-Control-Expose-Headers": "Content-Disposition"
+        }
+    )
 

@@ -50,7 +50,7 @@ def verify_token_endpoint(req: TokenVerifyRequest, db: Session = Depends(get_db)
             # Create new user record
             user = User(
                 firebase_uid=firebase_uid,
-                email=email or f"firebase_{firebase_uid}@astrosutra.ai",
+                email=email or f"firebase_{firebase_uid}@jyotishasutra.ai",
                 display_name=display_name,
                 email_verified=claims.get("email_verified", False),
                 status="active",

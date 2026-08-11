@@ -12,7 +12,7 @@ from sqlalchemy.pool import QueuePool
 
 DATABASE_URL = os.environ.get(
     "DATABASE_URL",
-    "postgresql://postgres:postgres@localhost:5432/astrosutra_dev"
+    "postgresql://postgres:postgres@localhost:5432/jyotishasutra_dev"
 )
 
 # Handle Supabase/Render URLs that start with postgres:// (SQLAlchemy requires postgresql://)

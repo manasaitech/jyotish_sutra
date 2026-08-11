@@ -132,7 +132,7 @@ By creating an account, accessing, or using the Service, you agree to be bound b
   {
     num: '20',
     title: 'Contact Us',
-    content: `If you have questions about these Terms, please contact us at:\n\nEmail: contact@issdelhi.org\nAlternate: astrosutraai@gmail.com\nAddress: 386, Sant Nagar, New Delhi – 110065`,
+    content: `If you have questions about these Terms, please contact us at:\n\nEmail: contact@issdelhi.org\nAlternate: jyotishasutraai@gmail.com\nAddress: 386, Sant Nagar, New Delhi – 110065`,
   },
 ]
 

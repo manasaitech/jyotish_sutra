@@ -71,7 +71,7 @@ export default function LoginPage() {
         <div className="text-center">
           <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-800 text-[11px] font-bold uppercase tracking-wider">
             <span className="material-symbols-outlined text-[14px]">auto_awesome</span>
-            AstroSutra AI Auth
+            JyotishaSutra AI Auth
           </div>
           <h2 className="mt-4 text-2xl sm:text-3xl font-bold text-on-surface font-serif leading-tight">
             Welcome back

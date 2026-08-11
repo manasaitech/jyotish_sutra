@@ -5,7 +5,7 @@ interface AstroLoaderProps {
 }
 
 export default function AstroLoader({
-  message = 'Connecting to AstroSutra AI...',
+  message = 'Connecting to JyotishaSutra AI...',
   fullscreen = true,
   size = 'lg',
 }: AstroLoaderProps) {

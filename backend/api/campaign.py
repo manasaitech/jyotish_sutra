@@ -62,7 +62,7 @@ def require_admin_user(current_user: dict = Depends(require_current_user), db: S
 
 def generate_qr_base64_svg(token: str) -> str:
     """Generates an SVG QR code pointing to the redeem route, returning a base64 Data URI."""
-    frontend_url = os.environ.get("FRONTEND_URL", "https://astrosutra.manasai.tech").rstrip("/")
+    frontend_url = os.environ.get("FRONTEND_URL", "https://jyotishasutra.manasai.tech").rstrip("/")
     url = f"{frontend_url}/redeem/{token}"
     
     factory = qrcode.image.svg.SvgPathImage
@@ -124,7 +124,7 @@ def create_campaign(
     db.commit()
     db.refresh(campaign)
     
-    frontend_url = os.environ.get("FRONTEND_URL", "https://astrosutra.manasai.tech").rstrip("/")
+    frontend_url = os.environ.get("FRONTEND_URL", "https://jyotishasutra.manasai.tech").rstrip("/")
     return {
         "success": True,
         "campaign": {
@@ -199,7 +199,7 @@ def get_campaign_details(
     if not campaign:
         raise HTTPException(status_code=404, detail="Campaign not found")
         
-    frontend_url = os.environ.get("FRONTEND_URL", "https://astrosutra.manasai.tech").rstrip("/")
+    frontend_url = os.environ.get("FRONTEND_URL", "https://jyotishasutra.manasai.tech").rstrip("/")
     qr_image = generate_qr_base64_svg(campaign.token)
     
     now = datetime.utcnow()

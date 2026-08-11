@@ -55,8 +55,8 @@ def create_and_save_campaign(name, plan_tier, duration_hours, max_redemptions):
         db.refresh(campaign)
         
         # Generate URLs
-        custom_url = f"https://astrosutra.manasai.tech/redeem/{token}"
-        render_url = f"https://astrosutraai.onrender.com/redeem/{token}"
+        custom_url = f"https://jyotishasutra.manasai.tech/redeem/{token}"
+        render_url = f"https://jyotishasutraai.onrender.com/redeem/{token}"
         local_url = f"http://localhost:5173/redeem/{token}"
         
         factory = qrcode.image.svg.SvgPathImage

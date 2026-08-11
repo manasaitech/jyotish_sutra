@@ -101,7 +101,7 @@ export default function RedeemPage() {
         
         // Force refresh user subscription tier in local state
         // (will be updated on next App load or dashboard refresh)
-        localStorage.setItem('astrosutra_subscription_tier', data.plan)
+        localStorage.setItem('jyotishasutra_subscription_tier', data.plan)
       } catch (err: any) {
         setError(err.message || 'Failed to activate promotional trial access.')
       } finally {
@@ -175,7 +175,7 @@ export default function RedeemPage() {
 
             <div className="space-y-2">
               <h2 className="text-2xl sm:text-3xl font-bold font-serif text-on-surface">
-                🎉 Welcome to AstroSutra {campaignInfo.plan.toUpperCase() === 'PRO' ? 'Pro' : 'Standard'}
+                🎉 Welcome to JyotishaSutra {campaignInfo.plan.toUpperCase() === 'PRO' ? 'Pro' : 'Standard'}
               </h2>
               <p className="text-xs text-on-surface-variant max-w-xs mx-auto leading-relaxed">
                 Your trial access via campaign <strong>"{campaignInfo.campaign_name}"</strong> has been successfully activated.
@@ -195,7 +195,7 @@ export default function RedeemPage() {
             <button
               onClick={() => {
                 // Refresh window during redirect to ensure new tier is parsed by application context
-                window.location.href = '/app'
+                window.location.href = '/dashboard'
               }}
               className="w-full py-3.5 bg-primary hover:bg-primary-container text-white font-bold text-sm rounded-2xl shadow-md transition-all active:scale-[0.99] flex items-center justify-center gap-2 cursor-pointer"
             >

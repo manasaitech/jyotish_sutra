@@ -66,7 +66,7 @@ export default function NotFoundPage() {
       </div>
 
       <div className="absolute bottom-6 text-xs text-on-surface-variant/60 tracking-wider uppercase font-medium">
-        © {new Date().getFullYear()} AstroSutra AI • All Rights Reserved
+        © {new Date().getFullYear()} JyotishaSutra AI • All Rights Reserved
       </div>
     </div>
   )

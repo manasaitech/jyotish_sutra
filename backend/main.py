@@ -29,7 +29,7 @@ from api.campaign import router as campaign_router
 IS_PRODUCTION = os.getenv("ENV") == "production"
 
 app = FastAPI(
-    title="AstroSutra AI API",
+    title="JyotishaSutra AI API",
     description="Ancient Wisdom meets Modern Intelligence — Horoscope Computation and RAG-Gita Guided Chat Engine.",
     version="1.0.0",
     docs_url=None if IS_PRODUCTION else "/docs",
@@ -40,8 +40,8 @@ app = FastAPI(
 frontend_url_env = os.environ.get("FRONTEND_URL")
 
 origins = [
-    "https://astrosutraai.onrender.com",
-    "https://astrosutraai.onrender.com/",
+    "https://jyotishasutraai.onrender.com",
+    "https://jyotishasutraai.onrender.com/",
     "http://localhost:5173",
     "http://127.0.0.1:5173",
     "http://localhost:3000",
@@ -58,11 +58,11 @@ if frontend_url_env:
     if (clean_env + "/") not in origins:
         origins.append(clean_env + "/")
 
-# Enable CORS for React + Vite frontend server & Astrosutra domain
+# Enable CORS for React + Vite frontend server & JyotishaSutra domain
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
-    allow_origin_regex=r"https://.*astrosutra.*",
+    allow_origin_regex=r"https://.*jyotishasutra.*",
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

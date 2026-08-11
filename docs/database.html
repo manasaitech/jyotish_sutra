@@ -1,0 +1,3295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kundli AI — Database Schema & ERD Specifications</title>
+  <!-- Google Fonts: Inter for UI, EB Garamond for Vedic titles -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400..800;1,400..800&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  
+  <!-- Prism.js for code syntax highlighting -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" />
+  
+  <!-- Mermaid.js for diagrams -->
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script>
+    mermaid.initialize({
+      startOnLoad: true,
+      theme: 'neutral',
+      securityLevel: 'loose',
+      er: { useMaxWidth: true, layoutDirection: 'TB' }
+    });
+  </script>
+
+  <style>
+    :root {
+      --bg-cream: #FAF8F3;
+      --surface-white: #FFFFFF;
+      --primary-kesari: #E67E22;
+      --secondary-gold: #C89B3C;
+      --on-primary: #FFFFFF;
+      --charcoal: #2D2A26;
+      --charcoal-muted: #6E6558;
+      --outline-sand: #E9DFC8;
+      --primary-fixed: #FFF3E6;
+      --on-primary-fixed: #7A3E0B;
+      --card-shadow: 0 4px 20px rgba(233, 223, 200, 0.4);
+      --success-green: #27AE60;
+      --sidebar-width: 290px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg-cream);
+      color: var(--charcoal);
+      font-family: "Inter", sans-serif;
+      line-height: 1.6;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 1440px;
+      margin: 0 auto;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 30px;
+      border-bottom: 2px solid var(--outline-sand);
+      padding-bottom: 25px;
+    }
+
+    h1 {
+      font-family: "EB Garamond", serif;
+      font-size: 3rem;
+      font-weight: 700;
+      color: var(--primary-kesari);
+      margin-bottom: 8px;
+    }
+
+    h2, h3, h4, .font-display {
+      font-family: "EB Garamond", serif;
+      font-weight: 700;
+    }
+
+    .subtitle {
+      font-size: 1.1rem;
+      color: var(--charcoal-muted);
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      font-weight: 500;
+    }
+
+    /* Docs Navigation Bar */
+    .docs-nav {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 30px;
+      padding: 14px 20px;
+      background: var(--surface-white);
+      border: 1px solid var(--outline-sand);
+      border-radius: 12px;
+      box-shadow: 0 2px 10px rgba(233, 223, 200, 0.3);
+    }
+
+    .docs-nav-label {
+      font-family: "EB Garamond", serif;
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--charcoal-muted);
+      margin-right: 8px;
+    }
+
+    .docs-nav a {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 18px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--charcoal-muted);
+      text-decoration: none;
+      border: 1px solid var(--outline-sand);
+      border-radius: 8px;
+      background: var(--bg-cream);
+      transition: all 0.25s ease;
+    }
+
+    .docs-nav a:hover {
+      border-color: var(--primary-kesari);
+      color: var(--primary-kesari);
+      background: var(--primary-fixed);
+      box-shadow: 0 3px 10px rgba(230, 126, 34, 0.15);
+      transform: translateY(-1px);
+    }
+
+    .docs-nav a.active-page {
+      background: var(--primary-kesari);
+      color: var(--on-primary);
+      border-color: var(--primary-kesari);
+      box-shadow: 0 3px 10px rgba(230, 126, 34, 0.2);
+      cursor: default;
+    }
+
+    /* Layout Wrapper */
+    .docs-layout {
+      display: flex;
+      gap: 30px;
+      margin-top: 20px;
+    }
+
+    /* Sticky Sidebar Navigation */
+    .docs-sidebar {
+      width: var(--sidebar-width);
+      position: sticky;
+      top: 20px;
+      height: calc(100vh - 40px);
+      overflow-y: auto;
+      padding: 20px;
+      background: var(--surface-white);
+      border: 1px solid var(--outline-sand);
+      border-radius: 16px;
+      box-shadow: var(--card-shadow);
+      flex-shrink: 0;
+    }
+
+    .sidebar-title {
+      font-family: "EB Garamond", serif;
+      font-size: 1.4rem;
+      font-weight: 700;
+      color: var(--primary-kesari);
+      margin-bottom: 15px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid var(--outline-sand);
+    }
+
+    .sidebar-menu {
+      list-style: none;
+    }
+
+    .sidebar-item {
+      margin-bottom: 8px;
+    }
+
+    .sidebar-link {
+      display: block;
+      color: var(--charcoal-muted);
+      text-decoration: none;
+      font-size: 0.88rem;
+      font-weight: 500;
+      padding: 6px 12px;
+      border-radius: 6px;
+      transition: all 0.2s ease;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .sidebar-link:hover {
+      background: var(--primary-fixed);
+      color: var(--on-primary-fixed);
+      padding-left: 16px;
+    }
+
+    .sidebar-link.active {
+      background: var(--primary-kesari);
+      color: var(--on-primary);
+      font-weight: 600;
+    }
+
+    .sidebar-section-title {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--secondary-gold);
+      margin: 15px 0 5px 12px;
+      font-weight: 700;
+    }
+
+    /* Content Area */
+    .docs-content {
+      flex-grow: 1;
+      min-width: 0;
+    }
+
+    /* Section Layouts */
+    section {
+      background: var(--surface-white);
+      border: 1px solid var(--outline-sand);
+      border-radius: 16px;
+      padding: 40px;
+      margin-bottom: 30px;
+      box-shadow: var(--card-shadow);
+      scroll-margin-top: 20px;
+    }
+
+    section h2 {
+      font-size: 2.2rem;
+      color: var(--primary-kesari);
+      margin-bottom: 25px;
+      border-bottom: 2px dashed var(--outline-sand);
+      padding-bottom: 12px;
+    }
+
+    section h3 {
+      font-size: 1.6rem;
+      color: var(--on-primary-fixed);
+      margin-top: 30px;
+      margin-bottom: 15px;
+      border-bottom: 1px solid var(--outline-sand);
+      padding-bottom: 8px;
+    }
+
+    section p {
+      margin-bottom: 15px;
+      color: var(--charcoal);
+      font-size: 1rem;
+      line-height: 1.7;
+    }
+
+    /* Tables */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 20px 0;
+    }
+
+    th, td {
+      padding: 12px 16px;
+      text-align: left;
+      border-bottom: 1px solid var(--outline-sand);
+    }
+
+    th {
+      color: var(--on-primary-fixed);
+      background-color: var(--primary-fixed);
+      font-weight: 600;
+      text-transform: uppercase;
+      font-size: 0.82rem;
+      letter-spacing: 0.5px;
+    }
+
+    td {
+      font-size: 0.9rem;
+      vertical-align: top;
+    }
+
+    tr:hover {
+      background-color: var(--primary-fixed);
+    }
+
+    /* Key Badges */
+    .key-badge {
+      display: inline-block;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 0.7rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      margin-right: 4px;
+      font-family: 'JetBrains Mono', monospace;
+    }
+    .key-pk { background: #3498DB; color: #FFFFFF; }
+    .key-fk { background: #E67E22; color: #FFFFFF; }
+    .key-uq { background: #9B59B6; color: #FFFFFF; }
+    .key-nn { background: #BDC3C7; color: #2C3E50; }
+
+    /* Collapsible DDL Code styling */
+    pre[class*="language-"] {
+      border-radius: 8px;
+      border: 1px solid var(--outline-sand);
+      background: #FDFDFB !important;
+      margin: 15px 0;
+    }
+
+    code {
+      font-family: 'JetBrains Mono', 'Courier New', monospace;
+      font-size: 0.88rem;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      margin-right: 4px;
+    }
+    .badge-success { background: rgba(39, 174, 96, 0.1); color: var(--success-green); border: 1px solid var(--success-green); }
+
+    .card {
+      background: var(--bg-cream);
+      border: 1px solid var(--outline-sand);
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 20px;
+    }
+
+    details {
+      border: 1px solid var(--outline-sand);
+      border-radius: 8px;
+      padding: 15px;
+      background: var(--bg-cream);
+      margin-bottom: 15px;
+    }
+
+    details summary {
+      font-weight: 600;
+      cursor: pointer;
+      font-family: "EB Garamond", serif;
+      font-size: 1.2rem;
+      color: var(--on-primary-fixed);
+      user-select: none;
+    }
+
+    details[open] summary {
+      margin-bottom: 12px;
+      border-bottom: 1px dashed var(--outline-sand);
+      padding-bottom: 8px;
+    }
+
+    .mermaid {
+      background: #FFFFFF;
+      border: 1px solid var(--outline-sand);
+      border-radius: 12px;
+      padding: 20px;
+      margin: 25px 0;
+      display: flex;
+      justify-content: center;
+      overflow-x: auto;
+    }
+
+    /* Floating Back to HLD button */
+    .floating-back-btn {
+      position: fixed;
+      bottom: 25px;
+      right: 25px;
+      background: var(--primary-kesari);
+      color: var(--on-primary);
+      border: none;
+      padding: 12px 24px;
+      border-radius: 30px;
+      font-weight: 600;
+      text-decoration: none;
+      box-shadow: 0 4px 15px rgba(230, 126, 34, 0.4);
+      z-index: 1000;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .floating-back-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(230, 126, 34, 0.5);
+      background: #D35400;
+    }
+
+    @media (max-width: 900px) {
+      .docs-layout {
+        flex-direction: column;
+      }
+      .docs-sidebar {
+        width: 100%;
+        height: auto;
+        position: relative;
+        top: 0;
+      }
+    }
+
+    /* Print styling */
+    @media print {
+      body {
+        background: #FFFFFF;
+        color: #000000;
+        padding: 0;
+      }
+      .docs-sidebar, .docs-nav, .floating-back-btn {
+        display: none !important;
+      }
+      section {
+        border: none;
+        box-shadow: none;
+        padding: 0;
+        margin-bottom: 50px;
+        page-break-inside: avoid;
+      }
+      .docs-layout {
+        display: block;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <header>
+      <h1>Kundli AI</h1>
+      <div class="subtitle">Database Schema & Relational Blueprint</div>
+    </header>
+
+    <!-- Documentation Pages Navigation -->
+    <nav class="docs-nav">
+      <span class="docs-nav-label">📄 Docs:</span>
+      <a href="index.html">🏛️ System Architecture</a>
+      <a href="divisional-charts.html">🔮 Divisional Charts</a>
+      <a href="lld.html">📋 Low-Level Design (LLD)</a>
+      <a href="database.html" class="active-page">🗄️ Database Schema</a>
+    </nav>
+
+    <div class="docs-layout">
+      
+      <!-- Left Sidebar Navigation -->
+      <aside class="docs-sidebar">
+        <div class="sidebar-title">Database Sections</div>
+        <ul class="sidebar-menu">
+          <li class="sidebar-item"><a href="#overview" class="sidebar-link active">1. Schema Overview</a></li>
+          <li class="sidebar-item"><a href="#erd" class="sidebar-link">2. Entity-Relationship Diagram</a></li>
+          
+          <div class="sidebar-section-title">Identity & RBAC</div>
+          <li class="sidebar-item"><a href="#tbl-users" class="sidebar-link">users</a></li>
+          <li class="sidebar-item"><a href="#tbl-roles" class="sidebar-link">roles</a></li>
+          <li class="sidebar-item"><a href="#tbl-permissions" class="sidebar-link">permissions</a></li>
+          <li class="sidebar-item"><a href="#tbl-role-permissions" class="sidebar-link">role_permissions</a></li>
+          <li class="sidebar-item"><a href="#tbl-user-roles" class="sidebar-link">user_roles</a></li>
+          
+          <div class="sidebar-section-title">Subscription & Billing</div>
+          <li class="sidebar-item"><a href="#tbl-subscription-plans" class="sidebar-link">subscription_plans</a></li>
+          <li class="sidebar-item"><a href="#tbl-subscriptions" class="sidebar-link">subscriptions</a></li>
+          <li class="sidebar-item"><a href="#tbl-orders" class="sidebar-link">orders</a></li>
+          <li class="sidebar-item"><a href="#tbl-payments" class="sidebar-link">payments</a></li>
+          <li class="sidebar-item"><a href="#tbl-invoices" class="sidebar-link">invoices</a></li>
+          <li class="sidebar-item"><a href="#tbl-coupons" class="sidebar-link">coupons</a></li>
+          
+          <div class="sidebar-section-title">Astrology & Computation</div>
+          <li class="sidebar-item"><a href="#tbl-astrology-profiles" class="sidebar-link">astrology_profiles</a></li>
+          <li class="sidebar-item"><a href="#tbl-kundlis" class="sidebar-link">kundlis</a></li>
+          <li class="sidebar-item"><a href="#tbl-planet-positions" class="sidebar-link">planet_positions</a></li>
+          <li class="sidebar-item"><a href="#tbl-houses" class="sidebar-link">houses</a></li>
+          <li class="sidebar-item"><a href="#tbl-dasha-periods" class="sidebar-link">dasha_periods</a></li>
+          <li class="sidebar-item"><a href="#tbl-divisional-charts" class="sidebar-link">divisional_charts</a></li>
+          
+          <div class="sidebar-section-title">AI Chat & RAG</div>
+          <li class="sidebar-item"><a href="#tbl-chat-sessions" class="sidebar-link">chat_sessions</a></li>
+          <li class="sidebar-item"><a href="#tbl-chat-messages" class="sidebar-link">chat_messages</a></li>
+          <li class="sidebar-item"><a href="#tbl-astrology-reports" class="sidebar-link">astrology_reports</a></li>
+          <li class="sidebar-item"><a href="#tbl-emotion-analysis-logs" class="sidebar-link">emotion_analysis_logs</a></li>
+          
+          <div class="sidebar-section-title">Notifications & Files</div>
+          <li class="sidebar-item"><a href="#tbl-notifications" class="sidebar-link">notifications</a></li>
+          <li class="sidebar-item"><a href="#tbl-notification-preferences" class="sidebar-link">notification_preferences</a></li>
+          <li class="sidebar-item"><a href="#tbl-file-metadata" class="sidebar-link">file_metadata</a></li>
+          
+          <div class="sidebar-section-title">Audit, Logs & Config</div>
+          <li class="sidebar-item"><a href="#tbl-api-usage-logs" class="sidebar-link">api_usage_logs</a></li>
+          <li class="sidebar-item"><a href="#tbl-audit-logs" class="sidebar-link">audit_logs</a></li>
+          <li class="sidebar-item"><a href="#tbl-feedback" class="sidebar-link">feedback</a></li>
+          <li class="sidebar-item"><a href="#tbl-user-settings" class="sidebar-link">user_settings</a></li>
+          <li class="sidebar-item"><a href="#tbl-feature-flags" class="sidebar-link">feature_flags</a></li>
+          <li class="sidebar-item"><a href="#tbl-referrals" class="sidebar-link">referrals</a></li>
+          <li class="sidebar-item"><a href="#tbl-webhook-events" class="sidebar-link">webhook_events</a></li>
+          
+          <div class="sidebar-section-title">DDL Schema</div>
+          <li class="sidebar-item"><a href="#ddl" class="sidebar-link">Full DDL Script</a></li>
+        </ul>
+      </aside>
+
+      <!-- Main Schema Documentation Sections -->
+      <main class="docs-content">
+
+        <!-- Schema Overview -->
+        <section id="overview">
+          <h2>1. Database Schema Overview</h2>
+          <p>This document details the enterprise database architecture and relational 3NF schema specifications for the <strong>Kundli AI</strong> platform. The system uses a production-ready, highly normalized <strong>PostgreSQL (Supabase)</strong> relational design, managed via <strong>SQLAlchemy 2.0 ORM</strong> and <strong>Alembic</strong> for migrations.</p>
+          
+          <div class="card">
+            <h3>Key Architectural Directives</h3>
+            <ul>
+              <li><strong>Authentication Boundary:</strong> Firebase handles secure authentication workflows, JWT verification, and credential protection. PostgreSQL maintains user profiles and local identity mapping linked via <code>firebase_uid</code>.</li>
+              <li><strong>Vedic Precision Computations:</strong> Horizontal scaling for custom ephemeris charts is optimized via <code>kundlis</code>, <code>planet_positions</code>, <code>houses</code>, and <code>dasha_periods</code> tables.</li>
+              <li><strong>Normal Forms (3NF):</strong> Normalized to 3rd Normal Form to minimize redundancy, leveraging junction tables (e.g. <code>role_permissions</code>, <code>user_roles</code>) and explicit indexes to optimize joins.</li>
+              <li><strong>JSONB Support:</strong> Structured PostgreSQL JSONB datatype is leveraged for highly complex, multi-dimensional astrological matrices (e.g., panchang variables and raw payloads) where indexing is necessary but strict columnar formatting is suboptimal.</li>
+            </ul>
+          </div>
+        </section>
+
+        <!-- ERD Diagram -->
+        <section id="erd">
+          <h2>2. Entity-Relationship (ER) Diagram</h2>
+          <p>The interactive ERD maps core database tables and entity dependencies across user identity, subscription cycles, astrological data, AI consultation loops, payments, and auditing.</p>
+          
+          <div class="mermaid">
+erDiagram
+    users ||--o{ user_roles : has
+    roles ||--o{ user_roles : assigned_to
+    roles ||--o{ role_permissions : contains
+    permissions ||--o{ role_permissions : granted_in
+
+    users ||--o{ subscriptions : owns
+    subscription_plans ||--o{ subscriptions : defines
+
+    users ||--o{ astrology_profiles : creates
+    astrology_profiles ||--o{ kundlis : generates
+    astrology_profiles ||--o{ chat_sessions : initializes
+    astrology_profiles ||--o{ astrology_reports : links
+
+    kundlis ||--o{ planet_positions : contains
+    kundlis ||--o{ houses : contains
+    kundlis ||--o{ dasha_periods : contains
+    kundlis ||--o{ divisional_charts : contains
+
+    chat_sessions ||--o{ chat_messages : contains
+    chat_sessions ||--o{ astrology_reports : generates
+
+    users ||--o{ payments : executes
+    payments ||--o{ invoices : generates
+    orders ||--o{ payments : settles
+    coupons ||--o{ orders : applies
+
+    users ||--o{ notifications : receives
+    users ||--o{ notification_preferences : configures
+
+    users ||--o{ file_metadata : owns
+    users ||--o{ audit_logs : triggers
+    users ||--o{ api_usage_logs : incurs
+    users ||--o{ feedback : submits
+    users ||--o{ user_settings : configures
+    users ||--o{ emotion_analysis_logs : initiates
+
+    users ||--o{ referrals : refers
+          </div>
+        </section>
+
+        <!-- IDENTITY & RBAC MODULE -->
+        <section id="identity-rbac">
+          <h2>3. Identity & Role-Based Access Control (RBAC) Module</h2>
+          <p>Manages user profiles, role assignments, and capabilities. Permissions enable granular security constraints enforced via FastAPI dependecy-injections and PostgreSQL Row Level Security (RLS) layers.</p>
+
+          <!-- users -->
+          <div id="tbl-users" class="card">
+            <h3>Table: users</h3>
+            <p>Core user accounts containing application identity details associated with Firebase authentication.</p>
+            <table>
+              <thead>
+                <tr>
+                  <th>Column</th>
+                  <th>Type</th>
+                  <th>Keys / Constraints</th>
+                  <th>Description</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>id</strong></td>
+                  <td>UUID</td>
+                  <td><span class="key-badge key-pk">PK</span> <code>DEFAULT gen_random_uuid()</code></td>
+                  <td>Internal unique identifier for the user. Used for relational foreign keys.</td>
+                </tr>
+                <tr>
+                  <td><strong>firebase_uid</strong></td>
+                  <td>VARCHAR(128)</td>
+                  <td><span class="key-badge key-uq">UQ</span> <span class="key-badge key-nn">NN</span></td>
+                  <td>External Firebase user UID mapping credential profile to authentication events.</td>
+                </tr>
+                <tr>
+                  <td><strong>email</strong></td>
+                  <td>VARCHAR(255)</td>
+                  <td><span class="key-badge key-uq">UQ</span> <span class="key-badge key-nn">NN</span></td>
+                  <td>Email address of the user.</td>
+                </tr>
+                <tr>
+                  <td><strong>phone</strong></td>
+                  <td>VARCHAR(32)</td>
+                  <td></td>
+                  <td>Optional phone number.</td>
+                </tr>
+                <tr>
+                  <td><strong>display_name</strong></td>
+                  <td>VARCHAR(128)</td>
+                  <td></td>
+                  <td>Full display name of the user.</td>
+                </tr>
+                <tr>
+                  <td><strong>photo_url</strong></td>
+                  <td>TEXT</td>
+                  <td></td>
+                  <td>Avatar image URL.</td>
+                </tr>
+                <tr>
+                  <td><strong>preferred_language</strong></td>
+                  <td>VARCHAR(10)</td>
+                  <td><code>DEFAULT 'en'</code></td>
+                  <td>User locale selection for notifications and reporting.</td>
+                </tr>
+                <tr>
+                  <td><strong>country</strong></td>
+                  <td>VARCHAR(3)</td>
+                  <td><code>DEFAULT 'IND'</code></td>
+                  <td>ISO alpha-3 country designation code.</td>
+                </tr>
+                <tr>
+                  <td><strong>timezone</strong></td>
+                  <td>VARCHAR(64)</td>
+                  <td><code>DEFAULT 'Asia/Kolkata'</code></td>
+                  <td>User default timezone string.</td>
+                </tr>
+                <tr>
+                  <td><strong>last_login_at</strong></td>
+                  <td>TIMESTAMPTZ</td>
+                  <td></td>
+                  <td>Timestamp tracking the user's last login session.</td>
+                </tr>
+                <tr>
+                  <td><strong>email_verified</strong></td>
+                  <td>BOOLEAN</td>
+                  <td><code>DEFAULT FALSE</code></td>
+                  <td>Boolean showing if user verified their email on Firebase.</td>
+                </tr>
+                <tr>
+                  <td><strong>status</strong></td>
+                  <td>user_status_enum</td>
+                  <td><span class="key-badge key-nn">NN</span> <code>DEFAULT 'active'</code></td>
+                  <td>Status flag: <code>active</code>, <code>suspended</code>, <code>deactivated</code>, <code>deleted</code>.</td>
+                </tr>
+                <tr>
+                  <td><strong>created_at</strong></td>
+                  <td>TIMESTAMPTZ</td>
+                  <td><span class="key-badge key-nn">NN</span> <code>DEFAULT CURRENT_TIMESTAMP</code></td>
+                  <td>Record creation timestamp.</td>
+                </tr>
+                <tr>
+                  <td><strong>updated_at</strong></td>
+                  <td>TIMESTAMPTZ</td>
+                  <td><span class="key-badge key-nn">NN</span> <code>DEFAULT CURRENT_TIMESTAMP</code></td>
+                  <td>Record modification timestamp.</td>
+                </tr>
+                <tr>
+                  <td><strong>deleted_at</strong></td>
+                  <td>TIMESTAMPTZ</td>
+                  <td></td>
+                  <td>Soft delete timestamp. If populated, user account is flagged as inactive.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- roles -->
+          <div id="tbl-roles" class="card">
+            <h3>Table: roles</h3>
+            <p>Access roles governing general service configurations (e.g. Admin, Support, Registered User, Pro User).</p>
+            <table>
+              <thead>
+                <tr>
+                  <th>Column</th>
+                  <th>Type</th>
+                  <th>Keys / Constraints</th>
+                  <th>Description</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>id</strong></td>
+                  <td>UUID</td>
+                  <td><span class="key-badge key-pk">PK</span> <code>DEFAULT gen_random_uuid()</code></td>
+                  <td>Unique role identifier.</td>
+                </tr>
+                <tr>
+                  <td><strong>name</strong></td>
+                  <td>VARCHAR(50)</td>
+                  <td><span class="key-badge key-uq">UQ</span> <span class="key-badge key-nn">NN</span></td>
+                  <td>Standard role name (e.g., 'admin', 'user', 'astrologer', 'support').</td>
+                </tr>
+                <tr>
+                  <td><strong>description</strong></td>
+                  <td>TEXT</td>
+                  <td></td>
+                  <td>Description explaining permissions granted under this role.</td>
+                </tr>
+                <tr>
+                  <td><strong>created_at</strong></td>
+                  <td>TIMESTAMPTZ</td>
+                  <td><span class="key-badge key-nn">NN</span> <code>DEFAULT CURRENT_TIMESTAMP</code></td>
+                  <td>Timestamp when the role was created.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- permissions -->
+          <div id="tbl-permissions" class="card">
+            <h3>Table: permissions</h3>
+            <p>Fine-grained application operations that can be assigned to different system roles.</p>
+            <table>
+              <thead>
+                <tr>
+                  <th>Column</th>
+                  <th>Type</th>
+                  <th>Keys / Constraints</th>
+                  <th>Description</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>id</strong></td>
+                  <td>UUID</td>
+                  <td><span class="key-badge key-pk">PK</span> <code>DEFAULT gen_random_uuid()</code></td>
+                  <td>Unique permission identifier.</td>
+                </tr>
+                <tr>
+                  <td><strong>code</strong></td>
+                  <td>VARCHAR(100)</td>
+                  <td><span class="key-badge key-uq">UQ</span> <span class="key-badge key-nn">NN</span></td>
+                  <td>System string descriptor (e.g., 'generate_kundli', 'chat_ai', 'generate_report_pro').</td>
+                </tr>
+                <tr>
+                  <td><strong>description</strong></td>
+                  <td>TEXT</td>
+                  <td></td>
+                  <td>Plain text explanation of what security scope is permitted.</td>
+                </tr>
+                <tr>
+                  <td><strong>created_at</strong></td>
+                  <td>TIMESTAMPTZ</td>
+                  <td><span class="key-badge key-nn">NN</span> <code>DEFAULT CURRENT_TIMESTAMP</code></td>
+                  <td>Record creation timestamp.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- role_permissions -->
+          <div id="tbl-role-permissions" class="card">
+            <h3>Table: role_permissions</h3>
+            <p>Junction table facilitating a many-to-many relationship between system roles and system permissions.</p>
+            <table>
+              <thead>
+                <tr>
+                  <th>Column</th>
+                  <th>Type</th>
+                  <th>Keys / Constraints</th>
+                  <th>Description</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>role_id</strong></td>
+                  <td>UUID</td>
+                  <td><span class="key-badge key-pk">PK</span> <span class="key-badge key-fk">FK</span> REFERENCES roles(id) ON DELETE CASCADE</td>
+                  <td>Target role identifier.</td>
+                </tr>
+                <tr>
+                  <td><strong>permission_id</strong></td>
+                  <td>UUID</td>
+                  <td><span class="key-badge key-pk">PK</span> <span class="key-badge key-fk">FK</span> REFERENCES permissions(id) ON DELETE CASCADE</td>
+                  <td>Target permission identifier.</td>
+                </tr>
+                <tr>
+                  <td><strong>created_at</strong></td>
+                  <td>TIMESTAMPTZ</td>
+                  <td><span class="key-badge key-nn">NN</span> <code>DEFAULT CURRENT_TIMESTAMP</code></td>
+                  <td>Junction creation timestamp.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- user_roles -->
+          <div id="tbl-user-roles" class="card">
+            <h3>Table: user_roles</h3>
+            <p>Junction table facilitating a many-to-many relationship mapping users to their configured roles.</p>
+            <table>
+              <thead>
+                <tr>
+                  <th>Column</th>
+                  <th>Type</th>
+                  <th>Keys / Constraints</th>
+                  <th>Description</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>user_id</strong></td>
+                  <td>UUID</td>
+                  <td><span class="key-badge key-pk">PK</span> <span class="key-badge key-fk">FK</span> REFERENCES users(id) ON DELETE CASCADE</td>
+                  <td>Associated user identifier.</td>
+                </tr>
+                <tr>
+                  <td><strong>role_id</strong></td>
+                  <td>UUID</td>
+                  <td><span class="key-badge key-pk">PK</span> <span class="key-badge key-fk">FK</span> REFERENCES roles(id) ON DELETE CASCADE</td>
+                  <td>Associated role identifier.</td>
+                </tr>
+                <tr>
+                  <td><strong>created_at</strong></td>
+                  <td>TIMESTAMPTZ</td>
+                  <td><span class="key-badge key-nn">NN</span> <code>DEFAULT CURRENT_TIMESTAMP</code></td>
+                  <td>Junction assignment timestamp.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- SUBSCRIPTION & BILLING MODULE -->
+        <section id="subscription-billing">
+          <h2>4. Subscription & Billing Module</h2>
+          <p>Maintains subscription plan variables, checks tier capabilities, matches transactions, and stores billing invoice records.</p>
+
+          <!-- subscription_plans -->
+          <div id="tbl-subscription-plans" class="card">
+            <h3>Table: subscription_plans</h3>
+            <p>Configured pricing layers, features limits, API token restrictions, and profile allocation counts.</p>
+            <table>
+              <thead>
+                <tr>
+                  <th>Column</th>
+                  <th>Type</th>
+                  <th>Keys / Constraints</th>
+                  <th>Description</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>id</strong></td>
+                  <td>UUID</td>
+                  <td><span class="key-badge key-pk">PK</span> <code>DEFAULT gen_random_uuid()</code></td>
+                  <td>Plan unique identifier.</td>
+                </tr>
+                <tr>
+                  <td><strong>code</strong></td>
+                  <td>VARCHAR(50)</td>
+                  <td><span class="key-badge key-uq">UQ</span> <span class="key-badge key-nn">NN</span></td>
+                  <td>Functional system lookup key code: <code>free</code>, <code>standard</code>, <code>pro</code>.</td>
+                </tr>
+                <tr>
+                  <td><strong>name</strong></td>
+                  <td>VARCHAR(100)</td>
+                  <td><span class="key-badge key-nn">NN</span></td>
+                  <td>Display name of the pricing plan.</td>
+                </tr>
+                <tr>
+                  <td><strong>description</strong></td>
+                  <td>TEXT</td>
+                  <td></td>
+                  <td>Detailed explanation of the tier benefits.</td>
+                </tr>
+                <tr>
+                  <td><strong>price_monthly</strong></td>
+                  <td>NUMERIC(10,2)</td>
+                  <td><span class="key-badge key-nn">NN</span> <code>DEFAULT 0.00</code></td>
+                  <td>Monthly recurring billing price in decimal format.</td>
+                </tr>
+                <tr>
+                  <td><strong>price_yearly</strong></td>
+                  <td>NUMERIC(10,2)</td>
+                  <td><span class="key-badge key-nn">NN</span> <code>DEFAULT 0.00</code></td>
+                  <td>Yearly billing price. Used for discount incentives.</td>
+                </tr>
+                <tr>
+                  <td><strong>currency</strong></td>
+                  <td>VARCHAR(3)</td>
+                  <td><code>DEFAULT 'INR'</code></td>
+                  <td>Currency code parameter in ISO 4217 standard.</td>
+                </tr>
+                <tr>
+                  <td><strong>max_profiles</strong></td>
+                  <td>INT</td>
+                  <td><span class="key-badge key-nn">NN</span> <code>DEFAULT 1</code></td>
+                  <td>Maximum astrology profiles allowed to be saved in this plan.</td>
+                </tr>
+                <tr>
+                  <td><strong>daily_token_limit</strong></td>
+                  <td>INT</td>
+                  <td><span class="key-badge key-nn">NN</span> <code>DEFAULT 10000</code></td>
+                  <td>Maximum daily token ceiling allowed for LLM chats.</td>
+                </tr>
+                <tr>
+                  <td><strong>features</strong></td>
+                  <td>JSONB</td>
+                  <td><span class="key-badge key-nn">NN</span> <code>DEFAULT '{}'::jsonb</code></td>
+                  <td>JSON configuration of toggled flags (e.g., <code>{"dasha_access": true}</code>).</td>
+                </tr>
+                <tr>
+                  <td><strong>is_active</strong></td>
+                  <td>BOOLEAN</td>
+                  <td><span class="key-badge key-nn">NN</span> <code>DEFAULT TRUE</code></td>
+                  <td>Flag to toggle if this plan is visible to new checkout attempts.</td>
+                </tr>
+                <tr>
+                  <td><strong>created_at</strong></td>
+                  <td>TIMESTAMPTZ</td>
+                  <td><span class="key-badge key-nn">NN</span> <code>DEFAULT CURRENT_TIMESTAMP</code></td>
+                  <td>Timestamp when plan was cataloged.</td>
+                </tr>
+                <tr>
+                  <td><strong>updated_at</strong></td>
+                  <td>TIMESTAMPTZ</td>
+                  <td><span class="key-badge key-nn">NN</span> <code>DEFAULT CURRENT_TIMESTAMP</code></td>
+                  <td>Record update timestamp.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- subscriptions -->
+          <div id="tbl-subscriptions" class="card">
+            <h3>Table: subscriptions</h3>
+            <p>Active user subscription contracts, dates, status, and renewal states.</p>
+            <table>
+              <thead>
+                <tr>
+                  <th>Column</th>
+                  <th>Type</th>
+                  <th>Keys / Constraints</th>
+                  <th>Description</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>id</strong></td>
+                  <td>UUID</td>
+                  <td><span class="key-badge key-pk">PK</span> <code>DEFAULT gen_random_uuid()</code></td>
+                  <td>Subscription contract unique identifier.</td>
+                </tr>
+                <tr>
+                  <td><strong>user_id</strong></td>
+                  <td>UUID</td>
+                  <td><span class="key-badge key-fk">FK</span> REFERENCES users(id) ON DELETE CASCADE</td>
+                  <td>Associated user contract owner.</td>
+                </tr>
+                <tr>
+                  <td><strong>plan_id</strong></td>
+                  <td>UUID</td>
+                  <td><span class="key-badge key-fk">FK</span> REFERENCES subscription_plans(id)</td>
+                  <td>Active pricing plan selection.</td>
+                </tr>
+                <tr>
+                  <td><strong>status</strong></td>
+                  <td>subscription_status_enum</td>
+                  <td><span class="key-badge key-nn">NN</span> <code>DEFAULT 'active'</code></td>
+                  <td>Status code: <code>active</code>, <code>past_due</code>, <code>canceled</code>, <code>trialing</code>, <code>expired</code>.</td>
+                </tr>
+                <tr>
+                  <td><strong>current_period_start</strong></td>
+                  <td>TIMESTAMPTZ</td>
+                  <td><span class="key-badge key-nn">NN</span></td>
+                  <td>Start timestamp of the active billing period.</td>
+                </tr>
+                <tr>
+                  <td><strong>current_period_end</strong></td>
+                  <td>TIMESTAMPTZ</td>
+                  <td><span class="key-badge key-nn">NN</span></td>
+                  <td>End date of the billing period when the subscription will renew or expire.</td>
+                </tr>
+                <tr>
+                  <td><strong>cancel_at_period_end</strong></td>
+                  <td>BOOLEAN</td>
+                  <td><code>DEFAULT FALSE</code></td>
+                  <td>If true, subscription will automatically cancel at period end.</td>
+                </tr>
+                <tr>
+                  <td><strong>canceled_at</strong></td>
+                  <td>TIMESTAMPTZ</td>
+                  <td></td>
+                  <td>Optional cancellation timestamp.</td>
+                </tr>
+                <tr>
+                  <td><strong>created_at</strong></td>
+                  <td>TIMESTAMPTZ</td>
+                  <td><span class="key-badge key-nn">NN</span> <code>DEFAULT CURRENT_TIMESTAMP</code></td>
+                  <td>Subscription initial purchase timestamp.</td>
+                </tr>
+                <tr>
+                  <td><strong>updated_at</strong></td>
+                  <td>TIMESTAMPTZ</td>
+                  <td><span class="key-badge key-nn">NN</span> <code>DEFAULT CURRENT_TIMESTAMP</code></td>
+                  <td>Record update timestamp.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- orders -->
+          <div id="tbl-orders" class="card">
+            <h3>Table: orders</h3>
+            <p>Checkout orders capturing purchase intent before processing payment events.</p>
+            <table>
+              <thead>
+                <tr>
+                  <th>Column</th>
+                  <th>Type</th>
+                  <th>Keys / Constraints</th>
+                  <th>Description</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>id</strong></td>
+                  <td>UUID</td>
+                  <td><span class="key-badge key-pk">PK</span> <code>DEFAULT gen_random_uuid()</code></td>
+                  <td>Order identifier.</td>
+                </tr>
+                <tr>
+                  <td><strong>user_id</strong></td>
+                  <td>UUID</td>
+                  <td><span class="key-badge key-fk">FK</span> REFERENCES users(id) ON DELETE CASCADE</td>
+                  <td>Associated purchasing user account.</td>
+                </tr>
+                <tr>
+                  <td><strong>coupon_id</strong></td>
+                  <td>UUID</td>
+                  <td><span class="key-badge key-fk">FK</span> REFERENCES coupons(id)</td>
+                  <td>Optional applied coupon discount code.</td>
+                </tr>
+                <tr>
+                  <td><strong>amount</strong></td>
+                  <td>NUMERIC(10,2)</td>
+                  <td><span class="key-badge key-nn">NN</span></td>
+                  <td>Original order amount before discount.</td>
+                </tr>
+                <tr>
+                  <td><strong>discount_applied</strong></td>
+                  <td>NUMERIC(10,2)</td>
+                  <td><code>DEFAULT 0.00</code></td>
+                  <td>Total discount amount subtracted from order value.</td>
+                </tr>
+                <tr>
+                  <td><strong>final_amount</strong></td>
+                  <td>NUMERIC(10,2)</td>
+                  <td><span class="key-badge key-nn">NN</span></td>
+                  <td>Total amount required to resolve purchase.</td>
+                </tr>
+                <tr>
+                  <td><strong>currency</strong></td>
+                  <td>VARCHAR(3)</td>
+                  <td><code>DEFAULT 'INR'</code></td>
+                  <td>Currency code parameter in ISO 4217 standard.</td>
+                </tr>
+                <tr>
+                  <td><strong>status</strong></td>
+                  <td>VARCHAR(32)</td>
+                  <td><span class="key-badge key-nn">NN</span> <code>DEFAULT 'pending'</code></td>
+                  <td>Order status: <code>pending</code>, <code>paid</code>, <code>canceled</code>, <code>refunded</code>.</td>
+                </tr>
+                <tr>
+                  <td><strong>created_at</strong></td>
+                  <td>TIMESTAMPTZ</td>
+                  <td><span class="key-badge key-nn">NN</span> <code>DEFAULT CURRENT_TIMESTAMP</code></td>
+                  <td>Order initial creation timestamp.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- payments -->
+          <div id="tbl-payments" class="card">
+            <h3>Table: payments</h3>
+            <p>Settled gateway transactions representing processed order updates.</p>
+            <table>
+              <thead>
+                <tr>
+                  <th>Column</th>
+                  <th>Type</th>
+                  <th>Keys / Constraints</th>
+                  <th>Description</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>id</strong></td>
+                  <td>UUID</td>
+                  <td><span class="key-badge key-pk">PK</span> <code>DEFAULT gen_random_uuid()</code></td>
+                  <td>Internal unique payment identifier.</td>
+                </tr>
+                <tr>
+                  <td><strong>order_id</strong></td>
+                  <td>UUID</td>
+                  <td><span class="key-badge key-fk">FK</span> REFERENCES orders(id) ON DELETE CASCADE</td>
+                  <td>Target order being settled.</td>
+                </tr>
+                <tr>
+                  <td><strong>user_id</strong></td>
+                  <td>UUID</td>
+                  <td><span class="key-badge key-fk">FK</span> REFERENCES users(id) ON DELETE CASCADE</td>
+                  <td>Associated user target payment execution.</td>
+                </tr>
+                <tr>
+                  <td><strong>gateway</strong></td>
+                  <td>VARCHAR(32)</td>
+                  <td><span class="key-badge key-nn">NN</span></td>
+                  <td>Target payment provider integration identifier (e.g. 'stripe', 'razorpay').</td>
+                </tr>
+                <tr>
+                  <td><strong>gateway_transaction_id</strong></td>
+                  <td>VARCHAR(255)</td>
+                  <td><span class="key-badge key-uq">UQ</span> <span class="key-badge key-nn">NN</span></td>
+                  <td>External gateway transaction reference key for auditing.</td>
+                </tr>
+                <tr>
+                  <td><strong>amount</strong></td>
+                  <td>NUMERIC(10,2)</td>
+                  <td><span class="key-badge key-nn">NN</span></td>
+                  <td>Decimal payment amount.</td>
+                </tr>
+                <tr>
+                  <td><strong>currency</strong></td>
+                  <td>VARCHAR(3)</td>
+                  <td><code>DEFAULT 'INR'</code></td>
+                  <td>ISO currency code parameter.</td>
+                </tr>
+                <tr>
+                  <td><strong>status</strong></td>
+                  <td>payment_status_enum</td>
+                  <td><span class="key-badge key-nn">NN</span> <code>DEFAULT 'pending'</code></td>
+                  <td>Status enum: <code>pending</code>, <code>succeeded</code>, <code>failed</code>, <code>refunded</code>.</td>
+                </tr>
+                <tr>
+                  <td><strong>raw_response</strong></td>
+                  <td>JSONB</td>
+                  <td><code>DEFAULT '{}'::jsonb</code></td>
+                  <td>Full gateway response payload saved for diagnostics and troubleshooting.</td>
+                </tr>
+                <tr>
+                  <td><strong>created_at</strong></td>
+                  <td>TIMESTAMPTZ</td>
+                  <td><span class="key-badge key-nn">NN</span> <code>DEFAULT CURRENT_TIMESTAMP</code></td>
+                  <td>Gateway execution date record timestamp.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- invoices -->
+          <div id="tbl-invoices" class="card">
+            <h3>Table: invoices</h3>
+            <p>Customer billing invoices generated automatically upon successful transaction updates.</p>
+            <table>
+              <thead>
+                <tr>
+                  <th>Column</th>
+                  <th>Type</th>
+                  <th>Keys / Constraints</th>
+                  <th>Description</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>id</strong></td>
+                  <td>UUID</td>
+                  <td><span class="key-badge key-pk">PK</span> <code>DEFAULT gen_random_uuid()</code></td>
+                  <td>Invoice identifier.</td>
+                </tr>
+                <tr>
+                  <td><strong>payment_id</strong></td>
+                  <td>UUID</td>
+                  <td><span class="key-badge key-fk">FK</span> REFERENCES payments(id) ON DELETE CASCADE</td>
+                  <td>Associated payment transaction reference.</td>
+                </tr>
+                <tr>
+                  <td><strong>user_id</strong></td>
+                  <td>UUID</td>
+                  <td><span class="key-badge key-fk">FK</span> REFERENCES users(id) ON DELETE CASCADE</td>
+                  <td>Recipient user account.</td>
+                </tr>
+                <tr>
+                  <td><strong>invoice_number</strong></td>
+                  <td>VARCHAR(64)</td>
+                  <td><span class="key-badge key-uq">UQ</span> <span class="key-badge key-nn">NN</span></td>
+                  <td>Display receipt registration sequence code.</td>
+                </tr>
+                <tr>
+                  <td><strong>pdf_url</strong></td>
+                  <td>TEXT</td>
+                  <td></td>
+                  <td>S3/Cloud Storage link to downloadable PDF invoice copy.</td>
+                </tr>
+                <tr>
+                  <td><strong>issued_at</strong></td>
+                  <td>TIMESTAMPTZ</td>
+                  <td><span class="key-badge key-nn">NN</span> <code>DEFAULT CURRENT_TIMESTAMP</code></td>
+                  <td>Invoice generation timestamp.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- coupons -->
+          <div id="tbl-coupons" class="card">
+            <h3>Table: coupons</h3>
+            <p>Discount coupons and promotional campaigns applied to orders during checkout.</p>
+            <table>
+              <thead>
+                <tr>
+                  <th>Column</th>
+                  <th>Type</th>
+                  <th>Keys / Constraints</th>
+                  <th>Description</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>id</strong></td>
+                  <td>UUID</td>
+                  <td><span class="key-badge key-pk">PK</span> <code>DEFAULT gen_random_uuid()</code></td>
+                  <td>Coupon identifier.</td>
+                </tr>
+                <tr>
+                  <td><strong>code</strong></td>
+                  <td>VARCHAR(50)</td>
+                  <td><span class="key-badge key-uq">UQ</span> <span class="key-badge key-nn">NN</span></td>
+                  <td>Capitalized promo code lookup (e.g., 'DIWALI50', 'FREETRIAL').</td>
+                </tr>
+                <tr>
+                  <td><strong>discount_percent</strong></td>
+                  <td>NUMERIC(5,2)</td>
+                  <td><code>DEFAULT 0.00</code></td>
+                  <td>Percentage discount rate applied (0.00 to 100.00).</td>
+                </tr>
+                <tr>
+                  <td><strong>discount_amount</strong></td>
+                  <td>NUMERIC(10,2)</td>
+                  <td><code>DEFAULT 0.00</code></td>
+                  <td>Flat rate discount amount.</td>
+                </tr>
+                <tr>
+                  <td><strong>valid_from</strong></td>
+                  <td>TIMESTAMPTZ</td>
+                  <td><span class="key-badge key-nn">NN</span></td>
+                  <td>Start timestamp of coupon activation.</td>
+                </tr>
+                <tr>
+                  <td><strong>valid_until</strong></td>
+                  <td>TIMESTAMPTZ</td>
+                  <td><span class="key-badge key-nn">NN</span></td>
+                  <td>Expiration timestamp.</td>
+                </tr>
+                <tr>
+                  <td><strong>max_uses</strong></td>
+                  <td>INT</td>
+                  <td><code>DEFAULT 100</code></td>
+                  <td>Maximum allowable coupon usage counts across all users.</td>
+                </tr>
+                <tr>
+                  <td><strong>used_count</strong></td>
+                  <td>INT</td>
+                  <td><code>DEFAULT 0</code></td>
+                  <td>Current coupon redemption count.</td>
+                </tr>
+                <tr>
+                  <td><strong>is_active</strong></td>
+                  <td>BOOLEAN</td>
+                  <td><code>DEFAULT TRUE</code></td>
+                  <td>Status toggle for campaign activation.</td>
+                </tr>
+                <tr>
+                  <td><strong>created_at</strong></td>
+                  <td>TIMESTAMPTZ</td>
+                  <td><span class="key-badge key-nn">NN</span> <code>DEFAULT CURRENT_TIMESTAMP</code></td>
+                  <td>Creation date.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- ASTROLOGY PROFILE & CALCULATIONS MODULE -->
+        <section id="astrology-computation">
+          <h2>5. Astrology Profile & Computation Module</h2>
+          <p>This module stores user birth details, calculated house cusps, planetary coordinates, vimshottari dasha divisions, and specialized divisional chart grids.</p>
+
+          <!-- astrology_profiles -->
+          <div id="tbl-astrology-profiles" class="card">
+            <h3>Table: astrology_profiles</h3>
+            <p>Saved birth detail metrics representing subjects (e.g. Self, Spouse, Child) used to execute horoscope calculations.</p>
+            <table>
+              <thead>
+                <tr>
+                  <th>Column</th>
+                  <th>Type</th>
+                  <th>Keys / Constraints</th>
+                  <th>Description</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>id</strong></td>
+                  <td>UUID</td>
+                  <td><span class="key-badge key-pk">PK</span> <code>DEFAULT gen_random_uuid()</code></td>
+                  <td>Astrology profile identifier.</td>
+                </tr>
+                <tr>
+                  <td><strong>user_id</strong></td>
+                  <td>UUID</td>
+                  <td><span class="key-badge key-fk">FK</span> REFERENCES users(id) ON DELETE CASCADE</td>
+                  <td>Associated creating user account.</td>
+                </tr>
+                <tr>
+                  <td><strong>name</strong></td>
+                  <td>VARCHAR(128)</td>
+                  <td><span class="key-badge key-nn">NN</span></td>
+                  <td>Name label for target profile.</td>
+                </tr>
+                <tr>
+                  <td><strong>gender</strong></td>
+                  <td>VARCHAR(20)</td>
+                  <td><code>DEFAULT 'unspecified'</code></td>
+                  <td>Gender identification properties.</td>
+                </tr>
+                <tr>
+                  <td><strong>relationship</strong></td>
+                  <td>VARCHAR(50)</td>
+                  <td><code>DEFAULT 'Self'</code></td>
+                  <td>Vedic target relationship code: <code>Self</code>, <code>Spouse</code>, <code>Father</code>, <code>Mother</code>, <code>Sibling</code>, <code>Child</code>, <code>Friend</code>, etc.</td>
+                </tr>
+                <tr>
+                  <td><strong>date_of_birth</strong></td>
+                  <td>DATE</td>
+                  <td><span class="key-badge key-nn">NN</span></td>
+                  <td>Local birth date (YYYY-MM-DD).</td>
+                </tr>
+                <tr>
+                  <td><strong>time_of_birth</strong></td>
+                  <td>TIME</td>
+                  <td><span class="key-badge key-nn">NN</span></td>
+                  <td>Local birth time formatted at birth coordinate.</td>
+                </tr>
+                <tr>
+                  <td><strong>birth_place</strong></td>
+                  <td>VARCHAR(255)</td>
+                  <td><span class="key-badge key-nn">NN</span></td>
+                  <td>Location name text query.</td>
+                </tr>
+                <tr>
+                  <td><strong>latitude</strong></td>
+                  <td>NUMERIC(9,6)</td>
+                  <td><span class="key-badge key-nn">NN</span></td>
+                  <td>Decimal latitude coordinate representing birth location. Range: <code>[-90, 90]</code>.</td>
+                </tr>
+                <tr>
+                  <td><strong>longitude</strong></td>
+                  <td>NUMERIC(9,6)</td>
+                  <td><span class="key-badge key-nn">NN</span></td>
+                  <td>Decimal longitude coordinate representing birth location. Range: <code>[-180, 180]</code>.</td>
+                </tr>
+                <tr>
+                  <td><strong>timezone</strong></td>
+                  <td>VARCHAR(64)</td>
+                  <td><span class="key-badge key-nn">NN</span> <code>DEFAULT 'Asia/Kolkata'</code></td>
+                  <td>Resolved historical timezone identifier string. Handles DST offsets.</td>
+                </tr>
+                <tr>
+                  <td><strong>country</strong></td>
+                  <td>VARCHAR(100)</td>
+                  <td></td>
+                  <td>Resolved country name.</td>
+                </tr>
+                <tr>
+                  <td><strong>state</strong></td>
+                  <td>VARCHAR(100)</td>
+                  <td></td>
+                  <td>Resolved state/province name.</td>
+                </tr>
+                <tr>
+                  <td><strong>city</strong></td>
+                  <td>VARCHAR(100)</td>
+                  <td></td>
+                  <td>Resolved city/locality label.</td>
+                </tr>
+                <tr>
+                  <td><strong>preferred_language</strong></td>
+                  <td>VARCHAR(10)</td>
+                  <td><code>DEFAULT 'en'</code></td>
+                  <td>Target reading language preference.</td>
+                </tr>
+                <tr>
+                  <td><strong>notes</strong></td>
+                  <td>TEXT</td>
+                  <td></td>
+                  <td>Optional descriptive user notes.</td>
+                </tr>
+                <tr>
+                  <td><strong>created_at</strong></td>
+                  <td>TIMESTAMPTZ</td>
+                  <td><span class="key-badge key-nn">NN</span> <code>DEFAULT CURRENT_TIMESTAMP</code></td>
+                  <td>Record creation date.</td>
+                </tr>
+                <tr>
+                  <td><strong>updated_at</strong></td>
+                  <td>TIMESTAMPTZ</td>
+                  <td><span class="key-badge key-nn">NN</span> <code>DEFAULT CURRENT_TIMESTAMP</code></td>
+                  <td>Modification update date.</td>
+                </tr>
+                <tr>
+                  <td><strong>deleted_at</strong></td>
+                  <td>TIMESTAMPTZ</td>
+                  <td></td>
+                  <td>Soft delete timestamp.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- kundlis -->
+          <div id="tbl-kundlis" class="card">
+            <h3>Table: kundlis</h3>
+            <p>Calculated Vedic birth charts storing derived planetary panchang summaries, active yogas, and dosha evaluations.</p>
+            <table>
+              <thead>
+                <tr>
+                  <th>Column</th>
+                  <th>Type</th>
+                  <th>Keys / Constraints</th>
+                  <th>Description</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>id</strong></td>
+                  <td>UUID</td>
+                  <td><span class="key-badge key-pk">PK</span> <code>DEFAULT gen_random_uuid()</code></td>
+                  <td>Unique chart identifier.</td>
+                </tr>
+                <tr>
+                  <td><strong>profile_id</strong></td>
+                  <td>UUID</td>
+                  <td><span class="key-badge key-fk">FK</span> REFERENCES astrology_profiles(id) ON DELETE CASCADE</td>
+                  <td>Associated birth profile source.</td>
+                </tr>
+                <tr>
+                  <td><strong>version</strong></td>
+                  <td>INT</td>
+                  <td><span class="key-badge key-nn">NN</span> <code>DEFAULT 1</code></td>
+                  <td>Data revision tracker mapping calculation engine changes.</td>
+                </tr>
+                <tr>
+                  <td><strong>engine_version</strong></td>
+                  <td>VARCHAR(32)</td>
+                  <td><span class="key-badge key-nn">NN</span> <code>DEFAULT 'SwissEphemeris_v2.10'</code></td>
+                  <td>Calculations algorithm dependency version identification code.</td>
+                </tr>
+                <tr>
+                  <td><strong>ascendant_sign</strong></td>
+                  <td>VARCHAR(32)</td>
+                  <td><span class="key-badge key-nn">NN</span></td>
+                  <td>Name of the ascendant zodiac sign (Lagna).</td>
+                </tr>
+                <tr>
+                  <td><strong>moon_sign</strong></td>
+                  <td>VARCHAR(32)</td>
+                  <td><span class="key-badge key-nn">NN</span></td>
+                  <td>Name of Moon sign (Rashi).</td>
+                </tr>
+                <tr>
+                  <td><strong>sun_sign</strong></td>
+                  <td>VARCHAR(32)</td>
+                  <td><span class="key-badge key-nn">NN</span></td>
+                  <td>Name of Sun sign.</td>
+                </tr>
+                <tr>
+                  <td><strong>nakshatra</strong></td>
+                  <td>VARCHAR(64)</td>
+                  <td><span class="key-badge key-nn">NN</span></td>
+                  <td>Active birth Nakshatra (lunar mansion).</td>
+                </tr>
+                <tr>
+                  <td><strong>nakshatra_pada</strong></td>
+                  <td>INT</td>
+                  <td><span class="key-badge key-nn">NN</span> CHECK (pada 1-4)</td>
+                  <td>Nakshatra quarter division value (1, 2, 3, or 4).</td>
+                </tr>
+                <tr>
+                  <td><strong>ayanamsa_name</strong></td>
+                  <td>VARCHAR(64)</td>
+                  <td><code>DEFAULT 'Lahiri'</code></td>
+                  <td>Vedic sidereal calculation ayanamsa model name setting.</td>
+                </tr>
+                <tr>
+                  <td><strong>panchang_data</strong></td>
+                  <td>JSONB</td>
+                  <td><span class="key-badge key-nn">NN</span> <code>DEFAULT '{}'::jsonb</code></td>
+                  <td>Derived elements (Tithi, Vara, Nakshatra, Yoga, Karana).</td>
+                </tr>
+                <tr>
+                  <td><strong>yogas</strong></td>
+                  <td>JSONB</td>
+                  <td><span class="key-badge key-nn">NN</span> <code>DEFAULT '[]'::jsonb</code></td>
+                  <td>List of evaluated Yoga configurations (e.g. Gaja Kesari, Budhaditya).</td>
+                </tr>
+                <tr>
+                  <td><strong>doshas</strong></td>
+                  <td>JSONB</td>
+                  <td><span class="key-badge key-nn">NN</span> <code>DEFAULT '{}'::jsonb</code></td>
+                  <td>Status evaluations of identified Vedic Doshas (e.g., Manglik, Kaal Sarp).</td>
+                </tr>
+                <tr>
+                  <td><strong>ashtakavarga</strong></td>
+                  <td>JSONB</td>
+                  <td><span class="key-badge key-nn">NN</span> <code>DEFAULT '{}'::jsonb</code></td>
+                  <td>Point parameters evaluated for planets and houses.</td>
+                </tr>
+                <tr>
+                  <td><strong>raw_payload</strong></td>
+                  <td>JSONB</td>
+                  <td><span class="key-badge key-nn">NN</span> <code>DEFAULT '{}'::jsonb</code></td>
+                  <td>Unstructured mathematical response properties output by Swiss Ephemeris.</td>
+                </tr>
+                <tr>
+                  <td><strong>created_at</strong></td>
+                  <td>TIMESTAMPTZ</td>
+                  <td><span class="key-badge key-nn">NN</span> <code>DEFAULT CURRENT_TIMESTAMP</code></td>
+                  <td>Calculation timestamp.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- planet_positions -->
+          <div id="tbl-planet-positions" class="card">
+            <h3>Table: planet_positions</h3>
+            <p>Fidelity degree longitudes computed for planetary bodies (Sun, Moon, Mars, etc.) relative to the zodiac chart.</p>
+            <table>
+              <thead>
+                <tr>
+                  <th>Column</th>
+                  <th>Type</th>
+                  <th>Keys / Constraints</th>
+                  <th>Description</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>id</strong></td>
+                  <td>UUID</td>
+                  <td><span class="key-badge key-pk">PK</span> <code>DEFAULT gen_random_uuid()</code></td>
+                  <td>Position record identifier.</td>
+                </tr>
+                <tr>
+                  <td><strong>kundli_id</strong></td>
+                  <td>UUID</td>
+                  <td><span class="key-badge key-fk">FK</span> REFERENCES kundlis(id) ON DELETE CASCADE</td>
+                  <td>Parent Kundli chart container references.</td>
+                </tr>
+                <tr>
+                  <td><strong>planet_name</strong></td>
+                  <td>VARCHAR(32)</td>
+                  <td><span class="key-badge key-nn">NN</span></td>
+                  <td>Astrological planet identifier (e.g., 'Sun', 'Moon', 'Rahu', 'Ketu').</td>
+                </tr>
+                <tr>
+                  <td><strong>sign</strong></td>
+                  <td>VARCHAR(32)</td>
+                  <td><span class="key-badge key-nn">NN</span></td>
+                  <td>Target Zodiac sign occupied by the planet.</td>
+                </tr>
+                <tr>
+                  <td><strong>house_number</strong></td>
+                  <td>INT</td>
+                  <td><span class="key-badge key-nn">NN</span> CHECK (1-12)</td>
+                  <td>Calculated house number occupied by the planet. Range: <code>[1, 12]</code>.</td>
+                </tr>
+                <tr>
+                  <td><strong>longitude</strong></td>
+                  <td>NUMERIC(9,6)</td>
+                  <td><span class="key-badge key-nn">NN</span></td>
+                  <td>Absolute degree position inside occupied sign (0.000000 to 359.999999).</td>
+                </tr>
+                <tr>
+                  <td><strong>degree</strong></td>
+                  <td>INT</td>
+                  <td><span class="key-badge key-nn">NN</span></td>
+                  <td>Int degree division value (0 to 29).</td>
+                </tr>
+                <tr>
+                  <td><strong>minute</strong></td>
+                  <td>INT</td>
+                  <td><span class="key-badge key-nn">NN</span></td>
+                  <td>Int arcminute division value (0 to 59).</td>
+                </tr>
+                <tr>
+                  <td><strong>second</strong></td>
+                  <td>INT</td>
+                  <td><span class="key-badge key-nn">NN</span></td>
+                  <td>Int arcsecond division value (0 to 59).</td>
+                </tr>
+                <tr>
+                  <td><strong>is_retrograde</strong></td>
+                  <td>BOOLEAN</td>
+                  <td><span class="key-badge key-nn">NN</span> <code>DEFAULT FALSE</code></td>
+                  <td>Flags if planet movement is retrograde from birth location.</td>
+                </tr>
+                <tr>
+                  <td><strong>nakshatra</strong></td>
+                  <td>VARCHAR(64)</td>
+                  <td></td>
+                  <td>Occupied Nakshatra name.</td>
+                </tr>
+                <tr>
+                  <td><strong>nakshatra_pada</strong></td>
+                  <td>INT</td>
+                  <td></td>
+                  <td>Nakshatra pad. Range: 1 to 4.</td>
+                </tr>
+                <tr>
+                  <td><strong>created_at</strong></td>
+                  <td>TIMESTAMPTZ</td>
+                  <td><span class="key-badge key-nn">NN</span> <code>DEFAULT CURRENT_TIMESTAMP</code></td>
+                  <td>Record creation timestamp.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- houses -->
+          <div id="tbl-houses" class="card">
+            <h3>Table: houses</h3>
+            <p>Calculated house cusp boundaries, signs, and occupants.</p>
+            <table>
+              <thead>
+                <tr>
+                  <th>Column</th>
+                  <th>Type</th>
+                  <th>Keys / Constraints</th>
+                  <th>Description</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>id</strong></td>
+                  <td>UUID</td>
+                  <td><span class="key-badge key-pk">PK</span> <code>DEFAULT gen_random_uuid()</code></td>
+                  <td>House record identifier.</td>
+                </tr>
+                <tr>
+                  <td><strong>kundli_id</strong></td>
+                  <td>UUID</td>
+                  <td><span class="key-badge key-fk">FK</span> REFERENCES kundlis(id) ON DELETE CASCADE</td>
+                  <td>Parent Kundli reference.</td>
+                </tr>
+                <tr>
+                  <td><strong>house_number</strong></td>
+                  <td>INT</td>
+                  <td><span class="key-badge key-nn">NN</span> CHECK (1-12)</td>
+                  <td>House index number. Range: <code>[1, 12]</code>.</td>
+                </tr>
+                <tr>
+                  <td><strong>sign</strong></td>
+                  <td>VARCHAR(32)</td>
+                  <td><span class="key-badge key-nn">NN</span></td>
+                  <td>Zodiac sign placed at house cusp.</td>
+                </tr>
+                <tr>
+                  <td><strong>sign_lord</strong></td>
+                  <td>VARCHAR(32)</td>
+                  <td><span class="key-badge key-nn">NN</span></td>
+                  <td>Lord of the zodiac sign occupying this house.</td>
+                </tr>
+                <tr>
+                  <td><strong>degree</strong></td>
+                  <td>NUMERIC(9,6)</td>
+                  <td><span class="key-badge key-nn">NN</span></td>
+                  <td>Starting degree boundary of the house cusp.</td>
+                </tr>
+                <tr>
+                  <td><strong>occupants</strong></td>
+                  <td>JSONB</td>
+                  <td><span class="key-badge key-nn">NN</span> <code>DEFAULT '[]'::jsonb</code></td>
+                  <td>Array containing occupant planetary names.</td>
+                </tr>
+                <tr>
+                  <td><strong>created_at</strong></td>
+                  <td>TIMESTAMPTZ</td>
+                  <td><span class="key-badge key-nn">NN</span> <code>DEFAULT CURRENT_TIMESTAMP</code></td>
+                  <td>Record timestamp.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- dasha_periods -->
+          <div id="tbl-dasha-periods" class="card">
+            <h3>Table: dasha_periods</h3>
+            <p>Hierarchical Vimshottari Dasha timeline divisions mapping planetary cycles across time windows.</p>
+            <table>
+              <thead>
+                <tr>
+                  <th>Column</th>
+                  <th>Type</th>
+                  <th>Keys / Constraints</th>
+                  <th>Description</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>id</strong></td>
+                  <td>UUID</td>
+                  <td><span class="key-badge key-pk">PK</span> <code>DEFAULT gen_random_uuid()</code></td>
+                  <td>Dasha division record identifier.</td>
+                </tr>
+                <tr>
+                  <td><strong>kundli_id</strong></td>
+                  <td>UUID</td>
+                  <td><span class="key-badge key-fk">FK</span> REFERENCES kundlis(id) ON DELETE CASCADE</td>
+                  <td>Associated Kundli container.</td>
+                </tr>
+                <tr>
+                  <td><strong>dasha_level</strong></td>
+                  <td>VARCHAR(20)</td>
+                  <td><span class="key-badge key-nn">NN</span></td>
+                  <td>Dasha tree depth tier designation: <code>mahadasha</code>, <code>antardasha</code>, <code>pratyantardasha</code>.</td>
+                </tr>
+                <tr>
+                  <td><strong>planet_name</strong></td>
+                  <td>VARCHAR(32)</td>
+                  <td><span class="key-badge key-nn">NN</span></td>
+                  <td>Planet governing this period.</td>
+                </tr>
+                <tr>
+                  <td><strong>parent_id</strong></td>
+                  <td>UUID</td>
+                  <td><span class="key-badge key-fk">FK</span> REFERENCES dasha_periods(id) ON DELETE CASCADE</td>
+                  <td>Self-referencing tree link identifying parent period container.</td>
+                </tr>
+                <tr>
+                  <td><strong>start_date</strong></td>
+                  <td>DATE</td>
+                  <td><span class="key-badge key-nn">NN</span></td>
+                  <td>Start date of period.</td>
+                </tr>
+                <tr>
+                  <td><strong>end_date</strong></td>
+                  <td>DATE</td>
+                  <td><span class="key-badge key-nn">NN</span></td>
+                  <td>End date of period.</td>
+                </tr>
+                <tr>
+                  <td><strong>duration_years</strong></td>
+                  <td>NUMERIC(5,2)</td>
+                  <td><span class="key-badge key-nn">NN</span></td>
+                  <td>Total length of division in years.</td>
+                </tr>
+                <tr>
+                  <td><strong>created_at</strong></td>
+                  <td>TIMESTAMPTZ</td>
+                  <td><span class="key-badge key-nn">NN</span> <code>DEFAULT CURRENT_TIMESTAMP</code></td>
+                  <td>Record creation date.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- divisional_charts -->
+          <div id="tbl-divisional-charts" class="card">
+            <h3>Table: divisional_charts</h3>
+            <p>Derived divisional Varga subcharts calculated to analyze specific areas of life (e.g. D9 Navamsha for marriage).</p>
+            <table>
+              <thead>
+                <tr>
+                  <th>Column</th>
+                  <th>Type</th>
+                  <th>Keys / Constraints</th>
+                  <th>Description</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>id</strong></td>
+                  <td>UUID</td>
+                  <td><span class="key-badge key-pk">PK</span> <code>DEFAULT gen_random_uuid()</code></td>
+                  <td>Varga chart identifier.</td>
+                </tr>
+                <tr>
+                  <td><strong>kundli_id</strong></td>
+                  <td>UUID</td>
+                  <td><span class="key-badge key-fk">FK</span> REFERENCES kundlis(id) ON DELETE CASCADE</td>
+                  <td>Associated root Kundli chart.</td>
+                </tr>
+                <tr>
+                  <td><strong>chart_type</strong></td>
+                  <td>VARCHAR(16)</td>
+                  <td><span class="key-badge key-nn">NN</span></td>
+                  <td>Varga classification identifier (e.g., 'D2', 'D9', 'D10', 'D60').</td>
+                </tr>
+                <tr>
+                  <td><strong>chart_data</strong></td>
+                  <td>JSONB</td>
+                  <td><span class="key-badge key-nn">NN</span></td>
+                  <td>Relational planetary signs and coordinates mapping divisional sub-grid placements.</td>
+                </tr>
+                <tr>
+                  <td><strong>created_at</strong></td>
+                  <td>TIMESTAMPTZ</td>
+                  <td><span class="key-badge key-nn">NN</span> <code>DEFAULT CURRENT_TIMESTAMP</code></td>
+                  <td>Record insertion date.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- AI CHAT & RAG MODULE -->
+        <section id="chat-rag">
+          <h2>6. AI Chat & RAG Module</h2>
+          <p>Maintains consultation sessions, logs LLM response latency, and tracks token usage analytics. Also handles multimodal analysis inputs.</p>
+
+          <!-- chat_sessions -->
+          <div id="tbl-chat-sessions" class="card">
+            <h3>Table: chat_sessions</h3>
+            <p>User consultation chat threads mapped to birth profile configurations.</p>
+            <table>
+              <thead>
+                <tr>
+                  <th>Column</th>
+                  <th>Type</th>
+                  <th>Keys / Constraints</th>
+                  <th>Description</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>id</strong></td>
+                  <td>UUID</td>
+                  <td><span class="key-badge key-pk">PK</span> <code>DEFAULT gen_random_uuid()</code></td>
+                  <td>Session unique identifier.</td>
+                </tr>
+                <tr>
+                  <td><strong>user_id</strong></td>
+                  <td>UUID</td>
+                  <td><span class="key-badge key-fk">FK</span> REFERENCES users(id) ON DELETE CASCADE</td>
+                  <td>Associated owner user account.</td>
+                </tr>
+                <tr>
+                  <td><strong>profile_id</strong></td>
+                  <td>UUID</td>
+                  <td><span class="key-badge key-fk">FK</span> REFERENCES astrology_profiles(id) ON DELETE SET NULL</td>
+                  <td>Active birth profile. Allows changing profile targets inside session.</td>
+                </tr>
+                <tr>
+                  <td><strong>tab_name</strong></td>
+                  <td>VARCHAR(50)</td>
+                  <td><code>DEFAULT 'overview'</code></td>
+                  <td>Signification focus module tag (e.g. <code>career</code>, <code>spouse</code>, <code>finance</code>).</td>
+                </tr>
+                <tr>
+                  <td><strong>title</strong></td>
+                  <td>VARCHAR(255)</td>
+                  <td><code>DEFAULT 'New Consultation'</code></td>
+                  <td>Display title metadata. Auto-generated on turn-one.</td>
+                </tr>
+                <tr>
+                  <td><strong>model_used</strong></td>
+                  <td>VARCHAR(64)</td>
+                  <td><code>DEFAULT 'llama-3.3-70b-versatile'</code></td>
+                  <td>Inference engine classification settings key.</td>
+                </tr>
+                <tr>
+                  <td><strong>created_at</strong></td>
+                  <td>TIMESTAMPTZ</td>
+                  <td><span class="key-badge key-nn">NN</span> <code>DEFAULT CURRENT_TIMESTAMP</code></td>
+                  <td>Thread initialization date.</td>
+                </tr>
+                <tr>
+                  <td><strong>updated_at</strong></td>
+                  <td>TIMESTAMPTZ</td>
+                  <td><span class="key-badge key-nn">NN</span> <code>DEFAULT CURRENT_TIMESTAMP</code></td>
+                  <td>Thread update date.</td>
+                </tr>
+                <tr>
+                  <td><strong>deleted_at</strong></td>
+                  <td>TIMESTAMPTZ</td>
+                  <td></td>
+                  <td>Soft delete timestamp.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- chat_messages -->
+          <div id="tbl-chat-messages" class="card">
+            <h3>Table: chat_messages</h3>
+            <p>Constituent chat records mapping assistant responses, prompting metadata, and usage tokens.</p>
+            <table>
+              <thead>
+                <tr>
+                  <th>Column</th>
+                  <th>Type</th>
+                  <th>Keys / Constraints</th>
+                  <th>Description</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>id</strong></td>
+                  <td>UUID</td>
+                  <td><span class="key-badge key-pk">PK</span> <code>DEFAULT gen_random_uuid()</code></td>
+                  <td>Message identifier.</td>
+                </tr>
+                <tr>
+                  <td><strong>session_id</strong></td>
+                  <td>UUID</td>
+                  <td><span class="key-badge key-fk">FK</span> REFERENCES chat_sessions(id) ON DELETE CASCADE</td>
+                  <td>Parent chat session index.</td>
+                </tr>
+                <tr>
+                  <td><strong>sender</strong></td>
+                  <td>message_type_enum</td>
+                  <td><span class="key-badge key-nn">NN</span></td>
+                  <td>Sender code: <code>user</code>, <code>assistant</code>, <code>system</code>.</td>
+                </tr>
+                <tr>
+                  <td><strong>content</strong></td>
+                  <td>TEXT</td>
+                  <td><span class="key-badge key-nn">NN</span></td>
+                  <td>Raw text transcription payload. Supports markdown formatting.</td>
+                </tr>
+                <tr>
+                  <td><strong>prompt_tokens</strong></td>
+                  <td>INT</td>
+                  <td><code>DEFAULT 0</code></td>
+                  <td>Token size of prompt payload. Used for cost auditing.</td>
+                </tr>
+                <tr>
+                  <td><strong>completion_tokens</strong></td>
+                  <td>INT</td>
+                  <td><code>DEFAULT 0</code></td>
+                  <td>Token size generated by LLM response.</td>
+                </tr>
+                <tr>
+                  <td><strong>total_tokens</strong></td>
+                  <td>INT</td>
+                  <td><code>DEFAULT 0</code></td>
+                  <td>Sum of prompt and completion tokens. Checked against subscription plan limits.</td>
+                </tr>
+                <tr>
+                  <td><strong>response_time_ms</strong></td>
+                  <td>INT</td>
+                  <td><code>DEFAULT 0</code></td>
+                  <td>LLM endpoint processing latency in milliseconds. Used to monitor api health.</td>
+                </tr>
+                <tr>
+                  <td><strong>model_version</strong></td>
+                  <td>VARCHAR(64)</td>
+                  <td></td>
+                  <td>Specific version code representing model that handled query.</td>
+                </tr>
+                <tr>
+                  <td><strong>created_at</strong></td>
+                  <td>TIMESTAMPTZ</td>
+                  <td><span class="key-badge key-nn">NN</span> <code>DEFAULT CURRENT_TIMESTAMP</code></td>
+                  <td>Timestamp when message was processed.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- astrology_reports -->
+          <div id="tbl-astrology-reports" class="card">
+            <h3>Table: astrology_reports</h3>
+            <p>Enterprise reports generated dynamically in PDF and JSON formats.</p>
+            <table>
+              <thead>
+                <tr>
+                  <th>Column</th>
+                  <th>Type</th>
+                  <th>Keys / Constraints</th>
+                  <th>Description</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>id</strong></td>
+                  <td>UUID</td>
+                  <td><span class="key-badge key-pk">PK</span> <code>DEFAULT gen_random_uuid()</code></td>
+                  <td>Report identifier.</td>
+                </tr>
+                <tr>
+                  <td><strong>user_id</strong></td>
+                  <td>UUID</td>
+                  <td><span class="key-badge key-fk">FK</span> REFERENCES users(id) ON DELETE CASCADE</td>
+                  <td>Target purchasing user account.</td>
+                </tr>
+                <tr>
+                  <td><strong>profile_id</strong></td>
+                  <td>UUID</td>
+                  <td><span class="key-badge key-fk">FK</span> REFERENCES astrology_profiles(id) ON DELETE CASCADE</td>
+                  <td>Astrology profile evaluated in the report.</td>
+                </tr>
+                <tr>
+                  <td><strong>session_id</strong></td>
+                  <td>UUID</td>
+                  <td><span class="key-badge key-fk">FK</span> REFERENCES chat_sessions(id) ON DELETE SET NULL</td>
+                  <td>Optional source consultation chat thread.</td>
+                </tr>
+                <tr>
+                  <td><strong>report_type</strong></td>
+                  <td>report_type_enum</td>
+                  <td><span class="key-badge key-nn">NN</span></td>
+                  <td>Report focus domain: <code>career</code>, <code>marriage</code>, <code>finance</code>, <code>health</code>, <code>education</code>, etc.</td>
+                </tr>
+                <tr>
+                  <td><strong>title</strong></td>
+                  <td>VARCHAR(255)</td>
+                  <td><span class="key-badge key-nn">NN</span></td>
+                  <td>Display name of the generated report document.</td>
+                </tr>
+                <tr>
+                  <td><strong>version</strong></td>
+                  <td>INT</td>
+                  <td><span class="key-badge key-nn">NN</span> <code>DEFAULT 1</code></td>
+                  <td>Record schema version tracking database structure.</td>
+                </tr>
+                <tr>
+                  <td><strong>content_json</strong></td>
+                  <td>JSONB</td>
+                  <td><span class="key-badge key-nn">NN</span> <code>DEFAULT '{}'::jsonb</code></td>
+                  <td>Structured evaluation response payload generated by AI agents.</td>
+                </tr>
+                <tr>
+                  <td><strong>pdf_url</strong></td>
+                  <td>TEXT</td>
+                  <td></td>
+                  <td>Cloud storage S3 download link of compiled PDF document file.</td>
+                </tr>
+                <tr>
+                  <td><strong>status</strong></td>
+                  <td>VARCHAR(32)</td>
+                  <td><span class="key-badge key-nn">NN</span> <code>DEFAULT 'completed'</code></td>
+                  <td>Report status flag (e.g. <code>pending</code>, <code>completed</code>, <code>failed</code>).</td>
+                </tr>
+                <tr>
+                  <td><strong>created_at</strong></td>
+                  <td>TIMESTAMPTZ</td>
+                  <td><span class="key-badge key-nn">NN</span> <code>DEFAULT CURRENT_TIMESTAMP</code></td>
+                  <td>Compilation timestamp.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- emotion_analysis_logs -->
+          <div id="tbl-emotion-analysis-logs" class="card">
+            <h3>Table: emotion_analysis_logs</h3>
+            <p>Diagnostic logging for future facial expressions and vocal sentiment AI integrations.</p>
+            <table>
+              <thead>
+                <tr>
+                  <th>Column</th>
+                  <th>Type</th>
+                  <th>Keys / Constraints</th>
+                  <th>Description</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>id</strong></td>
+                  <td>UUID</td>
+                  <td><span class="key-badge key-pk">PK</span> <code>DEFAULT gen_random_uuid()</code></td>
+                  <td>Log entry unique identifier.</td>
+                </tr>
+                <tr>
+                  <td><strong>user_id</strong></td>
+                  <td>UUID</td>
+                  <td><span class="key-badge key-fk">FK</span> REFERENCES users(id) ON DELETE CASCADE</td>
+                  <td>Associated analyzing user account.</td>
+                </tr>
+                <tr>
+                  <td><strong>input_type</strong></td>
+                  <td>VARCHAR(20)</td>
+                  <td><span class="key-badge key-nn">NN</span> CHECK (image, audio, video, multimodal)</td>
+                  <td>Media input type: <code>image</code>, <code>audio</code>, <code>video</code>, <code>multimodal</code>.</td>
+                </tr>
+                <tr>
+                  <td><strong>media_file_url</strong></td>
+                  <td>TEXT</td>
+                  <td><span class="key-badge key-nn">NN</span></td>
+                  <td>Cloud path link referencing the media file submitted for evaluation.</td>
+                </tr>
+                <tr>
+                  <td><strong>detected_emotion</strong></td>
+                  <td>VARCHAR(64)</td>
+                  <td><span class="key-badge key-nn">NN</span></td>
+                  <td>Primary classified emotion output label.</td>
+                </tr>
+                <tr>
+                  <td><strong>confidence</strong></td>
+                  <td>NUMERIC(5,4)</td>
+                  <td><span class="key-badge key-nn">NN</span></td>
+                  <td>Primary classification confidence rating (decimal between 0.0000 and 1.0000).</td>
+                </tr>
+                <tr>
+                  <td><strong>emotion_breakdown</strong></td>
+                  <td>JSONB</td>
+                  <td><span class="key-badge key-nn">NN</span> <code>DEFAULT '{}'::jsonb</code></td>
+                  <td>Detailed breakdown mapping confidence percentages for all tracked emotions.</td>
+                </tr>
+                <tr>
+                  <td><strong>model_used</strong></td>
+                  <td>VARCHAR(64)</td>
+                  <td><span class="key-badge key-nn">NN</span></td>
+                  <td>AI evaluation model identifier (e.g. Gemini Multimodal).</td>
+                </tr>
+                <tr>
+                  <td><strong>processing_time_ms</strong></td>
+                  <td>INT</td>
+                  <td><span class="key-badge key-nn">NN</span></td>
+                  <td>Processing latency in milliseconds.</td>
+                </tr>
+                <tr>
+                  <td><strong>created_at</strong></td>
+                  <td>TIMESTAMPTZ</td>
+                  <td><span class="key-badge key-nn">NN</span> <code>DEFAULT CURRENT_TIMESTAMP</code></td>
+                  <td>Timestamp of analysis.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- NOTIFICATIONS & STORAGE MODULE -->
+        <section id="notifications-files">
+          <h2>7. Notifications & File Storage Metadata Module</h2>
+          <p>This module tracks user delivery settings, alerts, read statuses, and storage path mapping for documents and user avatars.</p>
+
+          <!-- notifications -->
+          <div id="tbl-notifications" class="card">
+            <h3>Table: notifications</h3>
+            <p>System alerts generated for users, delivered via in-app, push notifications, or SMS.</p>
+            <table>
+              <thead>
+                <tr>
+                  <th>Column</th>
+                  <th>Type</th>
+                  <th>Keys / Constraints</th>
+                  <th>Description</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>id</strong></td>
+                  <td>UUID</td>
+                  <td><span class="key-badge key-pk">PK</span> <code>DEFAULT gen_random_uuid()</code></td>
+                  <td>Notification identifier.</td>
+                </tr>
+                <tr>
+                  <td><strong>user_id</strong></td>
+                  <td>UUID</td>
+                  <td><span class="key-badge key-fk">FK</span> REFERENCES users(id) ON DELETE CASCADE</td>
+                  <td>Recipient user identifier.</td>
+                </tr>
+                <tr>
+                  <td><strong>title</strong></td>
+                  <td>VARCHAR(255)</td>
+                  <td><span class="key-badge key-nn">NN</span></td>
+                  <td>Alert title text.</td>
+                </tr>
+                <tr>
+                  <td><strong>message</strong></td>
+                  <td>TEXT</td>
+                  <td><span class="key-badge key-nn">NN</span></td>
+                  <td>Alert body copy.</td>
+                </tr>
+                <tr>
+                  <td><strong>channel</strong></td>
+                  <td>VARCHAR(20)</td>
+                  <td><span class="key-badge key-nn">NN</span> <code>DEFAULT 'in_app'</code></td>
+                  <td>Transmission type: <code>in_app</code>, <code>push</code>, <code>email</code>, <code>sms</code>.</td>
+                </tr>
+                <tr>
+                  <td><strong>is_read</strong></td>
+                  <td>BOOLEAN</td>
+                  <td><span class="key-badge key-nn">NN</span> <code>DEFAULT FALSE</code></td>
+                  <td>Status flag tracking if user read notification.</td>
+                </tr>
+                <tr>
+                  <td><strong>read_at</strong></td>
+                  <td>TIMESTAMPTZ</td>
+                  <td></td>
+                  <td>Timestamp when user marked notification as read.</td>
+                </tr>
+                <tr>
+                  <td><strong>created_at</strong></td>
+                  <td>TIMESTAMPTZ</td>
+                  <td><span class="key-badge key-nn">NN</span> <code>DEFAULT CURRENT_TIMESTAMP</code></td>
+                  <td>Dispatch timestamp.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- notification_preferences -->
+          <div id="tbl-notification-preferences" class="card">
+            <h3>Table: notification_preferences</h3>
+            <p>Opt-in configuration checkboxes toggled by users for active communication channels.</p>
+            <table>
+              <thead>
+                <tr>
+                  <th>Column</th>
+                  <th>Type</th>
+                  <th>Keys / Constraints</th>
+                  <th>Description</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>user_id</strong></td>
+                  <td>UUID</td>
+                  <td><span class="key-badge key-pk">PK</span> <span class="key-badge key-fk">FK</span> REFERENCES users(id) ON DELETE CASCADE</td>
+                  <td>Associated user owner. One-to-one mapping layout.</td>
+                </tr>
+                <tr>
+                  <td><strong>email_enabled</strong></td>
+                  <td>BOOLEAN</td>
+                  <td><code>DEFAULT TRUE</code></td>
+                  <td>Toggle to receive email updates.</td>
+                </tr>
+                <tr>
+                  <td><strong>push_enabled</strong></td>
+                  <td>BOOLEAN</td>
+                  <td><code>DEFAULT TRUE</code></td>
+                  <td>Toggle to receive mobile/browser push notifications.</td>
+                </tr>
+                <tr>
+                  <td><strong>sms_enabled</strong></td>
+                  <td>BOOLEAN</td>
+                  <td><code>DEFAULT FALSE</code></td>
+                  <td>Toggle to receive SMS alerts.</td>
+                </tr>
+                <tr>
+                  <td><strong>in_app_enabled</strong></td>
+                  <td>BOOLEAN</td>
+                  <td><code>DEFAULT TRUE</code></td>
+                  <td>Toggle to display alert notifications inside in-app feed dashboards.</td>
+                </tr>
+                <tr>
+                  <td><strong>updated_at</strong></td>
+                  <td>TIMESTAMPTZ</td>
+                  <td><span class="key-badge key-nn">NN</span> <code>DEFAULT CURRENT_TIMESTAMP</code></td>
+                  <td>Preferences modification date.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- file_metadata -->
+          <div id="tbl-file-metadata" class="card">
+            <h3>Table: file_metadata</h3>
+            <p>Stores metadata representing user file assets uploaded to S3 bucket volumes.</p>
+            <table>
+              <thead>
+                <tr>
+                  <th>Column</th>
+                  <th>Type</th>
+                  <th>Keys / Constraints</th>
+                  <th>Description</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>id</strong></td>
+                  <td>UUID</td>
+                  <td><span class="key-badge key-pk">PK</span> <code>DEFAULT gen_random_uuid()</code></td>
+                  <td>File unique metadata index identifier.</td>
+                </tr>
+                <tr>
+                  <td><strong>user_id</strong></td>
+                  <td>UUID</td>
+                  <td><span class="key-badge key-fk">FK</span> REFERENCES users(id) ON DELETE CASCADE</td>
+                  <td>Associated uploading user account.</td>
+                </tr>
+                <tr>
+                  <td><strong>file_name</strong></td>
+                  <td>VARCHAR(255)</td>
+                  <td><span class="key-badge key-nn">NN</span></td>
+                  <td>Display name of the file upload.</td>
+                </tr>
+                <tr>
+                  <td><strong>file_type</strong></td>
+                  <td>VARCHAR(64)</td>
+                  <td><span class="key-badge key-nn">NN</span></td>
+                  <td>Standard MIME classification content type (e.g. <code>application/pdf</code>, <code>image/png</code>).</td>
+                </tr>
+                <tr>
+                  <td><strong>storage_path</strong></td>
+                  <td>TEXT</td>
+                  <td><span class="key-badge key-nn">NN</span></td>
+                  <td>Absolute target filepath reference or key index inside storage bucket.</td>
+                </tr>
+                <tr>
+                  <td><strong>file_size_bytes</strong></td>
+                  <td>BIGINT</td>
+                  <td><span class="key-badge key-nn">NN</span></td>
+                  <td>File size in bytes. Checked against package upload sizes.</td>
+                </tr>
+                <tr>
+                  <td><strong>category</strong></td>
+                  <td>VARCHAR(50)</td>
+                  <td><code>DEFAULT 'general'</code></td>
+                  <td>Content category (e.g. <code>avatar</code>, <code>report_pdf</code>, <code>audio_sample</code>).</td>
+                </tr>
+                <tr>
+                  <td><strong>created_at</strong></td>
+                  <td>TIMESTAMPTZ</td>
+                  <td><span class="key-badge key-nn">NN</span> <code>DEFAULT CURRENT_TIMESTAMP</code></td>
+                  <td>Upload completion timestamp.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- AUDIT, LOGGING & CONFIG MODULE -->
+        <section id="audit-logging-config">
+          <h2>8. Audit, Logging & Configuration Module</h2>
+          <p>This module provides security auditing, tracks token utilization metrics, monitors feedback, manages feature rollouts, and logs webhook events.</p>
+
+          <!-- api_usage_logs -->
+          <div id="tbl-api-usage-logs" class="card">
+            <h3>Table: api_usage_logs</h3>
+            <p>Tracks incoming API request paths, processing latencies, and token consumption metrics.</p>
+            <table>
+              <thead>
+                <tr>
+                  <th>Column</th>
+                  <th>Type</th>
+                  <th>Keys / Constraints</th>
+                  <th>Description</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>id</strong></td>
+                  <td>UUID</td>
+                  <td><span class="key-badge key-pk">PK</span> <code>DEFAULT gen_random_uuid()</code></td>
+                  <td>Log entry unique identifier.</td>
+                </tr>
+                <tr>
+                  <td><strong>user_id</strong></td>
+                  <td>UUID</td>
+                  <td><span class="key-badge key-fk">FK</span> REFERENCES users(id) ON DELETE SET NULL</td>
+                  <td>Optional authenticated user identifier. NULL for anonymous calls.</td>
+                </tr>
+                <tr>
+                  <td><strong>endpoint</strong></td>
+                  <td>VARCHAR(255)</td>
+                  <td><span class="key-badge key-nn">NN</span></td>
+                  <td>API endpoint path (e.g., <code>/api/v1/chart/calculate</code>).</td>
+                </tr>
+                <tr>
+                  <td><strong>method</strong></td>
+                  <td>VARCHAR(10)</td>
+                  <td><span class="key-badge key-nn">NN</span></td>
+                  <td>HTTP verb method used (e.g., <code>POST</code>, <code>GET</code>).</td>
+                </tr>
+                <tr>
+                  <td><strong>request_tokens</strong></td>
+                  <td>INT</td>
+                  <td><code>DEFAULT 0</code></td>
+                  <td>Token count computed for incoming requests.</td>
+                </tr>
+                <tr>
+                  <td><strong>response_tokens</strong></td>
+                  <td>INT</td>
+                  <td><code>DEFAULT 0</code></td>
+                  <td>Token count computed for outgoing response payloads.</td>
+                </tr>
+                <tr>
+                  <td><strong>total_tokens</strong></td>
+                  <td>INT</td>
+                  <td><code>DEFAULT 0</code></td>
+                  <td>Total token size calculated for the endpoint call.</td>
+                </tr>
+                <tr>
+                  <td><strong>latency_ms</strong></td>
+                  <td>INT</td>
+                  <td><span class="key-badge key-nn">NN</span></td>
+                  <td>Server execution processing time measured in milliseconds.</td>
+                </tr>
+                <tr>
+                  <td><strong>ip_address</strong></td>
+                  <td>INET</td>
+                  <td></td>
+                  <td>IPv4 or IPv6 network address client socket IP.</td>
+                </tr>
+                <tr>
+                  <td><strong>user_agent</strong></td>
+                  <td>TEXT</td>
+                  <td></td>
+                  <td>Client browser browser-agent detail string. Used for troubleshooting.</td>
+                </tr>
+                <tr>
+                  <td><strong>created_at</strong></td>
+                  <td>TIMESTAMPTZ</td>
+                  <td><span class="key-badge key-nn">NN</span> <code>DEFAULT CURRENT_TIMESTAMP</code></td>
+                  <td>Request logging timestamp.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- audit_logs -->
+          <div id="tbl-audit-logs" class="card">
+            <h3>Table: audit_logs</h3>
+            <p>Enterprise audit trail logging critical status actions (e.g. role updates, billing adjustments, account suspension).</p>
+            <table>
+              <thead>
+                <tr>
+                  <th>Column</th>
+                  <th>Type</th>
+                  <th>Keys / Constraints</th>
+                  <th>Description</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>id</strong></td>
+                  <td>UUID</td>
+                  <td><span class="key-badge key-pk">PK</span> <code>DEFAULT gen_random_uuid()</code></td>
+                  <td>Log entry unique identifier.</td>
+                </tr>
+                <tr>
+                  <td><strong>user_id</strong></td>
+                  <td>UUID</td>
+                  <td><span class="key-badge key-fk">FK</span> REFERENCES users(id) ON DELETE SET NULL</td>
+                  <td>Target user initiating the action.</td>
+                </tr>
+                <tr>
+                  <td><strong>action</strong></td>
+                  <td>VARCHAR(100)</td>
+                  <td><span class="key-badge key-nn">NN</span></td>
+                  <td>Descriptive action type tag: <code>LOGIN</code>, <code>SUB_UPGRADE</code>, <code>USER_SUSPEND</code>, <code>ROLE_CHANGE</code>.</td>
+                </tr>
+                <tr>
+                  <td><strong>ip_address</strong></td>
+                  <td>INET</td>
+                  <td></td>
+                  <td>IPv4 or IPv6 network client socket IP.</td>
+                </tr>
+                <tr>
+                  <td><strong>metadata</strong></td>
+                  <td>JSONB</td>
+                  <td><code>DEFAULT '{}'::jsonb</code></td>
+                  <td>Structured details containing before/after values of modified parameters.</td>
+                </tr>
+                <tr>
+                  <td><strong>created_at</strong></td>
+                  <td>TIMESTAMPTZ</td>
+                  <td><span class="key-badge key-nn">NN</span> <code>DEFAULT CURRENT_TIMESTAMP</code></td>
+                  <td>Audit record completion timestamp.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- feedback -->
+          <div id="tbl-feedback" class="card">
+            <h3>Table: feedback</h3>
+            <p>Feedback logs, ratings, and bug reports submitted by users.</p>
+            <table>
+              <thead>
+                <tr>
+                  <th>Column</th>
+                  <th>Type</th>
+                  <th>Keys / Constraints</th>
+                  <th>Description</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>id</strong></td>
+                  <td>UUID</td>
+                  <td><span class="key-badge key-pk">PK</span> <code>DEFAULT gen_random_uuid()</code></td>
+                  <td>Feedback identifier.</td>
+                </tr>
+                <tr>
+                  <td><strong>user_id</strong></td>
+                  <td>UUID</td>
+                  <td><span class="key-badge key-fk">FK</span> REFERENCES users(id) ON DELETE CASCADE</td>
+                  <td>Associated user author.</td>
+                </tr>
+                <tr>
+                  <td><strong>rating</strong></td>
+                  <td>INT</td>
+                  <td>CHECK (rating 1-5)</td>
+                  <td>Numeric rating score (1 to 5 stars).</td>
+                </tr>
+                <tr>
+                  <td><strong>feedback_type</strong></td>
+                  <td>VARCHAR(50)</td>
+                  <td><code>DEFAULT 'feedback'</code></td>
+                  <td>Category classification code: <code>feedback</code>, <code>bug_report</code>, <code>feature_request</code>.</td>
+                </tr>
+                <tr>
+                  <td><strong>content</strong></td>
+                  <td>TEXT</td>
+                  <td><span class="key-badge key-nn">NN</span></td>
+                  <td>Raw text details.</td>
+                </tr>
+                <tr>
+                  <td><strong>screenshot_url</strong></td>
+                  <td>TEXT</td>
+                  <td></td>
+                  <td>S3 path reference linking to uploaded troubleshooting screenshot.</td>
+                </tr>
+                <tr>
+                  <td><strong>status</strong></td>
+                  <td>VARCHAR(32)</td>
+                  <td><code>DEFAULT 'open'</code></td>
+                  <td>Internal triage status: <code>open</code>, <code>in_progress</code>, <code>resolved</code>, <code>closed</code>.</td>
+                </tr>
+                <tr>
+                  <td><strong>created_at</strong></td>
+                  <td>TIMESTAMPTZ</td>
+                  <td><span class="key-badge key-nn">NN</span> <code>DEFAULT CURRENT_TIMESTAMP</code></td>
+                  <td>Record creation timestamp.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- user_settings -->
+          <div id="tbl-user-settings" class="card">
+            <h3>Table: user_settings</h3>
+            <p>Personalization configurations managed by users, including theme, language, and model preference.</p>
+            <table>
+              <thead>
+                <tr>
+                  <th>Column</th>
+                  <th>Type</th>
+                  <th>Keys / Constraints</th>
+                  <th>Description</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>user_id</strong></td>
+                  <td>UUID</td>
+                  <td><span class="key-badge key-pk">PK</span> <span class="key-badge key-fk">FK</span> REFERENCES users(id) ON DELETE CASCADE</td>
+                  <td>Target user owner index. One-to-one layout.</td>
+                </tr>
+                <tr>
+                  <td><strong>theme</strong></td>
+                  <td>VARCHAR(20)</td>
+                  <td><code>DEFAULT 'cream'</code></td>
+                  <td>UI visual theme setting preference (e.g. <code>cream</code>, <code>dark</code>).</td>
+                </tr>
+                <tr>
+                  <td><strong>language</strong></td>
+                  <td>VARCHAR(10)</td>
+                  <td><code>DEFAULT 'en'</code></td>
+                  <td>Display language setting code (e.g., 'en', 'hi').</td>
+                </tr>
+                <tr>
+                  <td><strong>ai_model_preference</strong></td>
+                  <td>VARCHAR(64)</td>
+                  <td><code>DEFAULT 'llama-3.3-70b-versatile'</code></td>
+                  <td>Configured default model preference for AI consults.</td>
+                </tr>
+                <tr>
+                  <td><strong>preferences</strong></td>
+                  <td>JSONB</td>
+                  <td><code>DEFAULT '{}'::jsonb</code></td>
+                  <td>Additional JSON configurations (e.g., audio output parameters).</td>
+                </tr>
+                <tr>
+                  <td><strong>updated_at</strong></td>
+                  <td>TIMESTAMPTZ</td>
+                  <td><span class="key-badge key-nn">NN</span> <code>DEFAULT CURRENT_TIMESTAMP</code></td>
+                  <td>Record modification timestamp.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- feature_flags -->
+          <div id="tbl-feature-flags" class="card">
+            <h3>Table: feature_flags</h3>
+            <p>Configured system toggle flags mapping active system feature status and rollout rates.</p>
+            <table>
+              <thead>
+                <tr>
+                  <th>Column</th>
+                  <th>Type</th>
+                  <th>Keys / Constraints</th>
+                  <th>Description</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>id</strong></td>
+                  <td>UUID</td>
+                  <td><span class="key-badge key-pk">PK</span> <code>DEFAULT gen_random_uuid()</code></td>
+                  <td>Feature flag identifier.</td>
+                </tr>
+                <tr>
+                  <td><strong>key</strong></td>
+                  <td>VARCHAR(100)</td>
+                  <td><span class="key-badge key-uq">UQ</span> <span class="key-badge key-nn">NN</span></td>
+                  <td>Unique flag lookup string (e.g., <code>enable_dasha_timeline</code>, <code>enable_face_ai</code>).</td>
+                </tr>
+                <tr>
+                  <td><strong>description</strong></td>
+                  <td>TEXT</td>
+                  <td></td>
+                  <td>Functional explanation of code changes managed by this toggle.</td>
+                </tr>
+                <tr>
+                  <td><strong>is_enabled</strong></td>
+                  <td>BOOLEAN</td>
+                  <td><code>DEFAULT FALSE</code></td>
+                  <td>Global status toggle.</td>
+                </tr>
+                <tr>
+                  <td><strong>percentage_rollout</strong></td>
+                  <td>INT</td>
+                  <td><code>DEFAULT 100</code> CHECK (0-100)</td>
+                  <td>Canary deployment target percentage value (0 to 100).</td>
+                </tr>
+                <tr>
+                  <td><strong>updated_at</strong></td>
+                  <td>TIMESTAMPTZ</td>
+                  <td><span class="key-badge key-nn">NN</span> <code>DEFAULT CURRENT_TIMESTAMP</code></td>
+                  <td>Record modification timestamp.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- referrals -->
+          <div id="tbl-referrals" class="card">
+            <h3>Table: referrals</h3>
+            <p>Track user invite codes, redemptions, and corresponding reward allocations.</p>
+            <table>
+              <thead>
+                <tr>
+                  <th>Column</th>
+                  <th>Type</th>
+                  <th>Keys / Constraints</th>
+                  <th>Description</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>id</strong></td>
+                  <td>UUID</td>
+                  <td><span class="key-badge key-pk">PK</span> <code>DEFAULT gen_random_uuid()</code></td>
+                  <td>Referral identifier.</td>
+                </tr>
+                <tr>
+                  <td><strong>referrer_id</strong></td>
+                  <td>UUID</td>
+                  <td><span class="key-badge key-fk">FK</span> REFERENCES users(id) ON DELETE CASCADE</td>
+                  <td>Inviting user account owner.</td>
+                </tr>
+                <tr>
+                  <td><strong>referred_id</strong></td>
+                  <td>UUID</td>
+                  <td><span class="key-badge key-fk">FK</span> REFERENCES users(id) ON DELETE CASCADE</td>
+                  <td>Newly registered user account index.</td>
+                </tr>
+                <tr>
+                  <td><strong>reward_status</strong></td>
+                  <td>VARCHAR(32)</td>
+                  <td><span class="key-badge key-nn">NN</span> <code>DEFAULT 'pending'</code></td>
+                  <td>Status tracking: <code>pending</code>, <code>claimed</code>, <code>expired</code>.</td>
+                </tr>
+                <tr>
+                  <td><strong>created_at</strong></td>
+                  <td>TIMESTAMPTZ</td>
+                  <td><span class="key-badge key-nn">NN</span> <code>DEFAULT CURRENT_TIMESTAMP</code></td>
+                  <td>Timestamp of invite validation.</td>
+                </tr>
+                <tr>
+                  <td><strong>updated_at</strong></td>
+                  <td>TIMESTAMPTZ</td>
+                  <td><span class="key-badge key-nn">NN</span> <code>DEFAULT CURRENT_TIMESTAMP</code></td>
+                  <td>Record update timestamp.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- webhook_events -->
+          <div id="tbl-webhook-events" class="card">
+            <h3>Table: webhook_events</h3>
+            <p>Idempotency verification ledger tracking payment webhook updates.</p>
+            <table>
+              <thead>
+                <tr>
+                  <th>Column</th>
+                  <th>Type</th>
+                  <th>Keys / Constraints</th>
+                  <th>Description</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>id</strong></td>
+                  <td>UUID</td>
+                  <td><span class="key-badge key-pk">PK</span> <code>DEFAULT gen_random_uuid()</code></td>
+                  <td>Record unique identifier.</td>
+                </tr>
+                <tr>
+                  <td><strong>event_id</strong></td>
+                  <td>VARCHAR(255)</td>
+                  <td><span class="key-badge key-uq">UQ</span> <span class="key-badge key-nn">NN</span></td>
+                  <td>External event transaction ID (e.g. Stripe webhook ID). Ensures idempotency.</td>
+                </tr>
+                <tr>
+                  <td><strong>provider</strong></td>
+                  <td>VARCHAR(50)</td>
+                  <td><span class="key-badge key-nn">NN</span></td>
+                  <td>Webhook provider identifier code (e.g., 'stripe', 'razorpay').</td>
+                </tr>
+                <tr>
+                  <td><strong>event_type</strong></td>
+                  <td>VARCHAR(100)</td>
+                  <td><span class="key-badge key-nn">NN</span></td>
+                  <td>External action name string (e.g. <code>payment_intent.succeeded</code>).</td>
+                </tr>
+                <tr>
+                  <td><strong>payload</strong></td>
+                  <td>JSONB</td>
+                  <td><span class="key-badge key-nn">NN</span></td>
+                  <td>Raw JSON payload saved for diagnostic purposes.</td>
+                </tr>
+                <tr>
+                  <td><strong>processed_at</strong></td>
+                  <td>TIMESTAMPTZ</td>
+                  <td><span class="key-badge key-nn">NN</span> <code>DEFAULT CURRENT_TIMESTAMP</code></td>
+                  <td>Execution completion timestamp.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- DDL SECTION -->
+        <section id="ddl">
+          <h2>9. PostgreSQL DDL SQL Statements</h2>
+          <p>The complete catalog containing DDL queries required to construct the database schema inside PostgreSQL databases:</p>
+          
+          <details>
+            <summary>View Complete DDL Schema script</summary>
+            <pre><code class="language-sql">-- Enable Required PostgreSQL Extensions
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+CREATE EXTENSION IF NOT EXISTS "pgcrypto";
+
+-- Enum Types
+CREATE TYPE user_status_enum AS ENUM ('active', 'suspended', 'deactivated', 'deleted');
+CREATE TYPE subscription_status_enum AS ENUM ('active', 'past_due', 'canceled', 'trialing', 'expired');
+CREATE TYPE report_type_enum AS ENUM ('career', 'marriage', 'finance', 'health', 'education', 'business', 'yearly', 'life', 'personality', 'compatibility');
+CREATE TYPE message_type_enum AS ENUM ('user', 'assistant', 'system');
+CREATE TYPE payment_status_enum AS ENUM ('pending', 'succeeded', 'failed', 'refunded');
+
+-------------------------------------------------------
+-- 1. IDENTITY & RBAC MODULE
+-------------------------------------------------------
+
+CREATE TABLE users (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    firebase_uid VARCHAR(128) NOT NULL UNIQUE,
+    email VARCHAR(255) NOT NULL UNIQUE,
+    phone VARCHAR(32),
+    display_name VARCHAR(128),
+    photo_url TEXT,
+    preferred_language VARCHAR(10) DEFAULT 'en',
+    country VARCHAR(3) DEFAULT 'IND',
+    timezone VARCHAR(64) DEFAULT 'Asia/Kolkata',
+    last_login_at TIMESTAMPTZ,
+    email_verified BOOLEAN DEFAULT FALSE,
+    status user_status_enum NOT NULL DEFAULT 'active',
+    created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    deleted_at TIMESTAMPTZ
+);
+
+CREATE INDEX idx_users_firebase_uid ON users(firebase_uid);
+CREATE INDEX idx_users_email ON users(email);
+CREATE INDEX idx_users_deleted_at ON users(deleted_at) WHERE deleted_at IS NOT NULL;
+
+CREATE TABLE roles (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    name VARCHAR(50) NOT NULL UNIQUE,
+    description TEXT,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE permissions (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    code VARCHAR(100) NOT NULL UNIQUE,
+    description TEXT,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE role_permissions (
+    role_id UUID NOT NULL REFERENCES roles(id) ON DELETE CASCADE,
+    permission_id UUID NOT NULL REFERENCES permissions(id) ON DELETE CASCADE,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (role_id, permission_id)
+);
+
+CREATE TABLE user_roles (
+    user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    role_id UUID NOT NULL REFERENCES roles(id) ON DELETE CASCADE,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (user_id, role_id)
+);
+
+-------------------------------------------------------
+-- 2. SUBSCRIPTION & BILLING MODULE
+-------------------------------------------------------
+
+CREATE TABLE subscription_plans (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    code VARCHAR(50) NOT NULL UNIQUE, -- 'free', 'standard', 'pro'
+    name VARCHAR(100) NOT NULL,
+    description TEXT,
+    price_monthly NUMERIC(10,2) NOT NULL DEFAULT 0.00,
+    price_yearly NUMERIC(10,2) NOT NULL DEFAULT 0.00,
+    currency VARCHAR(3) DEFAULT 'INR',
+    max_profiles INT NOT NULL DEFAULT 1,
+    daily_token_limit INT NOT NULL DEFAULT 10000,
+    features JSONB NOT NULL DEFAULT '{}'::jsonb,
+    is_active BOOLEAN NOT NULL DEFAULT TRUE,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE subscriptions (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    plan_id UUID NOT NULL REFERENCES subscription_plans(id),
+    status subscription_status_enum NOT NULL DEFAULT 'active',
+    current_period_start TIMESTAMPTZ NOT NULL,
+    current_period_end TIMESTAMPTZ NOT NULL,
+    cancel_at_period_end BOOLEAN DEFAULT FALSE,
+    canceled_at TIMESTAMPTZ,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX idx_subscriptions_user_id ON subscriptions(user_id);
+CREATE INDEX idx_subscriptions_status ON subscriptions(status);
+
+-------------------------------------------------------
+-- 3. ASTROLOGY PROFILE MODULE
+-------------------------------------------------------
+
+CREATE TABLE astrology_profiles (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    name VARCHAR(128) NOT NULL,
+    gender VARCHAR(20) DEFAULT 'unspecified',
+    relationship VARCHAR(50) DEFAULT 'Self', -- Self, Spouse, Child, Friend, etc.
+    date_of_birth DATE NOT NULL,
+    time_of_birth TIME NOT NULL,
+    birth_place VARCHAR(255) NOT NULL,
+    latitude NUMERIC(9,6) NOT NULL,
+    longitude NUMERIC(9,6) NOT NULL,
+    timezone VARCHAR(64) NOT NULL DEFAULT 'Asia/Kolkata',
+    country VARCHAR(100),
+    state VARCHAR(100),
+    city VARCHAR(100),
+    preferred_language VARCHAR(10) DEFAULT 'en',
+    notes TEXT,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    deleted_at TIMESTAMPTZ
+);
+
+CREATE INDEX idx_profiles_user_id ON astrology_profiles(user_id);
+CREATE INDEX idx_profiles_deleted_at ON astrology_profiles(deleted_at) WHERE deleted_at IS NOT NULL;
+
+-------------------------------------------------------
+-- 4. KUNDLI & COMPUTATION MODULE
+-------------------------------------------------------
+
+CREATE TABLE kundlis (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    profile_id UUID NOT NULL REFERENCES astrology_profiles(id) ON DELETE CASCADE,
+    version INT NOT NULL DEFAULT 1,
+    engine_version VARCHAR(32) NOT NULL DEFAULT 'SwissEphemeris_v2.10',
+    ascendant_sign VARCHAR(32) NOT NULL,
+    moon_sign VARCHAR(32) NOT NULL,
+    sun_sign VARCHAR(32) NOT NULL,
+    nakshatra VARCHAR(64) NOT NULL,
+    nakshatra_pada INT NOT NULL CHECK (nakshatra_pada BETWEEN 1 AND 4),
+    ayanamsa_name VARCHAR(64) DEFAULT 'Lahiri',
+    panchang_data JSONB NOT NULL DEFAULT '{}'::jsonb,
+    yogas JSONB NOT NULL DEFAULT '[]'::jsonb,
+    doshas JSONB NOT NULL DEFAULT '{}'::jsonb,
+    ashtakavarga JSONB NOT NULL DEFAULT '{}'::jsonb,
+    raw_payload JSONB NOT NULL DEFAULT '{}'::jsonb,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX idx_kundlis_profile_id ON kundlis(profile_id);
+
+CREATE TABLE planet_positions (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    kundli_id UUID NOT NULL REFERENCES kundlis(id) ON DELETE CASCADE,
+    planet_name VARCHAR(32) NOT NULL,
+    sign VARCHAR(32) NOT NULL,
+    house_number INT NOT NULL CHECK (house_number BETWEEN 1 AND 12),
+    longitude NUMERIC(9,6) NOT NULL,
+    degree INT NOT NULL,
+    minute INT NOT NULL,
+    second INT NOT NULL,
+    is_retrograde BOOLEAN NOT NULL DEFAULT FALSE,
+    nakshatra VARCHAR(64),
+    nakshatra_pada INT,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX idx_planets_kundli_id ON planet_positions(kundli_id);
+
+CREATE TABLE houses (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    kundli_id UUID NOT NULL REFERENCES kundlis(id) ON DELETE CASCADE,
+    house_number INT NOT NULL CHECK (house_number BETWEEN 1 AND 12),
+    sign VARCHAR(32) NOT NULL,
+    sign_lord VARCHAR(32) NOT NULL,
+    degree NUMERIC(9,6) NOT NULL,
+    occupants JSONB NOT NULL DEFAULT '[]'::jsonb,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX idx_houses_kundli_id ON houses(kundli_id);
+
+CREATE TABLE dasha_periods (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    kundli_id UUID NOT NULL REFERENCES kundlis(id) ON DELETE CASCADE,
+    dasha_level VARCHAR(20) NOT NULL, -- 'mahadasha', 'antardasha', 'pratyantardasha'
+    planet_name VARCHAR(32) NOT NULL,
+    parent_id UUID REFERENCES dasha_periods(id) ON DELETE CASCADE,
+    start_date DATE NOT NULL,
+    end_date DATE NOT NULL,
+    duration_years NUMERIC(5,2) NOT NULL,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX idx_dasha_kundli_id ON dasha_periods(kundli_id);
+
+CREATE TABLE divisional_charts (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    kundli_id UUID NOT NULL REFERENCES kundlis(id) ON DELETE CASCADE,
+    chart_type VARCHAR(16) NOT NULL, -- 'D2', 'D9', 'D10', 'D60'
+    chart_data JSONB NOT NULL,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX idx_divisional_charts_kundli_id ON divisional_charts(kundli_id);
+
+-------------------------------------------------------
+-- 5. AI CHAT MODULE
+-------------------------------------------------------
+
+CREATE TABLE chat_sessions (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    profile_id UUID REFERENCES astrology_profiles(id) ON DELETE SET NULL,
+    tab_name VARCHAR(50) DEFAULT 'overview',
+    title VARCHAR(255) DEFAULT 'New Consultation',
+    model_used VARCHAR(64) DEFAULT 'llama-3.3-70b-versatile',
+    created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    deleted_at TIMESTAMPTZ
+);
+
+CREATE INDEX idx_chat_sessions_user_id ON chat_sessions(user_id);
+
+CREATE TABLE chat_messages (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    session_id UUID NOT NULL REFERENCES chat_sessions(id) ON DELETE CASCADE,
+    sender message_type_enum NOT NULL,
+    content TEXT NOT NULL,
+    prompt_tokens INT DEFAULT 0,
+    completion_tokens INT DEFAULT 0,
+    total_tokens INT DEFAULT 0,
+    response_time_ms INT DEFAULT 0,
+    model_version VARCHAR(64),
+    created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX idx_chat_messages_session_id ON chat_messages(session_id);
+
+-------------------------------------------------------
+-- 6. ASTROLOGY REPORTS MODULE
+-------------------------------------------------------
+
+CREATE TABLE astrology_reports (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    profile_id UUID NOT NULL REFERENCES astrology_profiles(id) ON DELETE CASCADE,
+    session_id UUID REFERENCES chat_sessions(id) ON DELETE SET NULL,
+    report_type report_type_enum NOT NULL,
+    title VARCHAR(255) NOT NULL,
+    version INT NOT NULL DEFAULT 1,
+    content_json JSONB NOT NULL DEFAULT '{}'::jsonb,
+    pdf_url TEXT,
+    status VARCHAR(32) NOT NULL DEFAULT 'completed',
+    created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX idx_reports_user_id ON astrology_reports(user_id);
+CREATE INDEX idx_reports_profile_id ON astrology_reports(profile_id);
+
+-------------------------------------------------------
+-- 7. EMOTION ANALYSIS MODULE (FUTURE AI PROOF)
+-------------------------------------------------------
+
+CREATE TABLE emotion_analysis_logs (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    input_type VARCHAR(20) NOT NULL CHECK (input_type IN ('image', 'audio', 'video', 'multimodal')),
+    media_file_url TEXT NOT NULL,
+    detected_emotion VARCHAR(64) NOT NULL,
+    confidence NUMERIC(5,4) NOT NULL, -- 0.0000 to 1.0000
+    emotion_breakdown JSONB NOT NULL DEFAULT '{}'::jsonb,
+    model_used VARCHAR(64) NOT NULL,
+    processing_time_ms INT NOT NULL,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX idx_emotion_analysis_user_id ON emotion_analysis_logs(user_id);
+
+-------------------------------------------------------
+-- 8. PAYMENTS & ORDERS MODULE
+-------------------------------------------------------
+
+CREATE TABLE coupons (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    code VARCHAR(50) NOT NULL UNIQUE,
+    discount_percent NUMERIC(5,2) DEFAULT 0.00,
+    discount_amount NUMERIC(10,2) DEFAULT 0.00,
+    valid_from TIMESTAMPTZ NOT NULL,
+    valid_until TIMESTAMPTZ NOT NULL,
+    max_uses INT DEFAULT 100,
+    used_count INT DEFAULT 0,
+    is_active BOOLEAN DEFAULT TRUE,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE orders (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    coupon_id UUID REFERENCES coupons(id),
+    amount NUMERIC(10,2) NOT NULL,
+    discount_applied NUMERIC(10,2) DEFAULT 0.00,
+    final_amount NUMERIC(10,2) NOT NULL,
+    currency VARCHAR(3) DEFAULT 'INR',
+    status VARCHAR(32) NOT NULL DEFAULT 'pending', -- pending, paid, canceled, refunded
+    created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX idx_orders_user_id ON orders(user_id);
+
+CREATE TABLE payments (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    order_id UUID NOT NULL REFERENCES orders(id) ON DELETE CASCADE,
+    user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    gateway VARCHAR(32) NOT NULL, -- 'razorpay', 'stripe'
+    gateway_transaction_id VARCHAR(255) NOT NULL UNIQUE,
+    amount NUMERIC(10,2) NOT NULL,
+    currency VARCHAR(3) DEFAULT 'INR',
+    status payment_status_enum NOT NULL DEFAULT 'pending',
+    raw_response JSONB DEFAULT '{}'::jsonb,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX idx_payments_order_id ON payments(order_id);
+CREATE INDEX idx_payments_user_id ON payments(user_id);
+
+CREATE TABLE invoices (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    payment_id UUID NOT NULL REFERENCES payments(id) ON DELETE CASCADE,
+    user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    invoice_number VARCHAR(64) NOT NULL UNIQUE,
+    pdf_url TEXT,
+    issued_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX idx_invoices_payment_id ON invoices(payment_id);
+CREATE INDEX idx_invoices_user_id ON invoices(user_id);
+
+-------------------------------------------------------
+-- 9. NOTIFICATIONS MODULE
+-------------------------------------------------------
+
+CREATE TABLE notification_preferences (
+    user_id UUID PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
+    email_enabled BOOLEAN DEFAULT TRUE,
+    push_enabled BOOLEAN DEFAULT TRUE,
+    sms_enabled BOOLEAN DEFAULT FALSE,
+    in_app_enabled BOOLEAN DEFAULT TRUE,
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE notifications (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    title VARCHAR(255) NOT NULL,
+    message TEXT NOT NULL,
+    channel VARCHAR(20) NOT NULL DEFAULT 'in_app', -- in_app, push, email, sms
+    is_read BOOLEAN NOT NULL DEFAULT FALSE,
+    read_at TIMESTAMPTZ,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX idx_notifications_user_id ON notifications(user_id);
+
+-------------------------------------------------------
+-- 10. FILE METADATA MODULE
+-------------------------------------------------------
+
+CREATE TABLE file_metadata (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    file_name VARCHAR(255) NOT NULL,
+    file_type VARCHAR(64) NOT NULL, -- 'image/png', 'application/pdf', etc.
+    storage_path TEXT NOT NULL,
+    file_size_bytes BIGINT NOT NULL,
+    category VARCHAR(50) DEFAULT 'general', -- avatar, report_pdf, audio_sample
+    created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX idx_file_metadata_user_id ON file_metadata(user_id);
+
+-------------------------------------------------------
+-- 11. AUDIT, LOGGING & SETTINGS MODULE
+-------------------------------------------------------
+
+CREATE TABLE api_usage_logs (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id UUID REFERENCES users(id) ON DELETE SET NULL,
+    endpoint VARCHAR(255) NOT NULL,
+    method VARCHAR(10) NOT NULL,
+    request_tokens INT DEFAULT 0,
+    response_tokens INT DEFAULT 0,
+    total_tokens INT DEFAULT 0,
+    latency_ms INT NOT NULL,
+    ip_address INET,
+    user_agent TEXT,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX idx_api_usage_created_at ON api_usage_logs(created_at);
+
+CREATE TABLE audit_logs (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id UUID REFERENCES users(id) ON DELETE SET NULL,
+    action VARCHAR(100) NOT NULL, -- LOGIN, PROFILE_UPDATE, SUB_UPGRADE, SOFT_DELETE
+    ip_address INET,
+    metadata JSONB DEFAULT '{}'::jsonb,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX idx_audit_logs_user_id ON audit_logs(user_id);
+
+CREATE TABLE feedback (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    rating INT CHECK (rating BETWEEN 1 AND 5),
+    feedback_type VARCHAR(50) DEFAULT 'feedback', -- feedback, bug_report, feature_request
+    content TEXT NOT NULL,
+    screenshot_url TEXT,
+    status VARCHAR(32) DEFAULT 'open',
+    created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX idx_feedback_user_id ON feedback(user_id);
+
+CREATE TABLE user_settings (
+    user_id UUID PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
+    theme VARCHAR(20) DEFAULT 'cream',
+    language VARCHAR(10) DEFAULT 'en',
+    ai_model_preference VARCHAR(64) DEFAULT 'llama-3.3-70b-versatile',
+    preferences JSONB DEFAULT '{}'::jsonb,
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE feature_flags (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    key VARCHAR(100) NOT NULL UNIQUE,
+    description TEXT,
+    is_enabled BOOLEAN DEFAULT FALSE,
+    percentage_rollout INT DEFAULT 100 CHECK (percentage_rollout BETWEEN 0 AND 100),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE referrals (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    referrer_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    referred_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    reward_status VARCHAR(32) NOT NULL DEFAULT 'pending', -- pending, claimed, expired
+    created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE (referrer_id, referred_id)
+);
+
+CREATE INDEX idx_referrals_referrer_id ON referrals(referrer_id);
+CREATE INDEX idx_referrals_referred_id ON referrals(referred_id);
+
+CREATE TABLE webhook_events (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    event_id VARCHAR(255) NOT NULL UNIQUE,
+    provider VARCHAR(50) NOT NULL, -- 'razorpay', 'stripe'
+    event_type VARCHAR(100) NOT NULL,
+    payload JSONB NOT NULL,
+    processed_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+</code></pre>
+          </details>
+        </section>
+
+      </main>
+    </div>
+  </div>
+
+  <!-- Floating Back to HLD button -->
+  <a href="index.html" class="floating-back-btn">
+    <span style="font-family: Arial, sans-serif;">←</span> Back to HLD
+  </a>
+
+  <!-- Prism.js for syntax highlighting -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-sql.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-json.min.js"></script>
+
+  <!-- Sidebar active section highlighter script -->
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const sections = document.querySelectorAll('section, .card[id]');
+      const sidebarLinks = document.querySelectorAll('.sidebar-link');
+
+      window.addEventListener('scroll', () => {
+        let currentSectionId = '';
+        sections.forEach(section => {
+          const sectionTop = section.offsetTop;
+          const sectionHeight = section.clientHeight;
+          if (window.scrollY >= (sectionTop - 120)) {
+            currentSectionId = section.getAttribute('id');
+          }
+        });
+
+        sidebarLinks.forEach(link => {
+          link.classList.remove('active');
+          if (link.getAttribute('href') === `#${currentSectionId}`) {
+            link.classList.add('active');
+          }
+        });
+      });
+    });
+  </script>
+
+</body>
+</html>

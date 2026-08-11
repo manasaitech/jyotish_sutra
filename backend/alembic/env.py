@@ -19,7 +19,7 @@ load_dotenv(os.path.join(project_root, ".env"))
 # access to the values within the .ini file in use.
 config = context.config
 
-database_url = os.environ.get("DATABASE_URL", "postgresql://postgres:postgres@localhost:5432/astrosutra_dev")
+database_url = os.environ.get("DATABASE_URL", "postgresql://postgres:postgres@localhost:5432/jyotishasutra_dev")
 if database_url.startswith("postgres://"):
     database_url = database_url.replace("postgres://", "postgresql://", 1)
 

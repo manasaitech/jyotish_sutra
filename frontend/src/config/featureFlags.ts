@@ -1,6 +1,6 @@
 /**
  * Feature Flags Configuration
- * Controls feature availability and tab visibility across Kundli GPT / AstroSutra AI.
+ * Controls feature availability and tab visibility across Kundli GPT / JyotishaSutra AI.
  */
 
 export interface FeatureFlags {

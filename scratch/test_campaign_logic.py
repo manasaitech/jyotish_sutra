@@ -75,7 +75,7 @@ def test_campaign_flow():
         
         # 5. Simulate User Redemption
         # Find or create a test user
-        test_user_email = "test_user_redemption@astrosutra.ai"
+        test_user_email = "test_user_redemption@jyotishasutra.ai"
         test_user = db.query(User).filter(User.email == test_user_email).first()
         if not test_user:
             test_user = User(

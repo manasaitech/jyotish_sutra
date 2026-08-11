@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { BrowserRouter, Routes, Route, useNavigate, useLocation, Link } from 'react-router-dom'
+import { BrowserRouter, Routes, Route, useNavigate, useLocation, Link, Navigate } from 'react-router-dom'
 import ChatPage from './pages/ChatPage'
 import LoginPage from './pages/LoginPage'
 import LandingPage from './pages/LandingPage'
@@ -26,12 +26,16 @@ import NotFoundPage from './pages/NotFoundPage'
 // ─────────────────────────────────────────────
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { user, loading } = useAuth()
+  const location = useLocation()
 
   if (loading) {
-    return <AstroLoader message="Connecting to AstroSutra AI..." />
+    return <AstroLoader message="Connecting to JyotishaSutra AI..." />
   }
 
-  if (!user) return <NotFoundPage />
+  if (!user) {
+    const redirectUrl = encodeURIComponent(location.pathname + location.search)
+    return <Navigate to={`/login?redirect=${redirectUrl}`} replace />
+  }
   return <>{children}</>
 }
 
@@ -65,7 +69,7 @@ function PublicLayout({ children }: { children: React.ReactNode }) {
   )
 
   const handleSignIn = () => navigate('/login')
-  const handleGoDashboard = () => navigate('/app')
+  const handleGoDashboard = () => navigate('/dashboard')
   const handleSignOut = async () => {
     try {
       await logout()
@@ -91,11 +95,11 @@ function PublicLayout({ children }: { children: React.ReactNode }) {
 
           {/* Logo */}
           <Link
-            to={user ? '/app' : '/'}
+            to={user ? '/dashboard' : '/'}
             className="flex items-center gap-2 font-display text-base sm:text-xl md:text-2xl text-primary font-bold italic tracking-tight cursor-pointer no-underline whitespace-nowrap shrink-0 mr-1 sm:mr-0"
           >
-            <img src="/logo.png" alt="AstroSutra AI Logo" className="w-7 h-7 sm:w-8 sm:h-8 object-contain rounded-xl shrink-0 animate-fade-in" />
-            <span>AstroSutra AI</span>
+            <img src="/logo.png" alt="JyotishaSutra AI Logo" className="w-7 h-7 sm:w-8 sm:h-8 object-contain rounded-xl shrink-0 animate-fade-in" />
+            <span>JyotishaSutra AI</span>
           </Link>
 
           {/* Desktop links */}
@@ -221,30 +225,43 @@ function AppRoutes() {
   const navigate = useNavigate()
   const location = useLocation()
 
-  // After login, if on /login page, redirect to /app or custom redirect
+  // After login, if on /login page, redirect to /dashboard or custom redirect
   useEffect(() => {
     if (!loading && user && location.pathname === '/login') {
       const searchParams = new URLSearchParams(location.search)
-      const redirect = searchParams.get('redirect') || '/app'
+      const redirect = searchParams.get('redirect') || '/dashboard'
       navigate(redirect, { replace: true })
     }
   }, [user, loading, location.pathname, navigate, location.search])
 
-  // Auth loading spinner for /app and /login
-  if (loading && (location.pathname === '/app' || location.pathname === '/login')) {
-    return <AstroLoader message="Connecting to AstroSutra AI..." />
+  // Auth loading spinner for /dashboard and /login
+  if (loading && (location.pathname.startsWith('/dashboard') || location.pathname === '/login')) {
+    return <AstroLoader message="Connecting to JyotishaSutra AI..." />
   }
 
   return (
     <Routes>
       {/* Authenticated dashboard — no public layout */}
       <Route
-        path="/app"
+        path="/dashboard"
         element={
           <ProtectedRoute>
             <ChatPage />
           </ProtectedRoute>
         }
+      />
+      <Route
+        path="/dashboard/:tab"
+        element={
+          <ProtectedRoute>
+            <ChatPage />
+          </ProtectedRoute>
+        }
+      />
+      {/* Redirect /app to /dashboard */}
+      <Route
+        path="/app"
+        element={<Navigate to="/dashboard" replace />}
       />
 
       {/* Login page — standalone, no public layout */}
@@ -255,7 +272,7 @@ function AppRoutes() {
             onClose={() => navigate('/')}
             onSuccess={() => {
               const searchParams = new URLSearchParams(location.search)
-              const redirect = searchParams.get('redirect') || '/app'
+              const redirect = searchParams.get('redirect') || '/dashboard'
               navigate(redirect, { replace: true })
             }}
           />

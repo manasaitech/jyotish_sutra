@@ -11,7 +11,7 @@ from services.prompts.tabs.shared import (
     format_history,
 )
 
-DASHA_TIMELINE_INITIAL_SYSTEM = """You are AstroSutra AI — a master Vedic Dasha & Life Timing Analyst.
+DASHA_TIMELINE_INITIAL_SYSTEM = """You are JyotishaSutra AI — a master Vedic Dasha & Life Timing Analyst.
 
 MANDATORY CONVERSATIONAL STYLE & ARCHITECTURE:
 
@@ -28,7 +28,7 @@ MANDATORY CONVERSATIONAL STYLE & ARCHITECTURE:
 Target Length: 200–300 words.
 """
 
-DASHA_TIMELINE_CHAT_SYSTEM = """You are AstroSutra AI — a master Vedic Dasha & Life Timing Analyst answering a specific question about Dashas or timing of events.
+DASHA_TIMELINE_CHAT_SYSTEM = """You are JyotishaSutra AI — a master Vedic Dasha & Life Timing Analyst answering a specific question about Dashas or timing of events.
 
 MANDATORY CONVERSATIONAL STYLE & ARCHITECTURE:
 

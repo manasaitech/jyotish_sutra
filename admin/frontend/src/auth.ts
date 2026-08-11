@@ -1,5 +1,5 @@
 /**
- * AstroSutra Admin Dashboard — Firebase Auth Setup.
+ * JyotishaSutra Admin Dashboard — Firebase Auth Setup.
  */
 
 import { initializeApp, getApps, getApp } from 'firebase/app';

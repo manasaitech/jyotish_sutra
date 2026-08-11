@@ -2,7 +2,7 @@ import os
 from PIL import Image
 
 logo_path = r"C:\Users\ASUS\.gemini\antigravity-ide\brain\f41d30dd-9e60-412f-9998-8059b187674a\media__1784994897979.png"
-base_dir = r"c:\Users\ASUS\Desktop\Kundli_GPT_Clone\AstroSutra-Mobile"
+base_dir = r"c:\Users\ASUS\Desktop\Kundli_GPT_Clone\JyotishaSutra-Mobile"
 
 # List of all target paths and their respective square sizes (width, height)
 icons = [

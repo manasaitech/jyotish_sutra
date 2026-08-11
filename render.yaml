@@ -1,7 +1,7 @@
-# Render Blueprint specification for AstroSutra AI
+# Render Blueprint specification for JyotishaSutra AI
 services:
   - type: static
-    name: astrosutra-frontend
+    name: jyotishasutra-frontend
     env: static
     buildCommand: cd frontend && npm install && npm run build
     publishDir: frontend/dist

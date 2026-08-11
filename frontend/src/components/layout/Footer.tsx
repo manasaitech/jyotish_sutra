@@ -10,13 +10,13 @@ export default function Footer() {
         {/* Brand + ISS */}
         <div className="flex flex-col items-center md:items-start gap-2">
           <Link
-            to={user ? '/app' : '/'}
+            to={user ? '/dashboard' : '/'}
             className="font-display text-2xl sm:text-3xl text-primary font-bold italic tracking-tight cursor-pointer no-underline"
           >
-            AstroSutra AI
+            JyotishaSutra AI
           </Link>
           <p className="text-[11px] sm:text-xs tracking-[0.12em] uppercase text-on-surface-variant">
-            © 2026 AstroSutra AI. All Rights Reserved. Supported by{' '}
+            © 2026 JyotishaSutra AI. All Rights Reserved. Supported by{' '}
             <a
               href="https://manasai.tech"
               target="_blank"
@@ -50,7 +50,7 @@ export default function Footer() {
         {/* Quick links */}
         <div className="flex flex-wrap justify-center gap-5 sm:gap-8">
           <Link
-            to={user ? '/app' : '/'}
+            to={user ? '/dashboard' : '/'}
             className="text-on-surface-variant hover:text-primary transition-colors text-[11px] sm:text-xs tracking-[0.12em] uppercase no-underline font-semibold"
           >
             {user ? 'Dashboard' : 'Home'}

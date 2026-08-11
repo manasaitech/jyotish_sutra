@@ -180,7 +180,7 @@ export default function RedeemMonitorDemoPage() {
               <h3 className="text-sm font-semibold text-slate-700">
                 {autoRefresh ? `Real-Time Syncing (Refreshing in ${refreshCountdown}s)` : 'Live Monitoring Paused'}
               </h3>
-              <p className="text-xs text-slate-400">Streamed directly from AstroSutra gateway logs</p>
+              <p className="text-xs text-slate-400">Streamed directly from JyotishaSutra gateway logs</p>
             </div>
           </div>
 

@@ -99,7 +99,7 @@ export default function LoginPage({ onSuccess, onClose }: LoginPageProps) {
         <div className="text-center space-y-2">
           <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-800 text-[11px] sm:text-xs font-bold uppercase tracking-wider">
             <img src="/logo.png" alt="Logo" className="w-4 h-4 object-contain rounded-xs" />
-            AstroSutra AI Auth
+            JyotishaSutra AI Auth
           </div>
           <h2 className="text-xl sm:text-3xl font-bold text-on-surface font-serif leading-tight">
             {mode === 'login' ? 'Welcome Back' : 'Begin Your Cosmic Journey'}

@@ -33,10 +33,10 @@ export default function ChatPage() {
   const navigate = useNavigate()
   const { user } = useAuth()
   const [sessionId] = useState(() => {
-    const saved = localStorage.getItem('astrosutra_persistent_session')
+    const saved = localStorage.getItem('jyotishasutra_persistent_session')
     if (saved) return saved
     const newId = Math.random().toString(36).substring(7)
-    localStorage.setItem('astrosutra_persistent_session', newId)
+    localStorage.setItem('jyotishasutra_persistent_session', newId)
     return newId
   })
   const [step, setStep] = useState<ChatStep>('loading')
@@ -84,7 +84,7 @@ export default function ChatPage() {
         .then((data) => {
           if (data && data.exists && (data.chart_summary || data.natal_chart)) {
             if (data.retail_question_balance !== undefined) {
-              localStorage.setItem('astrosutra_retail_question_balance', String(data.retail_question_balance))
+              localStorage.setItem('jyotishasutra_retail_question_balance', String(data.retail_question_balance))
             }
             const chart = data.chart_summary || data.natal_chart
             const nameFromBackend = data.birth_details?.fullName || data.birth_details?.name || user.displayName || 'Seeker'
@@ -157,7 +157,7 @@ export default function ChatPage() {
             .then((data) => {
               if (data && data.exists && data.chart_summary) {
                 if (data.retail_question_balance !== undefined) {
-                  localStorage.setItem('astrosutra_retail_question_balance', String(data.retail_question_balance))
+                  localStorage.setItem('jyotishasutra_retail_question_balance', String(data.retail_question_balance))
                 }
                 setChartData(data.chart_summary)
                 setStep('ready')
@@ -404,7 +404,7 @@ export default function ChatPage() {
             <AssistantMessage icon="star">
               {profiles.length > 0
                 ? '🙏 Namaste! Add a new profile for a family member or friend to analyze their Vedic birth chart.'
-                : '🙏 Namaste! Welcome to AstroSutra AI. I will calculate your personalized Vedic birth chart and store up to 5 profiles for you and your loved ones.'}
+                : '🙏 Namaste! Welcome to JyotishaSutra AI. I will calculate your personalized Vedic birth chart and store up to 5 profiles for you and your loved ones.'}
             </AssistantMessage>
           )}
 

@@ -229,7 +229,7 @@ export default function LifePatternDashboard({
             </div>
           </div>
           <p className="text-sm text-on-surface-variant leading-relaxed max-w-2xl mt-3">
-            Instead of general predictions, AstroSutra AI maps your actual life milestones (promotions, marriages, relocations) to their exact dasha, transit, and yoga signatures. We then search future alignments to predict exactly when similar conditions return.
+            Instead of general predictions, JyotishaSutra AI maps your actual life milestones (promotions, marriages, relocations) to their exact dasha, transit, and yoga signatures. We then search future alignments to predict exactly when similar conditions return.
           </p>
         </div>
       </div>
@@ -244,7 +244,7 @@ export default function LifePatternDashboard({
             Tell us about important events in your life
           </h3>
           <p className="text-xs text-on-surface-variant leading-relaxed">
-            The more events you provide, the better AstroSutra can identify your recurring planetary patterns and personalize future predictions.
+            The more events you provide, the better JyotishaSutra can identify your recurring planetary patterns and personalize future predictions.
           </p>
           <button
             onClick={() => setAddingEvent(true)}

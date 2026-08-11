@@ -1,5 +1,5 @@
 /**
- * PricingPage — Beautiful 3-tier subscription pricing page for AstroSutra AI.
+ * PricingPage — Beautiful 3-tier subscription pricing page for JyotishaSutra AI.
  */
 import { useState, useEffect } from 'react'
 import { TIER_CONFIG, type SubscriptionTier } from '../config/subscriptionConfig'
@@ -122,7 +122,7 @@ export default function PricingPage({
         key: orderData.key_id,
         amount: orderData.amount,
         currency: orderData.currency,
-        name: "AstroSutra AI",
+        name: "JyotishaSutra AI",
         description: `Purchase ${questionsCount} Astro Questions`,
         image: LOGO_BASE64,
         order_id: orderData.order_id,
@@ -218,7 +218,7 @@ export default function PricingPage({
         key: orderData.key_id,
         amount: orderData.amount,
         currency: orderData.currency,
-        name: "AstroSutra AI",
+        name: "JyotishaSutra AI",
         description: `Upgrade to ${tier === 'pro' ? 'Pro' : 'Standard'} Plan`,
         image: LOGO_BASE64,
         order_id: orderData.order_id,

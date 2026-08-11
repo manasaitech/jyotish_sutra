@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom'
 import { isTabEnabled } from '../../config/featureFlags'
 import { isTabAllowedForTier, getRequiredTierForTab, TIER_CONFIG } from '../../config/subscriptionConfig'
 import { getCurrentTier } from '../../utils/subscriptionManager'
@@ -20,6 +21,55 @@ export type TabType =
   | 'wounds_trauma'
   | 'gifts_talents'
   | 'soul_growth'
+
+export const ROUTE_TO_TAB_MAP: Record<string, TabType> = {
+  '': 'overview',
+  'overview': 'overview',
+  'career': 'career',
+  'dasha': 'dasha_timeline',
+  'dasha-timeline': 'dasha_timeline',
+  'dasha_timeline': 'dasha_timeline',
+  'relationships': 'marriage',
+  'marriage': 'marriage',
+  'matching': 'matching',
+  'health': 'health',
+  'food': 'food',
+  'remedies': 'remedies',
+  'finance': 'finance',
+  'personality': 'personality',
+  'spiritual': 'spiritual',
+  'doshas': 'doshas',
+  'strategic-insights': 'strategic_insights',
+  'strategic_insights': 'strategic_insights',
+  'past-events': 'past_events',
+  'past_events': 'past_events',
+  'wounds-trauma': 'wounds_trauma',
+  'wounds_trauma': 'wounds_trauma',
+  'gifts-talents': 'gifts_talents',
+  'gifts_talents': 'gifts_talents',
+  'soul-growth': 'soul_growth',
+  'soul_growth': 'soul_growth',
+}
+
+export const TAB_TO_ROUTE_MAP: Record<TabType, string> = {
+  'overview': '',
+  'career': 'career',
+  'dasha_timeline': 'dasha',
+  'marriage': 'relationships',
+  'matching': 'matching',
+  'health': 'health',
+  'food': 'food',
+  'remedies': 'remedies',
+  'finance': 'finance',
+  'personality': 'personality',
+  'spiritual': 'spiritual',
+  'doshas': 'doshas',
+  'strategic_insights': 'strategic-insights',
+  'past_events': 'past-events',
+  'wounds_trauma': 'wounds-trauma',
+  'gifts_talents': 'gifts-talents',
+  'soul_growth': 'soul-growth',
+}
 
 export interface TabConfig {
   id: TabType
@@ -52,7 +102,7 @@ export const TABS: TabConfig[] = ALL_TABS.filter((tab) => isTabEnabled(tab.id))
 
 interface TabNavigationProps {
   activeTab: TabType
-  onTabChange: (tab: TabType) => void
+  onTabChange?: (tab: TabType) => void
 }
 
 export default function TabNavigation({ activeTab, onTabChange }: TabNavigationProps) {
@@ -62,19 +112,24 @@ export default function TabNavigation({ activeTab, onTabChange }: TabNavigationP
   return (
     <div className="bg-surface border-b border-outline-variant/60 sticky top-[64px] z-40 shadow-xs">
       <div className="max-w-[1200px] mx-auto px-2 sm:px-4">
-        <div className="flex items-center gap-0.5 sm:gap-1 overflow-x-auto custom-scrollbar py-1.5 sm:py-2 no-scrollbar">
+        <div className="flex items-center gap-0.5 sm:gap-1 overflow-x-auto custom-scrollbar py-1.5 sm:py-2 no-scrollbar" data-tour="tab-navigation">
           {visibleTabs.map((tab) => {
             const isActive = activeTab === tab.id
             const isAllowed = isTabAllowedForTier(tab.id, currentTier)
             const requiredTier = getRequiredTierForTab(tab.id)
             const tierInfo = TIER_CONFIG[requiredTier]
+            const route = TAB_TO_ROUTE_MAP[tab.id]
+            const to = route ? `/dashboard/${route}` : '/dashboard'
 
             return (
-              <button
+              <Link
                 key={tab.id}
-                onClick={() => onTabChange(tab.id)}
+                to={to}
+                onClick={() => {
+                  if (onTabChange) onTabChange(tab.id)
+                }}
                 title={!isAllowed ? `Requires ${tierInfo.label} Plan` : tab.description}
-                className={`flex items-center gap-1 sm:gap-2 px-2.5 sm:px-4 py-2 sm:py-2.5 rounded-xl sm:rounded-2xl whitespace-nowrap transition-all text-xs sm:text-sm font-medium cursor-pointer shrink-0 relative ${
+                className={`flex items-center gap-1 sm:gap-2 px-2.5 sm:px-4 py-2 sm:py-2.5 rounded-xl sm:rounded-2xl whitespace-nowrap transition-all text-xs sm:text-sm font-medium cursor-pointer shrink-0 relative no-underline ${
                   isActive
                     ? 'bg-primary text-white shadow-md shadow-primary/20 scale-[1.02]'
                     : !isAllowed
@@ -100,7 +155,7 @@ export default function TabNavigation({ activeTab, onTabChange }: TabNavigationP
                     lock
                   </span>
                 )}
-              </button>
+              </Link>
             )
           })}
         </div>

@@ -237,7 +237,7 @@ export default function AdminCampaignsPage() {
             Access Campaigns Manager
           </h1>
           <p className="text-xs sm:text-sm text-on-surface-variant mt-1 leading-relaxed">
-            Provision, monitor, and configure QR code invitations for temporary AstroSutra Pro/Standard trial access.
+            Provision, monitor, and configure QR code invitations for temporary JyotishaSutra Pro/Standard trial access.
           </p>
         </div>
 
@@ -415,7 +415,7 @@ export default function AdminCampaignsPage() {
                     {details.qr_image && (
                       <a
                         href={details.qr_image}
-                        download={`astrosutra_qr_${details.campaign_name.replace(/\s+/g, '_')}.svg`}
+                        download={`jyotishasutra_qr_${details.campaign_name.replace(/\s+/g, '_')}.svg`}
                         className="flex-1 py-2 px-3 bg-primary hover:bg-primary-container text-white text-center rounded-xl font-bold text-xs transition-all cursor-pointer whitespace-nowrap no-underline block"
                       >
                         Download QR

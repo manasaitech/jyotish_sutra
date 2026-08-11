@@ -108,7 +108,7 @@ class ProfileStore:
                 db_user_id = get_valid_uuid(user_id)
                 owner = User(
                     id=db_user_id,
-                    email=f"anonymous_{user_id}@astrosutra.ai",
+                    email=f"anonymous_{user_id}@jyotishasutra.ai",
                     display_name=birth_details.get("name", "Astro User"),
                     status="active",
                     email_verified=False

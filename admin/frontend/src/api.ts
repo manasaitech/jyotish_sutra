@@ -1,5 +1,5 @@
 /**
- * AstroSutra Admin Dashboard — API client utility.
+ * JyotishaSutra Admin Dashboard — API client utility.
  * Handles making authenticated requests with the Firebase ID token.
  */
 

@@ -104,7 +104,7 @@ export default function ExpertConsultationModal({
         key: orderData.key_id,
         amount: orderData.amount,
         currency: orderData.currency,
-        name: 'AstroSutra AI',
+        name: 'JyotishaSutra AI',
         description: `1-on-1 Expert Consultation (${selectedPlan === 'single' ? '₹251' : '₹3001'})`,
         image: LOGO_BASE64,
         order_id: orderData.order_id,

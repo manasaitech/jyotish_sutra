@@ -61,7 +61,7 @@ export default function BirthTimeRectificationWizard({
         </div>
 
         <p className="text-xs text-on-surface-variant font-medium leading-relaxed">
-          Provide your major life event years below. AstroSutra AI will analyze planetary Dasha timing and transit correlations to estimate your most probable birth time window.
+          Provide your major life event years below. JyotishaSutra AI will analyze planetary Dasha timing and transit correlations to estimate your most probable birth time window.
         </p>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">

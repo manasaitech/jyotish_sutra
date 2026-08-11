@@ -316,7 +316,7 @@ def verify_consultation_payment(req: VerifyConsultationRequest):
     # 2. Amount and Details
     amount_inr = 251.0 if req.plan == 'single' else 3001.0
     booking_id = "ASTRO-" + str(uuid.uuid4().hex[:8]).upper()
-    customer_email = req.email.strip() if (req.email and "@" in req.email) else f"{req.phone.strip()}@consultation.astrosutra.ai"
+    customer_email = req.email.strip() if (req.email and "@" in req.email) else f"{req.phone.strip()}@consultation.jyotishasutra.ai"
 
     # 3. Dispatch Emails to Customer and Guruji (anmoldixit091@gmail.com)
     try:

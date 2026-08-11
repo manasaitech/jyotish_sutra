@@ -4,8 +4,8 @@
 import type { SubscriptionTier } from '../config/subscriptionConfig'
 import { getChatLimitForTier } from '../config/subscriptionConfig'
 
-const TIER_KEY = 'astrosutra_subscription_tier'
-const CHAT_COUNT_PREFIX = 'astrosutra_chat_count_'
+const TIER_KEY = 'jyotishasutra_subscription_tier'
+const CHAT_COUNT_PREFIX = 'jyotishasutra_chat_count_'
 
 function getTodayKey(): string {
   const d = new Date()
@@ -52,7 +52,7 @@ export function getRemainingChats(tier: SubscriptionTier): number {
   return Math.max(0, limit - getDailyChatCount())
 }
 
-const RETAIL_BALANCE_KEY = 'astrosutra_retail_question_balance'
+const RETAIL_BALANCE_KEY = 'jyotishasutra_retail_question_balance'
 
 export function getRetailQuestionBalance(): number {
   const stored = localStorage.getItem(RETAIL_BALANCE_KEY)

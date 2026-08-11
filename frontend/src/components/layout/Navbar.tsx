@@ -32,10 +32,10 @@ export default function Navbar({
         {/* Clickable Logo Link */}
         <div className="flex items-center gap-2 sm:gap-3 min-w-0">
           <Link to="/" className="flex items-center gap-2 min-w-0 hover:opacity-90 transition-opacity no-underline cursor-pointer">
-            <img src="/logo.png" alt="AstroSutra AI Logo" className="w-8 h-8 sm:w-10 sm:h-10 object-contain rounded-xl shrink-0" />
+            <img src="/logo.png" alt="JyotishaSutra AI Logo" className="w-8 h-8 sm:w-10 sm:h-10 object-contain rounded-xl shrink-0" />
             <div className="min-w-0 text-left">
               <h1 className="font-display text-[16px] sm:text-[22px] md:text-[26px] leading-tight font-bold text-primary truncate">
-                AstroSutra AI
+                JyotishaSutra AI
               </h1>
               <p className="text-[10px] sm:text-[12px] leading-none font-semibold text-on-surface-variant hidden sm:block">
                 Modular AI Astrology Platform
@@ -97,6 +97,7 @@ export default function Navbar({
           {activeProfile ? (
             <button
               onClick={onOpenProfile}
+              data-tour="profile-trigger"
               className="flex items-center gap-1.5 bg-surface border border-outline-variant hover:border-primary/50 px-2 py-1 sm:px-3 sm:py-1.5 rounded-xl sm:rounded-2xl shadow-xs transition-all cursor-pointer hover:bg-surface-variant/30 shrink-0"
             >
               <div className="w-6 h-6 sm:w-7 sm:h-7 bg-primary-fixed rounded-full flex items-center justify-center text-primary text-xs font-bold shrink-0">

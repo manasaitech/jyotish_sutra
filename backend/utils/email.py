@@ -14,9 +14,9 @@ def send_subscription_email(user_email: str, user_name: str, tier: str, amount: 
     smtp_pass = os.environ.get("SMTP_PASSWORD")
     if smtp_pass:
         smtp_pass = smtp_pass.replace(" ", "")
-    smtp_from = os.environ.get("SMTP_FROM", "billing@astrosutra.ai")
+    smtp_from = os.environ.get("SMTP_FROM", "billing@jyotishasutra.ai")
 
-    subject = f"🌌 AstroSutra AI — Welcome to the {tier.upper()} Tier!"
+    subject = f"🌌 JyotishaSutra AI — Welcome to the {tier.upper()} Tier!"
     
     html_content = f"""
     <!DOCTYPE html>
@@ -110,13 +110,13 @@ def send_subscription_email(user_email: str, user_name: str, tier: str, amount: 
     <body>
         <div class="container">
             <div class="header">
-                <img src="https://astrosutraai.onrender.com/logo.png" alt="AstroSutra AI Logo" style="width: 60px; height: 60px; border-radius: 12px; margin-bottom: 12px; object-fit: contain;">
-                <h1>ASTROSUTRA AI</h1>
+                <img src="https://jyotishasutraai.onrender.com/logo.png" alt="JyotishaSutra AI Logo" style="width: 60px; height: 60px; border-radius: 12px; margin-bottom: 12px; object-fit: contain;">
+                <h1>JYOTISHASUTRA AI</h1>
                 <p style="margin: 8px 0 0 0; color: #6E6558; font-weight: 500;"> Cosmic Upgrade Successful</p>
             </div>
             <div class="content">
                 <h2>Namaste {user_name},</h2>
-                <p>Your spiritual journey has ascended. Your subscription to the <strong>AstroSutra AI {tier.capitalize()} Plan</strong> is now active, unlocking premium Vedic chart features, Vimshottari timelines, and RAG-Gita guided AI chats.</p>
+                <p>Your spiritual journey has ascended. Your subscription to the <strong>JyotishaSutra AI {tier.capitalize()} Plan</strong> is now active, unlocking premium Vedic chart features, Vimshottari timelines, and RAG-Gita guided AI chats.</p>
                 
                 <table class="invoice-table">
                     <tr>
@@ -140,11 +140,11 @@ def send_subscription_email(user_email: str, user_name: str, tier: str, amount: 
                 <p>Please refresh your dashboard to access standard/pro features instantly. If you have any questions or require custom rectifications, do not hesitate to contact our team.</p>
                 
                 <div style="text-align: center;">
-                    <a href="https://astrosutraai.onrender.com" class="btn">Go to Dashboard</a>
+                    <a href="https://jyotishasutraai.onrender.com" class="btn">Go to Dashboard</a>
                 </div>
             </div>
             <div class="footer">
-                🔒 Secured transaction · Powered by Razorpay · Thank you for trusting AstroSutra AI
+                🔒 Secured transaction · Powered by Razorpay · Thank you for trusting JyotishaSutra AI
             </div>
         </div>
     </body>
@@ -192,7 +192,7 @@ def _send_single_email(to_email: str, subject: str, html_content: str):
     smtp_pass = os.environ.get("SMTP_PASSWORD")
     if smtp_pass:
         smtp_pass = smtp_pass.replace(" ", "")
-    smtp_from = os.environ.get("SMTP_FROM", "appointments@astrosutra.ai")
+    smtp_from = os.environ.get("SMTP_FROM", "appointments@jyotishasutra.ai")
 
     if smtp_host and smtp_port and smtp_user and smtp_pass:
         try:
@@ -251,8 +251,8 @@ def send_consultation_emails(
     <body style="font-family: Arial, sans-serif; background-color: #FAF8F3; padding: 20px; color: #2D2721;">
         <div style="max-width: 600px; margin: 0 auto; background: #FFFDF9; border: 2px solid #E9DFC8; border-radius: 20px; overflow: hidden;">
             <div style="background: linear-gradient(135deg, #7C4D32, #897365); color: #FFF; padding: 25px; text-align: center;">
-                <img src="https://astrosutraai.onrender.com/logo.png" alt="AstroSutra AI Logo" style="width: 48px; height: 48px; border-radius: 10px; margin-bottom: 10px; object-fit: contain;">
-                <h1 style="margin: 0; font-size: 24px;">AstroSutra AI</h1>
+                <img src="https://jyotishasutraai.onrender.com/logo.png" alt="JyotishaSutra AI Logo" style="width: 48px; height: 48px; border-radius: 10px; margin-bottom: 10px; object-fit: contain;">
+                <h1 style="margin: 0; font-size: 24px;">JyotishaSutra AI</h1>
                 <p style="margin: 5px 0 0 0; color: #F5E6C8; font-weight: bold;">Appointment Request Confirmed</p>
             </div>
             <div style="padding: 25px; line-height: 1.6;">
@@ -302,8 +302,8 @@ def send_consultation_emails(
     """
 
     # Send email to Customer if valid email provided
-    if customer_email and "@" in customer_email and not customer_email.endswith("@consultation.astrosutra.ai"):
-        _send_single_email(customer_email, f"🌌 AstroSutra AI — Consultation Confirmed ({booking_id})", customer_html)
+    if customer_email and "@" in customer_email and not customer_email.endswith("@consultation.jyotishasutra.ai"):
+        _send_single_email(customer_email, f"🌌 JyotishaSutra AI — Consultation Confirmed ({booking_id})", customer_html)
 
     # Send alert email to Guruji & Support (anmoldixit091@gmail.com)
     _send_single_email(admin_email, f"🙏 New Consultation Paid (₹{amount}) — {customer_name} ({booking_id})", admin_html)

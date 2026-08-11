@@ -248,7 +248,7 @@ export default function TabChat({
   const suggestions = getSuggestions()
 
   return (
-    <div className="mt-5 sm:mt-8 border-t border-outline-variant/40 pt-4 sm:pt-6">
+    <div className="mt-5 sm:mt-8 border-t border-outline-variant/40 pt-4 sm:pt-6" data-tour="ask-astrosutra">
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-3 sm:mb-4 gap-2">
         <h3 className="font-display text-lg sm:text-2xl font-bold text-primary flex items-center gap-1.5 sm:gap-2">
           <span className="material-symbols-outlined text-primary text-base sm:text-xl">forum</span>

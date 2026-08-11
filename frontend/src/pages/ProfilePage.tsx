@@ -1,5 +1,5 @@
 /**
- * ProfilePage — Full-page settings & profile management view for AstroSutra AI.
+ * ProfilePage — Full-page settings & profile management view for JyotishaSutra AI.
  * Replaces the old Navbar dropdown with a premium, feature-rich profile section.
  */
 import { useState } from 'react'
@@ -79,7 +79,7 @@ export default function ProfilePage({
           <span className="text-sm font-medium">Back</span>
         </button>
         <div className="flex items-center gap-3">
-          <img src="/logo.png" alt="AstroSutra AI Logo" className="w-8 h-8 object-contain rounded-xl" />
+          <img src="/logo.png" alt="JyotishaSutra AI Logo" className="w-8 h-8 object-contain rounded-xl" />
           <h1 className="font-display text-xl sm:text-2xl font-semibold text-primary">
             Profile & Settings
           </h1>
@@ -194,8 +194,8 @@ export default function ProfilePage({
         </section>
 
         {/* ─── Appearance / Theme Toggle ─── */}
-        <section className="bg-surface border border-outline-variant/60 rounded-3xl p-6 shadow-xs animate-fade-in-up delay-100">
-          <h3 className="font-display text-lg font-semibold text-on-surface mb-4 flex items-center gap-2">
+        <section className="bg-surface border border-outline-variant/60 rounded-3xl p-6 shadow-xs animate-fade-in-up delay-100 space-y-4">
+          <h3 className="font-display text-lg font-semibold text-on-surface flex items-center gap-2">
             <span className="material-symbols-outlined text-primary text-xl" style={{ fontVariationSettings: "'FILL' 1" }}>palette</span>
             Appearance
           </h3>
@@ -237,6 +237,32 @@ export default function ProfilePage({
                 <span className="material-symbols-outlined text-sm" style={{ fontVariationSettings: "'FILL' 1" }}>dark_mode</span>
                 Dark
               </span>
+            </button>
+          </div>
+
+          <hr className="border-outline-variant/40" />
+
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm font-semibold text-on-surface">Guided Tour</p>
+              <p className="text-xs text-on-surface-variant mt-0.5">
+                Learn how to navigate your Vedic astrology space
+              </p>
+            </div>
+            <button
+              onClick={() => {
+                if (user?.uid) {
+                  localStorage.removeItem(`jyotishasutra_onboarding_completed_${user.uid}`)
+                }
+                onNavigateBack()
+                setTimeout(() => {
+                  window.dispatchEvent(new Event('jyotishasutra_restart_tour'))
+                }, 300)
+              }}
+              className="px-4 py-2 bg-primary/10 hover:bg-primary/20 text-primary border border-primary/20 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 whitespace-nowrap"
+            >
+              <span className="material-symbols-outlined text-sm">explore</span>
+              Restart Tour
             </button>
           </div>
         </section>

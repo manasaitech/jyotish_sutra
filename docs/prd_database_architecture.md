@@ -1,4 +1,4 @@
-# AstroSutra AI — Enterprise PostgreSQL Database Architecture & Schema Blueprint
+# JyotishaSutra AI — Enterprise PostgreSQL Database Architecture & Schema Blueprint
 
 > **System Blueprint**: Production-ready, 3NF-normalized, scalable, secure, and extensible relational database design optimized for millions of users on **Supabase (PostgreSQL)**, **FastAPI**, **SQLAlchemy 2.0**, **Alembic**, and **Firebase Authentication**.
 
