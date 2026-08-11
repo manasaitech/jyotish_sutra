@@ -21,6 +21,7 @@ export interface FeatureFlags {
   enableWoundsTraumaTab: boolean
   enableGiftsTalentsTab: boolean
   enableSoulGrowthTab: boolean
+  enableDownloadPdf: boolean
 }
 
 export const FEATURE_FLAGS: FeatureFlags = {
@@ -41,6 +42,7 @@ export const FEATURE_FLAGS: FeatureFlags = {
   enableWoundsTraumaTab: true,      // ✅ Enabled Wounds & Trauma tab
   enableGiftsTalentsTab: true,      // ✅ Enabled Gifts & Talents tab
   enableSoulGrowthTab: true,        // ✅ Enabled Soul Growth tab
+  enableDownloadPdf: false,         // ❌ Flagged off for now per user request
 }
 
 

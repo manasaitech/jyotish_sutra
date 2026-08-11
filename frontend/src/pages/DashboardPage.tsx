@@ -9,6 +9,7 @@ import type { UserProfile } from '../types/profile'
 import { formatSignWithHindi } from '../utils/hindiMapping'
 import { authenticatedFetch } from '../utils/apiClient'
 import { getCurrentTier } from '../utils/subscriptionManager'
+import { FEATURE_FLAGS } from '../config/featureFlags'
 
 interface DashboardPageProps {
   chartData: any
@@ -113,6 +114,8 @@ export default function DashboardPage({
             </p>
           </div>
           {(() => {
+            if (!FEATURE_FLAGS.enableDownloadPdf) return null
+
             const currentTier = getCurrentTier()
             const isPremium = currentTier === 'standard' || currentTier === 'pro'
 

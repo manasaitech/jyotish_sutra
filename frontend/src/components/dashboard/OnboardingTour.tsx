@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { useAuth } from '../../context/AuthContext'
+import { FEATURE_FLAGS } from '../../config/featureFlags'
 
 interface OnboardingStep {
   title: string
@@ -36,7 +37,9 @@ const TOUR_STEPS: OnboardingStep[] = [
   },
   {
     title: 'Your Profile & Astrology Data',
-    description: 'Manage your birth details, view your saved charts, and export your calculated astrology data PDF whenever you need it.',
+    description: FEATURE_FLAGS.enableDownloadPdf
+      ? 'Manage your birth details, view your saved charts, and export your calculated astrology data PDF whenever you need it.'
+      : 'Manage your birth details and view your saved charts whenever you need it.',
     selector: '[data-tour="profile-trigger"]',
     route: '/dashboard',
   },
